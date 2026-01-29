@@ -133,6 +133,83 @@ const PricingPage = () => {
     });
   };
 
+  // Handle Stripe payment (for international users)
+  const handleStripePayment = async (plan, packageId) => {
+    try {
+      const originUrl = window.location.origin;
+      const response = await paymentAPI.createCheckoutSession(packageId, originUrl);
+      
+      // Redirect to Stripe Checkout
+      if (response.data.url) {
+        window.location.href = response.data.url;
+      }
+    } catch (error) {
+      console.error('Stripe checkout error:', error);
+      throw error;
+    }
+  };
+
+  // Handle Razorpay payment (for Indian users)
+  const handleRazorpayPayment = async (plan, packageId) => {
+    // Load Razorpay script
+    const scriptLoaded = await loadRazorpayScript();
+    if (!scriptLoaded) {
+      throw new Error('Failed to load payment gateway');
+    }
+
+    // Create Razorpay order
+    const response = await paymentAPI.createRazorpayOrder(packageId);
+    const orderData = response.data;
+
+    // Open Razorpay checkout
+    const options = {
+      key: orderData.key_id,
+      amount: orderData.amount,
+      currency: orderData.currency,
+      order_id: orderData.order_id,
+      name: 'Adverlyx Digital',
+      description: `${plan.name} Plan - ${isYearly ? 'Yearly' : 'Monthly'}`,
+      prefill: {
+        name: orderData.user_name,
+        email: orderData.user_email,
+      },
+      theme: {
+        color: '#ec4899',
+      },
+      handler: async (razorpayResponse) => {
+        try {
+          // Verify payment
+          const verifyResponse = await paymentAPI.verifyRazorpayPayment({
+            razorpay_order_id: razorpayResponse.razorpay_order_id,
+            razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+            razorpay_signature: razorpayResponse.razorpay_signature,
+          });
+          
+          if (verifyResponse.data.success) {
+            // Redirect to success page
+            navigate('/payment/success', { 
+              state: { 
+                plan: plan.name,
+                transactionId: razorpayResponse.razorpay_payment_id 
+              }
+            });
+          }
+        } catch (error) {
+          console.error('Payment verification error:', error);
+          alert('Payment verification failed. Please contact support.');
+        }
+      },
+      modal: {
+        ondismiss: () => {
+          setProcessingPlan(null);
+        },
+      },
+    };
+
+    const razorpay = new window.Razorpay(options);
+    razorpay.open();
+  };
+
   const handleSelectPlan = async (plan) => {
     // If not authenticated, redirect to signup
     if (!isAuthenticated) {
@@ -145,63 +222,12 @@ const PricingPage = () => {
     try {
       const packageId = `${plan.slug}_${isYearly ? 'yearly' : 'monthly'}`;
       
-      // Load Razorpay script
-      const scriptLoaded = await loadRazorpayScript();
-      if (!scriptLoaded) {
-        throw new Error('Failed to load payment gateway');
+      // Choose payment provider based on user's country
+      if (paymentProvider === 'razorpay') {
+        await handleRazorpayPayment(plan, packageId);
+      } else {
+        await handleStripePayment(plan, packageId);
       }
-
-      // Create Razorpay order
-      const response = await paymentAPI.createRazorpayOrder(packageId);
-      const orderData = response.data;
-
-      // Open Razorpay checkout
-      const options = {
-        key: orderData.key_id,
-        amount: orderData.amount,
-        currency: orderData.currency,
-        order_id: orderData.order_id,
-        name: 'Adverlyx Digital',
-        description: `${plan.name} Plan - ${isYearly ? 'Yearly' : 'Monthly'}`,
-        prefill: {
-          name: orderData.user_name,
-          email: orderData.user_email,
-        },
-        theme: {
-          color: '#ec4899',
-        },
-        handler: async (razorpayResponse) => {
-          try {
-            // Verify payment
-            const verifyResponse = await paymentAPI.verifyRazorpayPayment({
-              razorpay_order_id: razorpayResponse.razorpay_order_id,
-              razorpay_payment_id: razorpayResponse.razorpay_payment_id,
-              razorpay_signature: razorpayResponse.razorpay_signature,
-            });
-            
-            if (verifyResponse.data.success) {
-              // Redirect to success page
-              navigate('/payment/success', { 
-                state: { 
-                  plan: plan.name,
-                  transactionId: razorpayResponse.razorpay_payment_id 
-                }
-              });
-            }
-          } catch (error) {
-            console.error('Payment verification error:', error);
-            alert('Payment verification failed. Please contact support.');
-          }
-        },
-        modal: {
-          ondismiss: () => {
-            setProcessingPlan(null);
-          },
-        },
-      };
-
-      const razorpay = new window.Razorpay(options);
-      razorpay.open();
     } catch (error) {
       console.error('Error creating checkout:', error);
       alert('Failed to start checkout. Please try again.');
