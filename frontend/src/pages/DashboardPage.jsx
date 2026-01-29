@@ -122,6 +122,26 @@ const DashboardPage = () => {
       } catch (e) {
         // Ignore
       }
+      
+      // Load targeting settings
+      try {
+        const targetingResponse = await instagramAPI.getTargeting();
+        if (targetingResponse.data) {
+          setTargeting({
+            niche: targetingResponse.data.niche || '',
+            locations: Array.isArray(targetingResponse.data.locations) ? targetingResponse.data.locations.join(', ') : '',
+            competitors: Array.isArray(targetingResponse.data.competitor_accounts) ? targetingResponse.data.competitor_accounts.join(', ') : '',
+            hashtags: Array.isArray(targetingResponse.data.hashtags) ? targetingResponse.data.hashtags.join(', ') : ''
+          });
+        }
+      } catch (e) {
+        // No targeting
+      }
+      
+      // Set user settings
+      if (user) {
+        setUserSettings({ name: user.name || '' });
+      }
     } catch (error) {
       console.error('Error loading dashboard:', error);
     } finally {
@@ -132,6 +152,57 @@ const DashboardPage = () => {
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+  
+  const handleSaveTargeting = async () => {
+    setSavingTargeting(true);
+    setTargetingMessage('');
+    try {
+      await instagramAPI.updateTargeting({
+        niche: targeting.niche,
+        locations: targeting.locations.split(',').map(s => s.trim()).filter(Boolean),
+        competitor_accounts: targeting.competitors.split(',').map(s => s.trim()).filter(Boolean),
+        hashtags: targeting.hashtags.split(',').map(s => s.trim().replace('#', '')).filter(Boolean)
+      });
+      setTargetingMessage('Targeting saved successfully!');
+      setTimeout(() => setTargetingMessage(''), 3000);
+    } catch (error) {
+      setTargetingMessage('Failed to save targeting. Connect Instagram first.');
+    } finally {
+      setSavingTargeting(false);
+    }
+  };
+  
+  const handleSubmitTicket = async () => {
+    if (!ticketSubject || !ticketMessage) return;
+    
+    setSubmittingTicket(true);
+    try {
+      await ticketsAPI.create({
+        subject: ticketSubject,
+        message: ticketMessage,
+        priority: 'medium'
+      });
+      setTicketSubject('');
+      setTicketMessage('');
+      setTicketSuccess(true);
+      setTimeout(() => setTicketSuccess(false), 3000);
+    } catch (error) {
+      console.error('Error creating ticket:', error);
+    } finally {
+      setSubmittingTicket(false);
+    }
+  };
+  
+  const handleSaveSettings = async () => {
+    setSavingSettings(true);
+    try {
+      await authAPI.updateMe({ name: userSettings.name });
+    } catch (error) {
+      console.error('Error saving settings:', error);
+    } finally {
+      setSavingSettings(false);
+    }
   };
 
   const toggleGrowth = async () => {
