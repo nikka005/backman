@@ -164,7 +164,7 @@ async def create_razorpay_order(
             order_id=order["id"],
             amount=amount_paise,
             currency="INR",
-            key_id=os.environ.get("RAZORPAY_KEY_ID", ""),
+            key_id=key_id or "",
             user_email=user.get("email", "") if user else "",
             user_name=user.get("name", "") if user else ""
         )
@@ -181,12 +181,23 @@ async def verify_razorpay_payment(
     current_user: dict = Depends(get_current_user)
 ):
     """Verify Razorpay payment signature and activate subscription."""
-    if not razorpay_client:
+    # Get client to ensure keys are available
+    client = await get_razorpay_client()
+    if not client:
         raise HTTPException(status_code=500, detail="Razorpay not configured")
     
     try:
-        # Verify signature
-        key_secret = os.environ.get("RAZORPAY_KEY_SECRET", "")
+        # Get key_secret from database or env
+        key_secret = None
+        if db is not None:
+            try:
+                payment_config = await db.payment_options.find_one({"provider": "razorpay"})
+                if payment_config:
+                    key_secret = payment_config.get("api_secret")
+            except:
+                pass
+        if not key_secret:
+            key_secret = os.environ.get("RAZORPAY_KEY_SECRET", "")
         
         # Create signature verification string
         message = f"{verify_data.razorpay_order_id}|{verify_data.razorpay_payment_id}"
