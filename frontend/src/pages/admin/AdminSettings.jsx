@@ -524,71 +524,243 @@ const ToggleRow = ({ label, description, checked, onChange, testId }) => (
   </div>
 );
 
-// Feature Toggles Component
+// Feature Toggles Component - Enhanced with full management
 const FeatureToggles = ({ features, onUpdate, onSave, saving }) => {
+  const [expandedFeature, setExpandedFeature] = useState(null);
+  
   if (!features) return null;
 
   const pageFeatures = [
-    { key: 'page_home', label: 'Home Page' },
-    { key: 'page_pricing', label: 'Pricing Page' },
-    { key: 'page_how_it_works', label: 'How It Works Page' },
-    { key: 'page_case_studies', label: 'Case Studies Page' },
-    { key: 'page_faq', label: 'FAQ Page' },
-    { key: 'page_contact', label: 'Contact Page' },
-    { key: 'page_blog', label: 'Blog Page' },
+    { key: 'page_home', label: 'Home Page', description: 'Main landing page of the website', icon: '🏠' },
+    { key: 'page_pricing', label: 'Pricing Page', description: 'Display subscription plans and pricing', icon: '💰' },
+    { key: 'page_how_it_works', label: 'How It Works Page', description: 'Explain the growth process', icon: '📖' },
+    { key: 'page_case_studies', label: 'Case Studies Page', description: 'Show success stories', icon: '📊' },
+    { key: 'page_faq', label: 'FAQ Page', description: 'Frequently asked questions', icon: '❓' },
+    { key: 'page_contact', label: 'Contact Page', description: 'Contact form and info', icon: '📞' },
+    { key: 'page_blog', label: 'Blog Page', description: 'Blog articles and news', icon: '📝' },
   ];
 
   const sectionFeatures = [
-    { key: 'section_hero', label: 'Hero Section' },
-    { key: 'section_trusted_brands', label: 'Trusted Brands' },
-    { key: 'section_testimonials', label: 'Testimonials' },
-    { key: 'section_stats', label: 'Statistics' },
-    { key: 'section_benefits', label: 'Benefits' },
-    { key: 'section_how_it_works', label: 'How It Works' },
-    { key: 'section_pricing', label: 'Pricing Section' },
-    { key: 'section_faq', label: 'FAQ Section' },
-    { key: 'section_reviews', label: 'Reviews' },
+    { key: 'section_hero', label: 'Hero Section', description: 'Main banner with CTA', icon: '🎯' },
+    { key: 'section_trusted_brands', label: 'Trusted Brands', description: 'Show brand logos', icon: '🏢' },
+    { key: 'section_testimonials', label: 'Testimonials', description: 'Customer reviews', icon: '⭐' },
+    { key: 'section_stats', label: 'Statistics', description: 'Platform stats counter', icon: '📈' },
+    { key: 'section_benefits', label: 'Benefits', description: 'Feature benefits list', icon: '✅' },
+    { key: 'section_how_it_works', label: 'How It Works', description: 'Step by step guide', icon: '🔄' },
+    { key: 'section_pricing', label: 'Pricing Section', description: 'Pricing on homepage', icon: '💳' },
+    { key: 'section_faq', label: 'FAQ Section', description: 'FAQ on homepage', icon: '💬' },
+    { key: 'section_reviews', label: 'Reviews', description: 'User reviews section', icon: '👍' },
   ];
 
   const platformFeatures = [
-    { key: 'feature_instagram_connect', label: 'Instagram Connect' },
-    { key: 'feature_pause_resume', label: 'Pause/Resume Growth' },
-    { key: 'feature_targeting', label: 'Advanced Targeting' },
-    { key: 'feature_analytics', label: 'Analytics Dashboard' },
-    { key: 'feature_support_tickets', label: 'Support Tickets' },
-    { key: 'feature_live_chat', label: 'Live Chat' },
+    { key: 'feature_instagram_connect', label: 'Instagram Connect', description: 'Allow users to connect IG accounts', icon: '📸', critical: true },
+    { key: 'feature_pause_resume', label: 'Pause/Resume Growth', description: 'Let users pause their growth', icon: '⏸️' },
+    { key: 'feature_targeting', label: 'Advanced Targeting', description: 'Custom targeting options', icon: '🎯' },
+    { key: 'feature_analytics', label: 'Analytics Dashboard', description: 'User analytics and stats', icon: '📊' },
+    { key: 'feature_support_tickets', label: 'Support Tickets', description: 'In-app support system', icon: '🎫' },
+    { key: 'feature_live_chat', label: 'Live Chat', description: 'Real-time chat support', icon: '💬' },
   ];
 
   const paymentFeatures = [
-    { key: 'feature_stripe', label: 'Stripe Payments' },
-    { key: 'feature_razorpay', label: 'Razorpay' },
-    { key: 'feature_paypal', label: 'PayPal' },
-    { key: 'feature_coupons', label: 'Discount Coupons' },
+    { key: 'feature_stripe', label: 'Stripe Payments', description: 'Accept card payments via Stripe', icon: '💳', critical: true },
+    { key: 'feature_razorpay', label: 'Razorpay', description: 'Indian payment gateway', icon: '🇮🇳' },
+    { key: 'feature_paypal', label: 'PayPal', description: 'PayPal checkout option', icon: '🅿️' },
+    { key: 'feature_coupons', label: 'Discount Coupons', description: 'Promo code system', icon: '🏷️' },
   ];
 
   const authFeatures = [
-    { key: 'feature_google_login', label: 'Google Login' },
-    { key: 'feature_email_verification', label: 'Email Verification' },
-    { key: 'feature_two_factor', label: 'Two-Factor Auth' },
+    { key: 'feature_google_login', label: 'Google Login', description: 'Social login with Google', icon: '🔑' },
+    { key: 'feature_email_verification', label: 'Email Verification', description: 'Verify user emails', icon: '✉️' },
+    { key: 'feature_two_factor', label: 'Two-Factor Auth', description: '2FA for extra security', icon: '🔐' },
   ];
+
+  const enableAll = (featureGroup) => {
+    featureGroup.forEach(f => onUpdate(f.key, true));
+  };
+
+  const disableAll = (featureGroup) => {
+    featureGroup.forEach(f => onUpdate(f.key, false));
+  };
+
+  const getEnabledCount = (featureGroup) => {
+    return featureGroup.filter(f => features[f.key]).length;
+  };
 
   return (
     <div className="space-y-6">
-      <FeatureSection title="Pages" features={pageFeatures} values={features} onUpdate={onUpdate} />
-      <FeatureSection title="Homepage Sections" features={sectionFeatures} values={features} onUpdate={onUpdate} />
-      <FeatureSection title="Platform Features" features={platformFeatures} values={features} onUpdate={onUpdate} />
-      <FeatureSection title="Payment Options" features={paymentFeatures} values={features} onUpdate={onUpdate} />
-      <FeatureSection title="Authentication" features={authFeatures} values={features} onUpdate={onUpdate} />
+      <div className="bg-gradient-to-r from-pink-50 to-purple-50 rounded-xl p-4 flex items-center justify-between">
+        <div>
+          <h3 className="font-semibold text-gray-900">Feature Management</h3>
+          <p className="text-sm text-gray-600">Enable or disable platform features. Changes take effect immediately after saving.</p>
+        </div>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => {
+              enableAll([...pageFeatures, ...sectionFeatures, ...platformFeatures, ...paymentFeatures, ...authFeatures]);
+            }}
+          >
+            Enable All
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="text-red-600 border-red-200"
+            onClick={() => {
+              if (window.confirm('Are you sure you want to disable all features?')) {
+                disableAll([...pageFeatures, ...sectionFeatures, ...platformFeatures, ...paymentFeatures, ...authFeatures]);
+              }
+            }}
+          >
+            Disable All
+          </Button>
+        </div>
+      </div>
+
+      <EnhancedFeatureSection 
+        title="Pages" 
+        description="Control which pages are accessible"
+        features={pageFeatures} 
+        values={features} 
+        onUpdate={onUpdate}
+        enableAll={() => enableAll(pageFeatures)}
+        disableAll={() => disableAll(pageFeatures)}
+        enabledCount={getEnabledCount(pageFeatures)}
+        expandedFeature={expandedFeature}
+        setExpandedFeature={setExpandedFeature}
+      />
+      
+      <EnhancedFeatureSection 
+        title="Homepage Sections" 
+        description="Show or hide sections on the homepage"
+        features={sectionFeatures} 
+        values={features} 
+        onUpdate={onUpdate}
+        enableAll={() => enableAll(sectionFeatures)}
+        disableAll={() => disableAll(sectionFeatures)}
+        enabledCount={getEnabledCount(sectionFeatures)}
+        expandedFeature={expandedFeature}
+        setExpandedFeature={setExpandedFeature}
+      />
+      
+      <EnhancedFeatureSection 
+        title="Platform Features" 
+        description="Core platform functionality"
+        features={platformFeatures} 
+        values={features} 
+        onUpdate={onUpdate}
+        enableAll={() => enableAll(platformFeatures)}
+        disableAll={() => disableAll(platformFeatures)}
+        enabledCount={getEnabledCount(platformFeatures)}
+        expandedFeature={expandedFeature}
+        setExpandedFeature={setExpandedFeature}
+      />
+      
+      <EnhancedFeatureSection 
+        title="Payment Options" 
+        description="Configure payment gateways"
+        features={paymentFeatures} 
+        values={features} 
+        onUpdate={onUpdate}
+        enableAll={() => enableAll(paymentFeatures)}
+        disableAll={() => disableAll(paymentFeatures)}
+        enabledCount={getEnabledCount(paymentFeatures)}
+        expandedFeature={expandedFeature}
+        setExpandedFeature={setExpandedFeature}
+      />
+      
+      <EnhancedFeatureSection 
+        title="Authentication" 
+        description="Login and security options"
+        features={authFeatures} 
+        values={features} 
+        onUpdate={onUpdate}
+        enableAll={() => enableAll(authFeatures)}
+        disableAll={() => disableAll(authFeatures)}
+        enabledCount={getEnabledCount(authFeatures)}
+        expandedFeature={expandedFeature}
+        setExpandedFeature={setExpandedFeature}
+      />
 
       <div className="flex justify-end">
         <Button onClick={onSave} disabled={saving} data-testid="save-features-btn" className="bg-gradient-to-r from-pink-500 to-purple-500 text-white">
           {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
-          Save Features
+          Save All Features
         </Button>
       </div>
     </div>
   );
 };
+
+const EnhancedFeatureSection = ({ 
+  title, 
+  description, 
+  features, 
+  values, 
+  onUpdate, 
+  enableAll, 
+  disableAll, 
+  enabledCount,
+  expandedFeature,
+  setExpandedFeature
+}) => (
+  <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+    <div className="p-4 border-b bg-gray-50 flex items-center justify-between">
+      <div>
+        <h3 className="text-lg font-semibold">{title}</h3>
+        <p className="text-sm text-gray-500">{description}</p>
+      </div>
+      <div className="flex items-center gap-3">
+        <Badge className={enabledCount === features.length ? 'bg-green-100 text-green-700' : enabledCount > 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-600'}>
+          {enabledCount}/{features.length} enabled
+        </Badge>
+        <div className="flex gap-1">
+          <Button variant="ghost" size="sm" onClick={enableAll} className="text-green-600 hover:bg-green-50">
+            <Check className="w-4 h-4" />
+          </Button>
+          <Button variant="ghost" size="sm" onClick={disableAll} className="text-red-600 hover:bg-red-50">
+            <X className="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
+    </div>
+    <div className="divide-y">
+      {features.map((feature) => (
+        <div 
+          key={feature.key} 
+          className={`p-4 transition-colors ${values[feature.key] ? 'bg-white' : 'bg-gray-50'}`}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3 flex-1">
+              <span className="text-xl">{feature.icon}</span>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-gray-900">{feature.label}</span>
+                  {feature.critical && (
+                    <Badge className="bg-red-100 text-red-700 text-xs">Critical</Badge>
+                  )}
+                  {!values[feature.key] && (
+                    <Badge className="bg-gray-200 text-gray-600 text-xs">Disabled</Badge>
+                  )}
+                </div>
+                <p className="text-sm text-gray-500">{feature.description}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className={`w-2 h-2 rounded-full ${values[feature.key] ? 'bg-green-500' : 'bg-gray-300'}`} />
+              <Switch 
+                checked={values[feature.key] || false} 
+                onCheckedChange={(v) => onUpdate(feature.key, v)}
+                data-testid={`feature-${feature.key}`}
+              />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
 
 const FeatureSection = ({ title, features, values, onUpdate }) => (
   <div className="bg-white rounded-xl p-6 shadow-sm">
