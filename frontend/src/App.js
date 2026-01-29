@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './App.css';
 import { AuthProvider } from './context/AuthContext';
+import { SiteSettingsProvider } from './context/SiteSettingsContext';
 
 // Pages
 import HomePage from './pages/HomePage';
@@ -18,24 +19,26 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 function App() {
   return (
     <div className="App">
-      <AuthProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignupPage />} />
-            <Route path="/how-it-works" element={<HowItWorksPage />} />
-            <Route path="/pricing" element={<PricingPage />} />
-            <Route path="/case-studies" element={<CaseStudiesPage />} />
-            <Route path="/faq" element={<FAQPage />} />
-            <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/admin/*" element={<AdminDashboard />} />
-            {/* Catch-all route */}
-            <Route path="*" element={<HomePage />} />
-          </Routes>
-        </BrowserRouter>
-      </AuthProvider>
+      <SiteSettingsProvider>
+        <AuthProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignupPage />} />
+              <Route path="/how-it-works" element={<HowItWorksPage />} />
+              <Route path="/pricing" element={<PricingPage />} />
+              <Route path="/case-studies" element={<CaseStudiesPage />} />
+              <Route path="/faq" element={<FAQPage />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/admin/*" element={<AdminDashboard />} />
+              {/* Catch-all route */}
+              <Route path="*" element={<HomePage />} />
+            </Routes>
+          </BrowserRouter>
+        </AuthProvider>
+      </SiteSettingsProvider>
     </div>
   );
 }
