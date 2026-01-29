@@ -129,10 +129,14 @@ async def create_razorpay_order(
     
     try:
         # Create Razorpay order
+        # Receipt must be <= 40 characters, use short user_id hash
+        user_id_short = current_user['user_id'][:8]
+        receipt = f"ord_{user_id_short}_{package_id}"[:40]
+        
         order_data = {
             "amount": amount_paise,
             "currency": "INR",
-            "receipt": f"order_{current_user['user_id']}_{package_id}",
+            "receipt": receipt,
             "notes": {
                 "user_id": current_user["user_id"],
                 "package_id": package_id,
