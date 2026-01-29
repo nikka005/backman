@@ -72,6 +72,9 @@ const AdminDashboard = () => {
     { icon: Instagram, label: 'Instagram Accounts', path: '/admin/instagram' },
     { icon: MessageSquare, label: 'Support Tickets', path: '/admin/tickets' },
     { icon: Bell, label: 'Notifications', path: '/admin/notifications' },
+    { icon: Mail, label: 'Email Templates', path: '/admin/email-templates' },
+    { icon: Shield, label: 'Rate Limits', path: '/admin/rate-limits' },
+    { icon: Download, label: 'Data Export', path: '/admin/export' },
     { icon: Settings, label: 'Settings', path: '/admin/settings' },
   ];
 
