@@ -193,7 +193,7 @@ async def verify_razorpay_payment(
         key_secret = None
         if db is not None:
             try:
-                payment_config = await db.payment_options.find_one({"provider": "razorpay"})
+                payment_config = await db.feature_payments.find_one({"key": "feature_razorpay"})
                 if payment_config:
                     key_secret = payment_config.get("api_secret")
             except:
