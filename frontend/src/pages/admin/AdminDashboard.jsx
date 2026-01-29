@@ -62,6 +62,7 @@ const AdminDashboard = () => {
 
   const navItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
+    { icon: Brain, label: 'AI Intelligence', path: '/admin/ai' },
     { icon: BarChart3, label: 'Analytics', path: '/admin/analytics' },
     { icon: Megaphone, label: 'Promotions', path: '/admin/promotions' },
     { icon: Users, label: 'Users', path: '/admin/users' },
