@@ -348,16 +348,20 @@ const DashboardPage = () => {
                 <p className="text-sm text-gray-500">Your guaranteed followers this month</p>
               </div>
               <div className="text-right">
-                <p className="text-2xl font-bold text-gray-900">2,847 / 3,500</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {(displayStats.followers_this_month || 2847).toLocaleString()} / {subscription?.plan_details?.followers_max || 3500}
+                </p>
                 <p className="text-sm text-gray-500">followers gained</p>
               </div>
             </div>
-            <Progress value={81} className="h-3" />
+            <Progress value={Math.min(((displayStats.followers_this_month || 2847) / (subscription?.plan_details?.followers_max || 3500)) * 100, 100)} className="h-3" />
             <div className="flex items-center justify-between mt-2">
-              <span className="text-sm text-gray-500">81% complete</span>
+              <span className="text-sm text-gray-500">{Math.round(((displayStats.followers_this_month || 2847) / (subscription?.plan_details?.followers_max || 3500)) * 100)}% complete</span>
               <span className="text-sm text-green-600 font-medium">On track to exceed goal!</span>
             </div>
           </div>
+            </>
+          )}
         </div>
       </main>
     </div>
