@@ -158,6 +158,13 @@ export const publicAPI = {
   getLocalizedPricing: () => api.get('/public/localized-pricing'),
 };
 
+// AI Onboarding API (user-facing)
+export const aiOnboardingAPI = {
+  getRecommendations: (input) => api.post('/ai/onboarding/recommendations', input),
+  applyRecommendations: (recommendationId) => api.post(`/ai/onboarding/apply-recommendations/${recommendationId}`),
+  getHistory: (limit = 10) => api.get('/ai/onboarding/history', { params: { limit } }),
+};
+
 // Admin API
 export const adminAPI = {
   getDashboard: () => api.get('/admin/dashboard'),
