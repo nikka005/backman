@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Checkbox } from '../components/ui/checkbox';
@@ -119,7 +119,7 @@ const ConnectInstagramPage = () => {
               />
               <label htmlFor="terms" className="text-sm text-gray-600 leading-tight cursor-pointer">
                 I understand that Adverlyx uses organic growth methods and accept the{' '}
-                <a href="/terms" className="text-pink-600 hover:underline">Terms of Service</a>
+                <Link to="/terms" className="text-pink-600 hover:underline">Terms of Service</Link>
               </label>
             </div>
 
