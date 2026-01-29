@@ -41,7 +41,7 @@ class ConnectionManager:
             for connection in self.active_connections[user_id]:
                 try:
                     await connection.send_json(message)
-                except:
+                except Exception:
                     pass
     
     async def broadcast(self, message: dict):
