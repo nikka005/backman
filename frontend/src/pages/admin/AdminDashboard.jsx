@@ -152,6 +152,7 @@ const AdminDashboard = () => {
       <main className="ml-64 p-8">
         <Routes>
           <Route path="/" element={<DashboardOverview stats={stats} onRefresh={loadDashboard} />} />
+          <Route path="/ai" element={<AdminAIIntelligence />} />
           <Route path="/analytics" element={<AdminAnalytics />} />
           <Route path="/promotions" element={<AdminPromotions />} />
           <Route path="/users" element={<UsersManagement />} />
