@@ -4,7 +4,8 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Checkbox } from '../components/ui/checkbox';
-import { Eye, EyeOff, Mail, Lock, User, Instagram, ChevronRight, Check } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, Instagram, ChevronRight, Check, Loader2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const SignupPage = () => {
   const [formData, setFormData] = useState({
@@ -15,15 +16,27 @@ const SignupPage = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
+  const { register } = useAuth();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Mock signup - in production would call API
-    localStorage.setItem('isLoggedIn', 'true');
-    localStorage.setItem('userEmail', formData.email);
-    localStorage.setItem('userName', formData.name);
-    navigate('/dashboard');
+    setLoading(true);
+    setError('');
+    
+    try {
+      await register(formData.name, formData.email, formData.password);
+      setSuccess(true);
+      // Redirect to login after successful registration
+      setTimeout(() => navigate('/login'), 2000);
+    } catch (err) {
+      setError(err.response?.data?.detail || 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const benefits = [
