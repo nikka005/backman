@@ -157,7 +157,7 @@ class TestStripeCheckout:
             headers=auth_headers,
             params={
                 "package_id": "basic_monthly",
-                "origin_url": "https://growth-engine-47.preview.emergentagent.com"
+                "origin_url": "https://adverlyx-admin.preview.emergentagent.com"
             }
         )
         assert response.status_code == 200
@@ -175,7 +175,7 @@ class TestStripeCheckout:
             headers=auth_headers,
             params={
                 "package_id": "pro_yearly",
-                "origin_url": "https://growth-engine-47.preview.emergentagent.com"
+                "origin_url": "https://adverlyx-admin.preview.emergentagent.com"
             }
         )
         assert response.status_code == 200
@@ -191,7 +191,7 @@ class TestStripeCheckout:
             headers=auth_headers,
             params={
                 "package_id": "invalid_package",
-                "origin_url": "https://growth-engine-47.preview.emergentagent.com"
+                "origin_url": "https://adverlyx-admin.preview.emergentagent.com"
             }
         )
         assert response.status_code == 400
