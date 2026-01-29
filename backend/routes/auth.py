@@ -45,6 +45,16 @@ class VerifyEmailRequest(BaseModel):
 @router.post("/register", response_model=dict)
 async def register(user_data: UserCreate, request: Request):
     """Register a new user."""
+    # Rate limiting
+    client_ip = get_client_ip(request)
+    check_rate_limit(client_ip, "register")
+    
+    # Validate password strength
+    try:
+        validate_password(user_data.password)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    
     # Check if email exists
     existing_user = await db.users.find_one({"email": user_data.email})
     if existing_user:
