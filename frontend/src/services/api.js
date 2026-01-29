@@ -190,6 +190,15 @@ export const adminAPI = {
   updateFeatureMatrix: (matrix) => api.put('/admin/plans/feature-matrix', matrix),
   updateFeatureMatrixItem: (featureKey, item) => api.put(`/admin/plans/feature-matrix/${featureKey}`, item),
   seedFeatureMatrix: () => api.post('/admin/plans/feature-matrix/seed'),
+  
+  // Analytics
+  getPlatformAnalytics: (period = 'monthly') => api.get('/admin/analytics/platform', { params: { period } }),
+  getPlatformTrends: (days = 30) => api.get('/admin/analytics/platform/trends', { params: { days } }),
+  getUsersAnalytics: () => api.get('/admin/analytics/users'),
+  getUserAnalytics: (userId) => api.get(`/admin/analytics/users/${userId}`),
+  getGrowthEngineAnalytics: () => api.get('/admin/analytics/growth-engine'),
+  getFunnelAnalytics: (days = 30) => api.get('/admin/analytics/funnel', { params: { days } }),
+  trackEvent: (event) => api.post('/admin/analytics/events', event),
 };
 
 export default api;
