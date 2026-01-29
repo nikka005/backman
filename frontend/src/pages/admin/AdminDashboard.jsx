@@ -10,7 +10,7 @@ import {
   Bell, Settings, LogOut, ChevronRight, TrendingUp, DollarSign,
   UserPlus, AlertCircle, Search, MoreVertical, Eye, Pause, Play,
   Loader2, RefreshCw, Package, Grid3X3, BarChart3, Megaphone, Sliders,
-  Mail, Shield, Download, Brain, Gift
+  Mail, Shield, Download, Brain, Gift, Share2
 } from 'lucide-react';
 import AdminSettings from './AdminSettings';
 import AdminPlans from './AdminPlans';
@@ -24,6 +24,7 @@ import AdminExport from './AdminExport';
 import AdminNotificationsManager from './AdminNotificationsManager';
 import AdminAIIntelligence from './AdminAIIntelligence';
 import AdminPrograms from './AdminPrograms';
+import AdminSocialLinks from './AdminSocialLinks';
 
 const AdminDashboard = () => {
   const { user, logout, isAuthenticated, loading: authLoading } = useAuth();
@@ -79,6 +80,7 @@ const AdminDashboard = () => {
     { icon: Mail, label: 'Email Templates', path: '/admin/email-templates' },
     { icon: Shield, label: 'Rate Limits', path: '/admin/rate-limits' },
     { icon: Download, label: 'Data Export', path: '/admin/export' },
+    { icon: Share2, label: 'Social Links', path: '/admin/social-links' },
     { icon: Settings, label: 'Settings', path: '/admin/settings' },
   ];
 
@@ -172,6 +174,7 @@ const AdminDashboard = () => {
           <Route path="/email-templates" element={<AdminEmailTemplates />} />
           <Route path="/rate-limits" element={<AdminRateLimits />} />
           <Route path="/export" element={<AdminExport />} />
+          <Route path="/social-links" element={<AdminSocialLinks />} />
           <Route path="/settings" element={<AdminSettings />} />
         </Routes>
       </main>
