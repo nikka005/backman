@@ -6,10 +6,11 @@ import { Progress } from '../components/ui/progress';
 import {
   Users, TrendingUp, Eye, Heart, Settings, LogOut, Bell,
   ChevronRight, ArrowUpRight, Instagram, Target,
-  Pause, Play, BarChart3, Zap, Crown, MessageCircle, Loader2
+  Pause, Play, BarChart3, Zap, Crown, MessageCircle, Loader2,
+  CreditCard, Calendar, CheckCircle
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { instagramAPI, subscriptionAPI, notificationsAPI } from '../services/api';
+import { instagramAPI, subscriptionAPI, notificationsAPI, paymentAPI } from '../services/api';
 import { dashboardStats, growthData } from '../data/mockData';
 
 const DashboardPage = () => {
@@ -21,6 +22,7 @@ const DashboardPage = () => {
   const [stats, setStats] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [paymentHistory, setPaymentHistory] = useState([]);
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -39,27 +41,42 @@ const DashboardPage = () => {
       setLoading(true);
       
       // Load Instagram account
-      const igResponse = await instagramAPI.getAccount();
-      if (igResponse.data) {
-        setInstagramAccount(igResponse.data);
-        setIsGrowthActive(!igResponse.data.growth_paused);
-        
-        // Load stats if account exists
-        try {
-          const statsResponse = await instagramAPI.getStats();
-          setStats(statsResponse.data);
-        } catch (e) {
-          // Use mock stats if no real stats
-          setStats(dashboardStats);
+      try {
+        const igResponse = await instagramAPI.getAccount();
+        if (igResponse.data) {
+          setInstagramAccount(igResponse.data);
+          setIsGrowthActive(!igResponse.data.growth_paused);
+          
+          // Load stats if account exists
+          try {
+            const statsResponse = await instagramAPI.getStats();
+            setStats(statsResponse.data);
+          } catch (e) {
+            // Use mock stats if no real stats
+            setStats(dashboardStats);
+          }
         }
+      } catch (e) {
+        // No IG account connected
+        setStats(dashboardStats);
       }
       
-      // Load subscription
+      // Load subscription from payment API
       try {
-        const subResponse = await subscriptionAPI.getCurrent();
-        setSubscription(subResponse.data);
+        const subResponse = await paymentAPI.getCurrentSubscription();
+        if (subResponse.data.has_subscription) {
+          setSubscription(subResponse.data.subscription);
+        }
       } catch (e) {
         // No subscription
+      }
+      
+      // Load payment history
+      try {
+        const historyResponse = await paymentAPI.getPaymentHistory();
+        setPaymentHistory(historyResponse.data || []);
+      } catch (e) {
+        // No history
       }
       
       // Load notification count
