@@ -233,19 +233,28 @@ const PricingPage = () => {
                         </p>
                       </div>
 
-                      <Link to="/signup">
-                        <Button
-                          className={`w-full rounded-full py-6 mb-6 group ${
-                            plan.popular
-                              ? 'bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white'
-                              : 'bg-gray-900 hover:bg-gray-800 text-white'
-                          }`}
-                          data-testid={`get-started-${plan.id}`}
-                        >
-                          Get Started
-                          <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-0.5 transition-transform" />
-                        </Button>
-                      </Link>
+                      <Button
+                        onClick={() => handleSelectPlan(plan)}
+                        disabled={processingPlan === plan.slug}
+                        className={`w-full rounded-full py-6 mb-6 group ${
+                          plan.popular
+                            ? 'bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white'
+                            : 'bg-gray-900 hover:bg-gray-800 text-white'
+                        }`}
+                        data-testid={`get-started-${plan.id}`}
+                      >
+                        {processingPlan === plan.slug ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Processing...
+                          </>
+                        ) : (
+                          <>
+                            {isAuthenticated ? 'Subscribe Now' : 'Get Started'}
+                            <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-0.5 transition-transform" />
+                          </>
+                        )}
+                      </Button>
 
                       <ul className="space-y-3">
                         {plan.features.map((feature, index) => (
