@@ -113,10 +113,27 @@ const AdminSettings = () => {
           <h1 className="text-2xl font-bold text-gray-900">Platform Settings</h1>
           <p className="text-gray-500">Configure branding, UI, and platform features</p>
         </div>
-        <Button onClick={loadSettings} variant="outline" className="gap-2">
-          <RefreshCw className="w-4 h-4" />
-          Refresh
-        </Button>
+        <div className="flex items-center gap-3">
+          {hasChanges && (
+            <Badge variant="outline" className="text-orange-600 border-orange-300 bg-orange-50">
+              Unsaved Changes
+            </Badge>
+          )}
+          <Button onClick={openPreview} variant="outline" className="gap-2" data-testid="preview-btn">
+            <Eye className="w-4 h-4" />
+            Preview
+          </Button>
+          {hasChanges && (
+            <Button onClick={discardChanges} variant="outline" className="gap-2 text-red-600 hover:text-red-700">
+              <X className="w-4 h-4" />
+              Discard
+            </Button>
+          )}
+          <Button onClick={loadSettings} variant="outline" className="gap-2">
+            <RefreshCw className="w-4 h-4" />
+            Refresh
+          </Button>
+        </div>
       </div>
 
       {message && (
