@@ -43,6 +43,7 @@ def init_all_routes(database):
     init_push_notifications(database)
     init_rate_limits(database)
     init_export(database)
+    init_ai_intelligence(database)
 
 
 all_routers = [
