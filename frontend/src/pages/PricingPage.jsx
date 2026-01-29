@@ -293,6 +293,32 @@ const PricingPage = () => {
                 </Badge>
               )}
             </div>
+            
+            {/* Payment Method Indicator */}
+            {userCountry && (
+              <div className="flex items-center justify-center gap-2 text-sm text-gray-500 mt-2">
+                <Globe className="w-4 h-4" />
+                <span>
+                  Paying via {paymentProvider === 'razorpay' ? 'Razorpay (INR)' : 'Stripe (USD)'}
+                </span>
+                {paymentProvider === 'razorpay' && userCountry !== 'IN' && (
+                  <button 
+                    onClick={() => setPaymentProvider('stripe')}
+                    className="text-pink-500 hover:underline ml-2"
+                  >
+                    Switch to USD
+                  </button>
+                )}
+                {paymentProvider === 'stripe' && userCountry === 'IN' && (
+                  <button 
+                    onClick={() => setPaymentProvider('razorpay')}
+                    className="text-pink-500 hover:underline ml-2"
+                  >
+                    Switch to INR
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </section>
 
