@@ -162,7 +162,10 @@ const AdminDashboard = () => {
           <Route path="/payments" element={<PaymentsManagement />} />
           <Route path="/instagram" element={<InstagramManagement />} />
           <Route path="/tickets" element={<TicketsManagement />} />
-          <Route path="/notifications" element={<NotificationsManagement />} />
+          <Route path="/notifications" element={<AdminNotificationsManager />} />
+          <Route path="/email-templates" element={<AdminEmailTemplates />} />
+          <Route path="/rate-limits" element={<AdminRateLimits />} />
+          <Route path="/export" element={<AdminExport />} />
           <Route path="/settings" element={<AdminSettings />} />
         </Routes>
       </main>
