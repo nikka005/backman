@@ -19,6 +19,7 @@ from .push_notifications import router as push_notifications_router, init_router
 from .admin_rate_limits import router as rate_limits_router, init_router as init_rate_limits
 from .admin_export import router as export_router, init_router as init_export
 from .ai_intelligence import router as ai_intelligence_router, init_router as init_ai_intelligence
+from .ai_onboarding import router as ai_onboarding_router, init_router as init_ai_onboarding
 
 
 def init_all_routes(database):
