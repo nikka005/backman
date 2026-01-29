@@ -104,6 +104,12 @@ export const paymentAPI = {
   // Stripe
   createStripeCheckout: (packageId, originUrl) => 
     api.post(`/payments/checkout/session?package_id=${packageId}&origin_url=${encodeURIComponent(originUrl)}`),
+  createCheckoutSession: (packageId, originUrl) => 
+    api.post('/payments/checkout/session', null, { params: { package_id: packageId, origin_url: originUrl } }),
+  getCheckoutStatus: (sessionId) => api.get(`/payments/checkout/status/${sessionId}`),
+  getPaymentHistory: () => api.get('/payments/history'),
+  getCurrentSubscription: () => api.get('/payments/subscription'),
+  cancelSubscription: () => api.post('/payments/subscription/cancel'),
   
   // Razorpay
   createRazorpayOrder: (packageId) => 
