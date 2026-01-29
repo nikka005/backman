@@ -10,7 +10,7 @@ import {
   Bell, Settings, LogOut, ChevronRight, TrendingUp, DollarSign,
   UserPlus, AlertCircle, Search, MoreVertical, Eye, Pause, Play,
   Loader2, RefreshCw, Package, Grid3X3, BarChart3, Megaphone, Sliders,
-  Mail, Shield, Download, Brain
+  Mail, Shield, Download, Brain, Gift
 } from 'lucide-react';
 import AdminSettings from './AdminSettings';
 import AdminPlans from './AdminPlans';
@@ -23,6 +23,7 @@ import AdminRateLimits from './AdminRateLimits';
 import AdminExport from './AdminExport';
 import AdminNotificationsManager from './AdminNotificationsManager';
 import AdminAIIntelligence from './AdminAIIntelligence';
+import AdminPrograms from './AdminPrograms';
 
 const AdminDashboard = () => {
   const { user, logout, isAuthenticated, loading: authLoading } = useAuth();
