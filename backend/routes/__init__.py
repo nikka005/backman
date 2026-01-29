@@ -51,6 +51,7 @@ def init_all_routes(database):
     init_ai_onboarding(database)
     init_instagram_graph(database)
     init_affiliate_referral(database)
+    init_admin_programs(database)
 
 
 all_routers = [
