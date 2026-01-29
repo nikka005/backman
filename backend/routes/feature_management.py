@@ -494,15 +494,23 @@ async def get_feature_change_logs(
 
 # ==================== BULK OPERATIONS ====================
 
+from pydantic import BaseModel
+
+class BulkToggleRequest(BaseModel):
+    feature_type: str
+    keys: List[str]
+    enabled: bool
+
 @router.post("/bulk-toggle")
 async def bulk_toggle_features(
-    feature_type: str,
-    keys: List[str],
-    enabled: bool,
+    bulk_data: BulkToggleRequest,
     request: Request,
     current_user: dict = Depends(admin_required)
 ):
     """Bulk enable/disable features."""
+    feature_type = bulk_data.feature_type
+    keys = bulk_data.keys
+    enabled = bulk_data.enabled
     collection_map = {
         "page": "feature_pages",
         "section": "feature_sections",
