@@ -12,6 +12,7 @@ from emergentintegrations.payments.stripe.checkout import (
 from utils.auth import get_current_user
 from models.user import UserRole
 from utils.email import send_payment_confirmation_email
+from utils.security import check_rate_limit, get_client_ip
 
 router = APIRouter(prefix="/payments", tags=["Payments"])
 
