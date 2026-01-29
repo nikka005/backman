@@ -183,6 +183,39 @@ export const adminAPI = {
   getPromoBanner: () => api.get('/admin/settings/promo-banner'),
   updatePromoBanner: (data) => api.put('/admin/settings/promo-banner', data),
   
+  // Feature Management System
+  initializeFeatures: () => api.post('/admin/feature-management/initialize'),
+  // Pages
+  getFeaturePages: () => api.get('/admin/feature-management/pages'),
+  getFeaturePage: (key) => api.get(`/admin/feature-management/pages/${key}`),
+  updateFeaturePage: (key, data) => api.put(`/admin/feature-management/pages/${key}`, data),
+  publishPage: (key) => api.post(`/admin/feature-management/pages/${key}/publish`),
+  saveDraftPage: (key) => api.post(`/admin/feature-management/pages/${key}/draft`),
+  // Sections
+  getFeatureSections: () => api.get('/admin/feature-management/sections'),
+  getFeatureSection: (key) => api.get(`/admin/feature-management/sections/${key}`),
+  updateFeatureSection: (key, data) => api.put(`/admin/feature-management/sections/${key}`, data),
+  reorderSections: (orderData) => api.put('/admin/feature-management/sections/reorder', orderData),
+  publishSection: (key) => api.post(`/admin/feature-management/sections/${key}/publish`),
+  // Platform Features
+  getPlatformFeatures: () => api.get('/admin/feature-management/platform'),
+  getPlatformFeature: (key) => api.get(`/admin/feature-management/platform/${key}`),
+  updatePlatformFeature: (key, data) => api.put(`/admin/feature-management/platform/${key}`, data),
+  // Payment Options
+  getPaymentOptions: () => api.get('/admin/feature-management/payments'),
+  getPaymentOption: (key) => api.get(`/admin/feature-management/payments/${key}`),
+  updatePaymentOption: (key, data) => api.put(`/admin/feature-management/payments/${key}`, data),
+  testPaymentConnection: (key) => api.post(`/admin/feature-management/payments/${key}/test-connection`),
+  // Auth Options
+  getAuthOptions: () => api.get('/admin/feature-management/auth'),
+  getAuthOption: (key) => api.get(`/admin/feature-management/auth/${key}`),
+  updateAuthOption: (key, data) => api.put(`/admin/feature-management/auth/${key}`, data),
+  // Feature Logs
+  getFeatureLogs: (params) => api.get('/admin/feature-management/logs', { params }),
+  // Bulk Operations
+  bulkToggleFeatures: (featureType, keys, enabled) => api.post('/admin/feature-management/bulk-toggle', { feature_type: featureType, keys, enabled }),
+  syncFeaturesToSettings: () => api.post('/admin/feature-management/sync-to-site-settings'),
+  
   // Testimonials
   getTestimonials: () => api.get('/admin/settings/testimonials'),
   createTestimonial: (data) => api.post('/admin/settings/testimonials', data),
