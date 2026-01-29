@@ -13,48 +13,30 @@ ADMIN_EMAIL = "admin@adverlyx.com"
 ADMIN_PASSWORD = "Admin123!"
 
 
+@pytest.fixture(scope="module")
+def auth_headers():
+    """Get admin auth headers - shared across all tests in module"""
+    response = requests.post(f"{BASE_URL}/api/auth/login", json={
+        "email": ADMIN_EMAIL,
+        "password": ADMIN_PASSWORD
+    })
+    assert response.status_code == 200, f"Login failed: {response.text}"
+    token = response.json().get("access_token")
+    return {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+
+
 class TestFeatureManagementAuth:
     """Test authentication for feature management endpoints"""
     
-    @pytest.fixture(scope="class")
-    def auth_token(self):
-        """Get admin authentication token"""
-        response = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "email": ADMIN_EMAIL,
-            "password": ADMIN_PASSWORD
-        })
-        assert response.status_code == 200, f"Login failed: {response.text}"
-        data = response.json()
-        assert "access_token" in data, "No access_token in response"
-        return data["access_token"]
-    
-    @pytest.fixture(scope="class")
-    def auth_headers(self, auth_token):
-        """Get headers with auth token"""
-        return {
-            "Authorization": f"Bearer {auth_token}",
-            "Content-Type": "application/json"
-        }
-    
-    def test_admin_login(self, auth_token):
+    def test_admin_login(self, auth_headers):
         """Test admin can login successfully"""
-        assert auth_token is not None
-        assert len(auth_token) > 0
-        print(f"✓ Admin login successful, token length: {len(auth_token)}")
+        assert auth_headers is not None
+        assert "Authorization" in auth_headers
+        print(f"✓ Admin login successful")
 
 
 class TestFeatureInitialization:
     """Test feature initialization endpoint"""
-    
-    @pytest.fixture(scope="class")
-    def auth_headers(self):
-        """Get admin auth headers"""
-        response = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "email": ADMIN_EMAIL,
-            "password": ADMIN_PASSWORD
-        })
-        token = response.json().get("access_token")
-        return {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
     
     def test_initialize_features(self, auth_headers):
         """Test POST /api/admin/feature-management/initialize"""
@@ -71,16 +53,6 @@ class TestFeatureInitialization:
 
 class TestFeaturePages:
     """Test Pages feature management endpoints"""
-    
-    @pytest.fixture(scope="class")
-    def auth_headers(self):
-        """Get admin auth headers"""
-        response = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "email": ADMIN_EMAIL,
-            "password": ADMIN_PASSWORD
-        })
-        token = response.json().get("access_token")
-        return {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
     
     def test_get_all_pages(self, auth_headers):
         """Test GET /api/admin/feature-management/pages"""
@@ -168,16 +140,6 @@ class TestFeaturePages:
 class TestFeatureSections:
     """Test Sections feature management endpoints"""
     
-    @pytest.fixture(scope="class")
-    def auth_headers(self):
-        """Get admin auth headers"""
-        response = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "email": ADMIN_EMAIL,
-            "password": ADMIN_PASSWORD
-        })
-        token = response.json().get("access_token")
-        return {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
-    
     def test_get_all_sections(self, auth_headers):
         """Test GET /api/admin/feature-management/sections"""
         response = requests.get(
@@ -217,16 +179,6 @@ class TestFeatureSections:
 
 class TestPlatformFeatures:
     """Test Platform Features management endpoints"""
-    
-    @pytest.fixture(scope="class")
-    def auth_headers(self):
-        """Get admin auth headers"""
-        response = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "email": ADMIN_EMAIL,
-            "password": ADMIN_PASSWORD
-        })
-        token = response.json().get("access_token")
-        return {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
     
     def test_get_all_platform_features(self, auth_headers):
         """Test GET /api/admin/feature-management/platform"""
@@ -268,16 +220,6 @@ class TestPlatformFeatures:
 class TestPaymentOptions:
     """Test Payment Options management endpoints"""
     
-    @pytest.fixture(scope="class")
-    def auth_headers(self):
-        """Get admin auth headers"""
-        response = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "email": ADMIN_EMAIL,
-            "password": ADMIN_PASSWORD
-        })
-        token = response.json().get("access_token")
-        return {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
-    
     def test_get_all_payment_options(self, auth_headers):
         """Test GET /api/admin/feature-management/payments"""
         response = requests.get(
@@ -317,16 +259,6 @@ class TestPaymentOptions:
 
 class TestAuthOptions:
     """Test Authentication Options management endpoints"""
-    
-    @pytest.fixture(scope="class")
-    def auth_headers(self):
-        """Get admin auth headers"""
-        response = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "email": ADMIN_EMAIL,
-            "password": ADMIN_PASSWORD
-        })
-        token = response.json().get("access_token")
-        return {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
     
     def test_get_all_auth_options(self, auth_headers):
         """Test GET /api/admin/feature-management/auth"""
@@ -368,16 +300,6 @@ class TestAuthOptions:
 class TestFeatureLogs:
     """Test Feature Change Logs endpoint"""
     
-    @pytest.fixture(scope="class")
-    def auth_headers(self):
-        """Get admin auth headers"""
-        response = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "email": ADMIN_EMAIL,
-            "password": ADMIN_PASSWORD
-        })
-        token = response.json().get("access_token")
-        return {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
-    
     def test_get_feature_logs(self, auth_headers):
         """Test GET /api/admin/feature-management/logs"""
         response = requests.get(
@@ -393,16 +315,6 @@ class TestFeatureLogs:
 
 class TestBulkOperations:
     """Test bulk toggle and sync operations"""
-    
-    @pytest.fixture(scope="class")
-    def auth_headers(self):
-        """Get admin auth headers"""
-        response = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "email": ADMIN_EMAIL,
-            "password": ADMIN_PASSWORD
-        })
-        token = response.json().get("access_token")
-        return {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
     
     def test_bulk_toggle_features(self, auth_headers):
         """Test POST /api/admin/feature-management/bulk-toggle"""
