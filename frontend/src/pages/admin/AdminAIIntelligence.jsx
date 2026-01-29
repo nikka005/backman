@@ -732,9 +732,9 @@ export default function AdminAIIntelligence() {
                             {new Date(assessment.created_at).toLocaleDateString()}
                           </span>
                         </div>
-                        <p className="text-sm text-gray-600 mt-2 whitespace-pre-wrap line-clamp-4">
-                          {assessment.ai_reasoning}
-                        </p>
+                        <div className="text-sm text-gray-600 mt-2 prose prose-sm max-w-none line-clamp-6">
+                          <ReactMarkdown>{assessment.ai_reasoning}</ReactMarkdown>
+                        </div>
                       </div>
                     ))
                   )}
