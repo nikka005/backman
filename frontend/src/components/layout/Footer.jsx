@@ -143,16 +143,21 @@ const Footer = () => {
               Smart Growth for Real Brands. The #1 Instagram growth service trusted by 55,000+ users worldwide.
             </p>
             <div className="flex gap-3">
-              {socialLinks.map(({ icon: Icon, href, label }) => (
+              {activeSocialLinks.map(({ key, icon: Icon, href, label }) => (
                 <a
-                  key={label}
+                  key={key}
                   href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors"
                   aria-label={label}
                 >
                   <Icon className="w-5 h-5" />
                 </a>
               ))}
+              {activeSocialLinks.length === 0 && (
+                <span className="text-sm text-gray-500">No social links</span>
+              )}
             </div>
           </div>
 
