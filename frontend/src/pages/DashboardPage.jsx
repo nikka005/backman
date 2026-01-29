@@ -548,9 +548,11 @@ const DashboardPage = () => {
                       <p className="text-sm font-medium text-gray-900">Connect your Instagram account to start growing</p>
                       <p className="text-xs text-gray-600">Link your account to enable AI-powered growth and real-time analytics</p>
                     </div>
-                    <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white">
-                      Connect Instagram
-                    </Button>
+                    <Link to="/connect-instagram">
+                      <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white">
+                        Connect Instagram
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               )}
