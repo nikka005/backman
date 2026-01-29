@@ -115,6 +115,18 @@ const SignupPage = () => {
             Start your Instagram growth journey today
           </p>
 
+          {error && (
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
+              {error}
+            </div>
+          )}
+
+          {success && (
+            <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-xl text-green-600 text-sm">
+              Registration successful! Please check your email to verify your account. Redirecting to login...
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Name */}
             <div className="space-y-2">
