@@ -272,7 +272,7 @@ const PricingPage = () => {
               Choose Your <span className="text-transparent bg-gradient-to-r from-orange-500 via-pink-500 to-purple-500 bg-clip-text">Growth Plan</span>
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
-              Guaranteed growth or it's on us. Start with any plan and upgrade anytime.
+              Guaranteed growth or it&apos;s on us. Start with any plan and upgrade anytime.
             </p>
 
             {/* Billing Toggle */}
