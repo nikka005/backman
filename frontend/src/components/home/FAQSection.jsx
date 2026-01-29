@@ -22,7 +22,7 @@ const FAQSection = () => {
             Frequently Asked Questions
           </h2>
           <p className="text-gray-600">
-            Can't find what you are looking for?{' '}
+            Can&apos;t find what you are looking for?{' '}
             <Link to="/contact" className="text-pink-600 hover:text-pink-700 font-medium">
               Contact our support team
             </Link>
