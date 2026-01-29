@@ -144,7 +144,10 @@ const AdminDashboard = () => {
           <Route path="/promotions" element={<AdminPromotions />} />
           <Route path="/users" element={<UsersManagement />} />
           <Route path="/plans" element={<AdminPlans />} />
-          <Route path="/features" element={<AdminFeatureMatrix />} />
+          <Route path="/feature-matrix" element={<AdminFeatureMatrix />} />
+          <Route path="/features" element={<FeatureManagement />} />
+          <Route path="/features/:featureType" element={<FeatureManagement />} />
+          <Route path="/features/:featureType/:featureKey" element={<FeatureManagement />} />
           <Route path="/subscriptions" element={<SubscriptionsManagement />} />
           <Route path="/payments" element={<PaymentsManagement />} />
           <Route path="/instagram" element={<InstagramManagement />} />
