@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
-import { faqs } from '../data/mockData';
+import { publicAPI } from '../services/api';
 import {
   Accordion,
   AccordionContent,
@@ -9,24 +9,52 @@ import {
   AccordionTrigger,
 } from '../components/ui/accordion';
 import { Button } from '../components/ui/button';
-import { HelpCircle, MessageCircle, Mail, ChevronRight } from 'lucide-react';
+import { HelpCircle, MessageCircle, Mail, ChevronRight, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const FAQPage = () => {
-  const faqCategories = [
+  const [faqs, setFaqs] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadFaqs();
+  }, []);
+
+  const loadFaqs = async () => {
+    try {
+      const response = await publicAPI.getFaqs();
+      setFaqs(response.data);
+    } catch (error) {
+      console.error('Error loading FAQs:', error);
+      // Fallback FAQs
+      setFaqs([
+        { question: 'Who should use Adverlyx Digital?', answer: 'Adverlyx is for anyone who wants to grow their Instagram account organically.' },
+        { question: 'What is required to use Adverlyx?', answer: 'All you need is an Instagram account.' },
+        { question: 'How many followers can I get?', answer: 'You can expect at least 1,000 followers per month with our Basic plan.' },
+        { question: 'Is Adverlyx safe to use?', answer: 'Yes! We use organic growth strategies that comply with Instagram\'s terms.' },
+        { question: 'How long to see results?', answer: 'Results typically appear within the first 24-48 hours.' },
+        { question: 'How do I cancel?', answer: 'Cancel anytime through your dashboard. No hidden fees.' }
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Group FAQs into categories
+  const faqCategories = faqs.length > 0 ? [
     {
       title: 'Getting Started',
-      questions: faqs.slice(0, 3)
+      questions: faqs.slice(0, Math.ceil(faqs.length / 3))
     },
     {
       title: 'Account & Safety',
-      questions: faqs.slice(3, 5)
+      questions: faqs.slice(Math.ceil(faqs.length / 3), Math.ceil(faqs.length * 2 / 3))
     },
     {
       title: 'Billing & Plans',
-      questions: faqs.slice(5, 8)
+      questions: faqs.slice(Math.ceil(faqs.length * 2 / 3))
     }
-  ];
+  ].filter(cat => cat.questions.length > 0) : [];
 
   return (
     <div className="min-h-screen bg-white">
