@@ -290,6 +290,37 @@ export const adminAPI = {
   createTemplate: (data) => api.post('/admin/promotions/templates', data),
   updateTemplate: (templateId, data) => api.put(`/admin/promotions/templates/${templateId}`, data),
   deleteTemplate: (templateId) => api.delete(`/admin/promotions/templates/${templateId}`),
+  
+  // Email Templates
+  initializeEmailTemplates: () => api.post('/admin/email-templates/initialize'),
+  getEmailTemplates: () => api.get('/admin/email-templates/'),
+  getEmailTemplate: (key) => api.get(`/admin/email-templates/${key}`),
+  updateEmailTemplate: (key, data) => api.put(`/admin/email-templates/${key}`, data),
+  previewEmailTemplate: (key, data) => api.post(`/admin/email-templates/${key}/preview`, data),
+  testSendEmailTemplate: (key, email) => api.post(`/admin/email-templates/${key}/test-send?test_email=${email}`),
+  resetEmailTemplate: (key) => api.post(`/admin/email-templates/${key}/reset`),
+  
+  // Rate Limits Dashboard
+  getRateLimitConfig: () => api.get('/admin/rate-limits/config'),
+  updateRateLimitConfig: (key, data) => api.put(`/admin/rate-limits/config/${key}`, data),
+  resetRateLimitsToDefault: () => api.post('/admin/rate-limits/config/reset-defaults'),
+  getRateLimitStats: () => api.get('/admin/rate-limits/stats'),
+  getBlockedIPs: () => api.get('/admin/rate-limits/blocked-ips'),
+  unblockIP: (ip) => api.post(`/admin/rate-limits/unblock-ip/${ip}`),
+  blockIP: (ip, hours, reason) => api.post(`/admin/rate-limits/block-ip?ip_address=${ip}&duration_hours=${hours}&reason=${reason}`),
+  getLiveRequests: (limit = 50) => api.get('/admin/rate-limits/live-requests', { params: { limit } }),
+  getRateLimitEndpointDetails: (key) => api.get(`/admin/rate-limits/endpoint-details/${key}`),
+  
+  // Data Export
+  exportUsers: (format = 'csv') => api.get('/admin/export/users', { params: { format }, responseType: 'blob' }),
+  exportSubscriptions: (format = 'csv', status) => api.get('/admin/export/subscriptions', { params: { format, status_filter: status }, responseType: 'blob' }),
+  exportPayments: (format = 'csv', startDate, endDate, status) => api.get('/admin/export/payments', { params: { format, start_date: startDate, end_date: endDate, status_filter: status }, responseType: 'blob' }),
+  exportAnalytics: (format = 'csv', days = 30) => api.get('/admin/export/analytics', { params: { format, period_days: days }, responseType: 'blob' }),
+  exportInstagramAccounts: (format = 'csv') => api.get('/admin/export/instagram-accounts', { params: { format }, responseType: 'blob' }),
+  exportTickets: (format = 'csv', status) => api.get('/admin/export/tickets', { params: { format, status_filter: status }, responseType: 'blob' }),
+  exportFunnelEvents: (format = 'csv', days = 30) => api.get('/admin/export/funnel-events', { params: { format, days }, responseType: 'blob' }),
+  exportGrowthLogs: (format = 'csv', days = 30) => api.get('/admin/export/growth-logs', { params: { format, days }, responseType: 'blob' }),
+  exportFullReport: (days = 30) => api.get('/admin/export/full-report', { params: { format: 'json', period_days: days }, responseType: 'blob' }),
 };
 
 export default api;
