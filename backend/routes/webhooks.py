@@ -279,6 +279,8 @@ async def handle_invoice_paid(data: dict):
 
 async def handle_payment_failed(data: dict):
     """Handle failed payment."""
+    from utils.email import send_email
+    
     invoice_id = data.get("id")
     customer_id = data.get("customer")
     
@@ -298,6 +300,25 @@ async def handle_payment_failed(data: dict):
             "created_at": datetime.now(timezone.utc).isoformat()
         }
         await db.notifications.insert_one(notification)
+        
+        # Send email notification
+        try:
+            # Get email template
+            template = await db.email_templates.find_one({"key": "payment_failed"})
+            if template and template.get("enabled"):
+                settings = await db.site_settings.find_one({}, {"_id": 0})
+                branding = settings.get("branding", {}) if settings else {}
+                
+                subject = template["subject"].replace("{{brand_name}}", branding.get("site_name", "Adverlyx Digital"))
+                html = template["html_content"]
+                html = html.replace("{{name}}", user.get("name", "Customer"))
+                html = html.replace("{{brand_name}}", branding.get("site_name", "Adverlyx Digital"))
+                html = html.replace("{{update_payment_url}}", f"{os.environ.get('FRONTEND_URL', 'https://adverlyx.com')}/dashboard?tab=billing")
+                html = html.replace("{{bg_color}}", "#f4f4f5")
+                
+                await send_email(user["email"], subject, html)
+        except Exception as e:
+            logger.error(f"Failed to send payment failed email: {e}")
         
         # Record failed payment
         payment_record = {
