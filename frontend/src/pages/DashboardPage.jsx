@@ -191,16 +191,29 @@ const DashboardPage = () => {
         </nav>
 
         <div className="absolute bottom-0 left-0 right-0 p-4">
-          <div className="bg-gradient-to-r from-orange-50 to-pink-50 rounded-xl p-4 mb-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Crown className="w-5 h-5 text-orange-500" />
-              <span className="font-semibold text-gray-900">Pro Plan</span>
+          {subscription ? (
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 mb-4">
+              <div className="flex items-center gap-2 mb-2">
+                <CheckCircle className="w-5 h-5 text-green-500" />
+                <span className="font-semibold text-gray-900 capitalize">{subscription.plan} Plan</span>
+              </div>
+              <p className="text-sm text-gray-600 mb-1">Status: <span className="text-green-600 font-medium capitalize">{subscription.status}</span></p>
+              <p className="text-xs text-gray-500">Billing: {subscription.billing_cycle}</p>
             </div>
-            <p className="text-sm text-gray-600 mb-3">Upgrade to unlock more features</p>
-            <Button size="sm" className="w-full bg-gray-900 hover:bg-gray-800 text-white rounded-full text-sm">
-              Upgrade Now
-            </Button>
-          </div>
+          ) : (
+            <div className="bg-gradient-to-r from-orange-50 to-pink-50 rounded-xl p-4 mb-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Crown className="w-5 h-5 text-orange-500" />
+                <span className="font-semibold text-gray-900">No Plan</span>
+              </div>
+              <p className="text-sm text-gray-600 mb-3">Subscribe to start growing</p>
+              <Link to="/pricing">
+                <Button size="sm" className="w-full bg-gray-900 hover:bg-gray-800 text-white rounded-full text-sm">
+                  View Plans
+                </Button>
+              </Link>
+            </div>
+          )}
           <button
             onClick={handleLogout}
             className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-gray-600 hover:bg-gray-50 transition-colors"
