@@ -98,16 +98,16 @@ class FeatureToggle(BaseModel):
     
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     
-    # Page Toggles
+    # Page Toggles - All enabled by default
     page_home: bool = True
     page_pricing: bool = True
     page_how_it_works: bool = True
     page_case_studies: bool = True
     page_faq: bool = True
     page_contact: bool = True
-    page_blog: bool = False
+    page_blog: bool = True
     
-    # Section Toggles (Homepage)
+    # Section Toggles (Homepage) - All enabled by default
     section_hero: bool = True
     section_trusted_brands: bool = True
     section_testimonials: bool = True
@@ -120,24 +120,24 @@ class FeatureToggle(BaseModel):
     section_faq: bool = True
     section_reviews: bool = True
     
-    # Feature Toggles
+    # Feature Toggles - All enabled by default
     feature_instagram_connect: bool = True
     feature_pause_resume: bool = True
     feature_targeting: bool = True
     feature_analytics: bool = True
     feature_support_tickets: bool = True
-    feature_live_chat: bool = False
+    feature_live_chat: bool = True
     
-    # Payment Toggles
+    # Payment Toggles - All enabled by default
     feature_stripe: bool = True
-    feature_razorpay: bool = False
-    feature_paypal: bool = False
+    feature_razorpay: bool = True
+    feature_paypal: bool = True
     feature_coupons: bool = True
     
-    # Auth Toggles
-    feature_google_login: bool = False
+    # Auth Toggles - All enabled by default
+    feature_google_login: bool = True
     feature_email_verification: bool = True
-    feature_two_factor: bool = False
+    feature_two_factor: bool = True
     
     # Timestamps
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
