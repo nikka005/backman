@@ -138,6 +138,45 @@ export const adminAPI = {
   getCmsContent: (key) => api.get(`/admin/cms/${key}`),
   updateCmsContent: (key, data) => api.put(`/admin/cms/${key}`, data),
   getLogs: (params) => api.get('/admin/logs', { params }),
+  
+  // Settings Management
+  getSettings: () => api.get('/admin/settings/'),
+  updateSettings: (data) => api.put('/admin/settings/', data),
+  getBranding: () => api.get('/admin/settings/branding'),
+  updateBranding: (data) => api.put('/admin/settings/branding', data),
+  getUISettings: () => api.get('/admin/settings/ui'),
+  updateUISettings: (data) => api.put('/admin/settings/ui', data),
+  getFeatureToggles: () => api.get('/admin/settings/features'),
+  updateFeatureToggles: (data) => api.put('/admin/settings/features', data),
+  toggleFeature: (featureKey, enabled) => api.put(`/admin/settings/features/${featureKey}?enabled=${enabled}`),
+  getHeroContent: () => api.get('/admin/settings/hero'),
+  updateHeroContent: (data) => api.put('/admin/settings/hero', data),
+  getStatsContent: () => api.get('/admin/settings/stats'),
+  updateStatsContent: (data) => api.put('/admin/settings/stats', data),
+  getPromoBanner: () => api.get('/admin/settings/promo-banner'),
+  updatePromoBanner: (data) => api.put('/admin/settings/promo-banner', data),
+  
+  // Testimonials
+  getTestimonials: () => api.get('/admin/settings/testimonials'),
+  createTestimonial: (data) => api.post('/admin/settings/testimonials', data),
+  updateTestimonial: (id, data) => api.put(`/admin/settings/testimonials/${id}`, data),
+  deleteTestimonial: (id) => api.delete(`/admin/settings/testimonials/${id}`),
+  
+  // FAQs
+  getFAQs: () => api.get('/admin/settings/faqs'),
+  createFAQ: (data) => api.post('/admin/settings/faqs', data),
+  updateFAQ: (id, data) => api.put(`/admin/settings/faqs/${id}`, data),
+  deleteFAQ: (id) => api.delete(`/admin/settings/faqs/${id}`),
+  
+  // Plans Management
+  getPlans: (includeHidden = false) => api.get('/admin/plans/', { params: { include_hidden: includeHidden } }),
+  getPlan: (planId) => api.get(`/admin/plans/${planId}`),
+  createPlan: (data) => api.post('/admin/plans/', data),
+  updatePlan: (planId, data) => api.put(`/admin/plans/${planId}`, data),
+  deletePlan: (planId) => api.delete(`/admin/plans/${planId}`),
+  clonePlan: (planId, newName, newSlug) => api.post(`/admin/plans/${planId}/clone?new_name=${newName}&new_slug=${newSlug}`),
+  togglePlanPopular: (planId) => api.post(`/admin/plans/${planId}/toggle-popular`),
+  reorderPlans: (planOrders) => api.post('/admin/plans/reorder', planOrders),
 };
 
 export default api;
