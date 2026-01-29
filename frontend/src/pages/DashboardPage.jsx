@@ -240,22 +240,34 @@ const DashboardPage = () => {
             <CreditCard className="w-5 h-5" />
             Billing
           </button>
-          <a href="#" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors">
+          <button 
+            onClick={() => setActiveTab('targeting')}
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl w-full text-left transition-colors ${activeTab === 'targeting' ? 'bg-gradient-to-r from-pink-50 to-orange-50 text-pink-600 font-medium' : 'text-gray-600 hover:bg-gray-50'}`}
+          >
             <Target className="w-5 h-5" />
             Targeting
-          </a>
-          <a href="#" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors">
+          </button>
+          <button 
+            onClick={() => setActiveTab('analytics')}
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl w-full text-left transition-colors ${activeTab === 'analytics' ? 'bg-gradient-to-r from-pink-50 to-orange-50 text-pink-600 font-medium' : 'text-gray-600 hover:bg-gray-50'}`}
+          >
             <TrendingUp className="w-5 h-5" />
             Analytics
-          </a>
-          <a href="#" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors">
+          </button>
+          <button 
+            onClick={() => setActiveTab('support')}
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl w-full text-left transition-colors ${activeTab === 'support' ? 'bg-gradient-to-r from-pink-50 to-orange-50 text-pink-600 font-medium' : 'text-gray-600 hover:bg-gray-50'}`}
+          >
             <MessageCircle className="w-5 h-5" />
             Support
-          </a>
-          <a href="#" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors">
+          </button>
+          <button 
+            onClick={() => setActiveTab('settings')}
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl w-full text-left transition-colors ${activeTab === 'settings' ? 'bg-gradient-to-r from-pink-50 to-orange-50 text-pink-600 font-medium' : 'text-gray-600 hover:bg-gray-50'}`}
+          >
             <Settings className="w-5 h-5" />
             Settings
-          </a>
+          </button>
         </nav>
 
         <div className="absolute bottom-0 left-0 right-0 p-4">
