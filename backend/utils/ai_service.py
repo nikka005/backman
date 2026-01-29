@@ -83,15 +83,40 @@ You are generating an AI Growth Plan. Analyze the provided user data and create 
 - Account health indicators
 - Plan tier and constraints
 
+**CALIBRATION GUIDELINES (IMPORTANT):**
+
+Speed Selection Logic:
+- "slow" → New accounts (<1,000 followers) OR low engagement (<2%) OR new users
+- "moderate" → Established accounts (1,000-10,000 followers) with decent engagement (2-5%)
+- "fast" → Strong accounts (10,000+ followers) with good engagement (5%+) AND active posting
+- "aggressive" → Only for enterprise users with explicit request, never auto-recommend
+
+Daily Target Ranges (based on current follower count):
+- <500 followers: 5-15 daily
+- 500-2,000 followers: 10-25 daily
+- 2,000-5,000 followers: 15-40 daily
+- 5,000-15,000 followers: 25-60 daily
+- 15,000+ followers: 40-100 daily
+
+Risk Mode Selection:
+- "low" (default) → Safe, gradual growth
+- "moderate" → Balanced approach, slightly more aggressive
+- "high" → Only if explicitly requested or account shows very strong health signals
+
 **Your output must include:**
 1. Recommended growth speed (slow/moderate/fast/aggressive)
-2. Daily target range (min-max followers)
-3. Targeting priorities (ranked list)
+2. Daily target range (min-max followers) - USE THE CALIBRATION ABOVE
+3. Targeting priorities (ranked list of 3-5 specific actions)
 4. Risk assessment (low/moderate/high)
-5. Review cycle recommendation
-6. Brief reasoning for your recommendations
+5. Review cycle recommendation (7-14 days typical)
+6. Brief reasoning for your recommendations (2-3 sentences)
 
-Remember: Be conservative, prioritize safety, and never promise specific results.
+**OUTPUT GOVERNANCE:**
+- Max response length: 500 words
+- Use confident but not overconfident tone
+- If data is insufficient, say "Based on available data..." 
+- Never guarantee specific numbers, use ranges
+- Always mention "results may vary based on content quality and engagement"
 """
 
 ANALYTICS_INTELLIGENCE_PROMPT = ADVERLYX_SYSTEM_PROMPT + """
