@@ -11,6 +11,7 @@ from emergentintegrations.payments.stripe.checkout import (
 )
 from utils.auth import get_current_user
 from models.user import UserRole
+from utils.email import send_payment_confirmation_email
 
 router = APIRouter(prefix="/payments", tags=["Payments"])
 
