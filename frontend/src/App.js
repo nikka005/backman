@@ -15,6 +15,7 @@ import FAQPage from './pages/FAQPage';
 import DashboardPage from './pages/DashboardPage';
 import ContactPage from './pages/ContactPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import PaymentSuccessPage from './pages/PaymentSuccessPage';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
               <Route path="/faq" element={<FAQPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/contact" element={<ContactPage />} />
+              <Route path="/payment/success" element={<PaymentSuccessPage />} />
               <Route path="/admin/*" element={<AdminDashboard />} />
               {/* Catch-all route */}
               <Route path="*" element={<HomePage />} />
