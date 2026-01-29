@@ -1,143 +1,146 @@
 import os
+import asyncio
 import logging
 from typing import Optional
+from dotenv import load_dotenv
+
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 
 # Email configuration
-EMAIL_ENABLED = os.environ.get("EMAIL_ENABLED", "false").lower() == "true"
-SMTP_HOST = os.environ.get("SMTP_HOST", "")
-SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
-SMTP_USER = os.environ.get("SMTP_USER", "")
-SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "")
-FROM_EMAIL = os.environ.get("FROM_EMAIL", "noreply@adverlyx.com")
-FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:3000")
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
+SENDER_EMAIL = os.environ.get("SENDER_EMAIL", "onboarding@resend.dev")
+BRAND_NAME = "Adverlyx Digital"
+
+# Initialize Resend if API key is available
+resend_client = None
+if RESEND_API_KEY:
+    try:
+        import resend
+        resend.api_key = RESEND_API_KEY
+        resend_client = resend
+        logger.info("Resend email service initialized")
+    except ImportError:
+        logger.warning("Resend package not installed")
 
 
-async def send_email(to_email: str, subject: str, html_content: str) -> bool:
-    """Send an email. Returns True if successful."""
-    if not EMAIL_ENABLED:
-        logger.info(f"Email disabled. Would send to {to_email}: {subject}")
-        return True
+async def send_email(to_email: str, subject: str, html_content: str) -> Optional[str]:
+    """Send an email using Resend. Returns email ID on success, None on failure."""
+    if not resend_client:
+        logger.warning("Email service not configured, skipping email send")
+        return None
+    
+    params = {
+        "from": f"{BRAND_NAME} <{SENDER_EMAIL}>",
+        "to": [to_email],
+        "subject": subject,
+        "html": html_content
+    }
     
     try:
-        # In production, use a real email service like SendGrid, SES, etc.
-        # For now, just log the email
-        logger.info(f"Sending email to {to_email}: {subject}")
-        return True
+        email = await asyncio.to_thread(resend_client.Emails.send, params)
+        logger.info(f"Email sent to {to_email}: {email.get('id')}")
+        return email.get("id")
     except Exception as e:
-        logger.error(f"Failed to send email to {to_email}: {e}")
-        return False
+        logger.error(f"Failed to send email to {to_email}: {str(e)}")
+        return None
 
 
-async def send_verification_email(to_email: str, name: str, token: str) -> bool:
-    """Send email verification link."""
-    verify_url = f"{FRONTEND_URL}/verify-email?token={token}"
-    
-    html_content = f"""
+# Email Templates
+
+def get_welcome_email_html(name: str) -> str:
+    """Generate welcome email HTML."""
+    return f"""
+    <!DOCTYPE html>
     <html>
-    <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: linear-gradient(to right, #f97316, #ec4899); padding: 20px; text-align: center;">
-            <h1 style="color: white; margin: 0;">Adverlyx Digital</h1>
-        </div>
-        <div style="padding: 30px; background: #f9fafb;">
-            <h2>Welcome, {name}!</h2>
-            <p>Thank you for signing up for Adverlyx. Please verify your email address to get started.</p>
-            <div style="text-align: center; margin: 30px 0;">
-                <a href="{verify_url}" style="background: #1f2937; color: white; padding: 12px 30px; text-decoration: none; border-radius: 25px; display: inline-block;">Verify Email</a>
-            </div>
-            <p style="color: #666; font-size: 14px;">If you didn't create an account, you can safely ignore this email.</p>
-        </div>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="margin: 0; padding: 0; background-color: #f4f4f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f5; padding: 40px 20px;">
+            <tr>
+                <td align="center">
+                    <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 16px; overflow: hidden;">
+                        <tr>
+                            <td style="background: linear-gradient(135deg, #f97316, #ec4899, #8b5cf6); padding: 40px; text-align: center;">
+                                <h1 style="color: #ffffff; margin: 0; font-size: 28px;">Welcome to {BRAND_NAME}!</h1>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 40px;">
+                                <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 20px;">Hi {name},</p>
+                                <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 20px;">Welcome to {BRAND_NAME}! We're excited to help you grow your Instagram presence.</p>
+                                <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 30px;">Get started by choosing a plan and connecting your Instagram account.</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="background-color: #f9fafb; padding: 30px; text-align: center;">
+                                <p style="color: #6b7280; font-size: 14px; margin: 0;">© 2026 {BRAND_NAME}. All rights reserved.</p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
     </body>
     </html>
     """
-    
-    return await send_email(to_email, "Verify your email - Adverlyx", html_content)
 
 
-async def send_password_reset_email(to_email: str, name: str, token: str) -> bool:
-    """Send password reset link."""
-    reset_url = f"{FRONTEND_URL}/reset-password?token={token}"
-    
-    html_content = f"""
+def get_payment_confirmation_html(name: str, plan: str, amount: float, billing: str) -> str:
+    """Generate payment confirmation email HTML."""
+    return f"""
+    <!DOCTYPE html>
     <html>
-    <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: linear-gradient(to right, #f97316, #ec4899); padding: 20px; text-align: center;">
-            <h1 style="color: white; margin: 0;">Adverlyx Digital</h1>
-        </div>
-        <div style="padding: 30px; background: #f9fafb;">
-            <h2>Password Reset Request</h2>
-            <p>Hi {name},</p>
-            <p>We received a request to reset your password. Click the button below to create a new password.</p>
-            <div style="text-align: center; margin: 30px 0;">
-                <a href="{reset_url}" style="background: #1f2937; color: white; padding: 12px 30px; text-decoration: none; border-radius: 25px; display: inline-block;">Reset Password</a>
-            </div>
-            <p style="color: #666; font-size: 14px;">This link will expire in 1 hour. If you didn't request this, you can safely ignore this email.</p>
-        </div>
+    <head><meta charset="utf-8"></head>
+    <body style="margin: 0; padding: 0; background-color: #f4f4f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f5; padding: 40px 20px;">
+            <tr>
+                <td align="center">
+                    <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 16px; overflow: hidden;">
+                        <tr>
+                            <td style="background: linear-gradient(135deg, #22c55e, #16a34a); padding: 40px; text-align: center;">
+                                <h1 style="color: #ffffff; margin: 0; font-size: 28px;">Payment Confirmed!</h1>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 40px;">
+                                <p style="color: #374151; font-size: 16px; margin: 0 0 20px;">Hi {name},</p>
+                                <p style="color: #374151; font-size: 16px; margin: 0 0 30px;">Your payment has been processed successfully.</p>
+                                <table width="100%" style="background-color: #f9fafb; border-radius: 12px; margin-bottom: 30px;">
+                                    <tr><td style="padding: 24px;">
+                                        <p style="margin: 8px 0;"><strong>Plan:</strong> {plan}</p>
+                                        <p style="margin: 8px 0;"><strong>Billing:</strong> {billing}</p>
+                                        <p style="margin: 8px 0; font-size: 20px; color: #22c55e;"><strong>Amount:</strong> ${amount:.2f}</p>
+                                    </td></tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="background-color: #f9fafb; padding: 30px; text-align: center;">
+                                <p style="color: #6b7280; font-size: 14px; margin: 0;">© 2026 {BRAND_NAME}</p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
     </body>
     </html>
     """
-    
-    return await send_email(to_email, "Reset your password - Adverlyx", html_content)
 
 
-async def send_welcome_email(to_email: str, name: str) -> bool:
-    """Send welcome email after verification."""
-    dashboard_url = f"{FRONTEND_URL}/dashboard"
-    
-    html_content = f"""
-    <html>
-    <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: linear-gradient(to right, #f97316, #ec4899); padding: 20px; text-align: center;">
-            <h1 style="color: white; margin: 0;">Adverlyx Digital</h1>
-        </div>
-        <div style="padding: 30px; background: #f9fafb;">
-            <h2>Welcome to Adverlyx, {name}! 🎉</h2>
-            <p>Your email has been verified and your account is now active.</p>
-            <p>Here's what you can do next:</p>
-            <ul>
-                <li>Connect your Instagram account</li>
-                <li>Set up your targeting preferences</li>
-                <li>Choose a growth plan</li>
-                <li>Watch your audience grow!</li>
-            </ul>
-            <div style="text-align: center; margin: 30px 0;">
-                <a href="{dashboard_url}" style="background: linear-gradient(to right, #f97316, #ec4899); color: white; padding: 12px 30px; text-decoration: none; border-radius: 25px; display: inline-block;">Go to Dashboard</a>
-            </div>
-            <p style="color: #666; font-size: 14px;">Need help? Our support team is available 24/7.</p>
-        </div>
-    </body>
-    </html>
-    """
-    
-    return await send_email(to_email, "Welcome to Adverlyx! 🚀", html_content)
+async def send_welcome_email(email: str, name: str) -> Optional[str]:
+    """Send welcome email to new user."""
+    subject = f"Welcome to {BRAND_NAME}!"
+    html = get_welcome_email_html(name)
+    return await send_email(email, subject, html)
 
 
-async def send_subscription_email(to_email: str, name: str, plan: str, amount: float) -> bool:
-    """Send subscription confirmation email."""
-    dashboard_url = f"{FRONTEND_URL}/dashboard"
-    
-    html_content = f"""
-    <html>
-    <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: linear-gradient(to right, #f97316, #ec4899); padding: 20px; text-align: center;">
-            <h1 style="color: white; margin: 0;">Adverlyx Digital</h1>
-        </div>
-        <div style="padding: 30px; background: #f9fafb;">
-            <h2>Subscription Confirmed! ✅</h2>
-            <p>Hi {name},</p>
-            <p>Thank you for subscribing to the <strong>{plan}</strong> plan!</p>
-            <div style="background: white; padding: 20px; border-radius: 10px; margin: 20px 0;">
-                <p style="margin: 0;"><strong>Plan:</strong> {plan}</p>
-                <p style="margin: 10px 0 0;"><strong>Amount:</strong> ${amount}/month</p>
-            </div>
-            <p>Our AI growth engine is now working to find your perfect audience. You should start seeing results within 24 hours!</p>
-            <div style="text-align: center; margin: 30px 0;">
-                <a href="{dashboard_url}" style="background: #1f2937; color: white; padding: 12px 30px; text-decoration: none; border-radius: 25px; display: inline-block;">View Dashboard</a>
-            </div>
-        </div>
-    </body>
-    </html>
-    """
-    
-    return await send_email(to_email, f"Subscription Confirmed - {plan} Plan", html_content)
+async def send_payment_confirmation_email(email: str, name: str, plan: str, amount: float, billing: str) -> Optional[str]:
+    """Send payment confirmation email."""
+    subject = f"Payment Confirmed - {BRAND_NAME}"
+    html = get_payment_confirmation_html(name, plan, amount, billing)
+    return await send_email(email, subject, html)
