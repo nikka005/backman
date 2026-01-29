@@ -4,30 +4,96 @@ import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Progress } from '../components/ui/progress';
 import {
-  Users, TrendingUp, Eye, Heart, Settings, LogOut, Bell, Search,
-  ChevronRight, ArrowUpRight, ArrowDownRight, Instagram, Target,
-  Pause, Play, Calendar, BarChart3, Zap, Crown, MessageCircle
+  Users, TrendingUp, Eye, Heart, Settings, LogOut, Bell,
+  ChevronRight, ArrowUpRight, Instagram, Target,
+  Pause, Play, BarChart3, Zap, Crown, MessageCircle, Loader2
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { instagramAPI, subscriptionAPI, notificationsAPI } from '../services/api';
 import { dashboardStats, growthData } from '../data/mockData';
 
 const DashboardPage = () => {
   const navigate = useNavigate();
+  const { user, logout, isAuthenticated, loading: authLoading } = useAuth();
   const [isGrowthActive, setIsGrowthActive] = useState(true);
-  const userName = localStorage.getItem('userName') || 'User';
+  const [instagramAccount, setInstagramAccount] = useState(null);
+  const [subscription, setSubscription] = useState(null);
+  const [stats, setStats] = useState(null);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    if (!isLoggedIn) {
+    if (!authLoading && !isAuthenticated) {
       navigate('/login');
     }
-  }, [navigate]);
+  }, [authLoading, isAuthenticated, navigate]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadDashboardData();
+    }
+  }, [isAuthenticated]);
+
+  const loadDashboardData = async () => {
+    try {
+      setLoading(true);
+      
+      // Load Instagram account
+      const igResponse = await instagramAPI.getAccount();
+      if (igResponse.data) {
+        setInstagramAccount(igResponse.data);
+        setIsGrowthActive(!igResponse.data.growth_paused);
+        
+        // Load stats if account exists
+        try {
+          const statsResponse = await instagramAPI.getStats();
+          setStats(statsResponse.data);
+        } catch (e) {
+          // Use mock stats if no real stats
+          setStats(dashboardStats);
+        }
+      }
+      
+      // Load subscription
+      try {
+        const subResponse = await subscriptionAPI.getCurrent();
+        setSubscription(subResponse.data);
+      } catch (e) {
+        // No subscription
+      }
+      
+      // Load notification count
+      try {
+        const notifResponse = await notificationsAPI.getUnreadCount();
+        setUnreadCount(notifResponse.data.unread_count);
+      } catch (e) {
+        // Ignore
+      }
+    } catch (error) {
+      console.error('Error loading dashboard:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogout = () => {
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userEmail');
-    localStorage.removeItem('userName');
+    logout();
     navigate('/login');
   };
+
+  const toggleGrowth = async () => {
+    if (instagramAccount) {
+      try {
+        await instagramAPI.updateAccount({ growth_paused: isGrowthActive });
+        setIsGrowthActive(!isGrowthActive);
+      } catch (error) {
+        console.error('Error toggling growth:', error);
+      }
+    }
+  };
+
+  // Use actual stats or mock data
+  const displayStats = stats || dashboardStats;
 
   const stats = [
     {
