@@ -421,6 +421,7 @@ Adverlyx Digital is a full-stack SaaS platform for Instagram growth services (pl
 - Real Instagram API integration (Meta Graph API)
 - AdminDashboard.jsx refactoring (extract inline components)
 - PayPal payment integration
+- Full Onboarding Wizard (Option B) - Multi-step with PDF reports
 
 ---
 
@@ -495,4 +496,54 @@ Adverlyx Digital is a full-stack SaaS platform for Instagram growth services (pl
   - Analytics analyzer with type and period selectors
   - Risk assessment tool with target type selection
   - Settings panel with module toggles and provider info
+
+---
+
+### Phase 11: AI User Onboarding (Option A - Lite) ✅ COMPLETE
+**Completed: January 29, 2026**
+
+- [x] **AI Onboarding Backend**
+  - `POST /api/ai/onboarding/recommendations` - Get personalized recommendations
+  - `POST /api/ai/onboarding/apply-recommendations/{id}` - Apply recommendations to targeting
+  - `GET /api/ai/onboarding/history` - View recommendation history
+  - Plan-tier based recommendation depth:
+    - Free/Trial: Basic recommendations (5 hashtags, no competitor analysis)
+    - Starter+: Full recommendations (8 hashtags, 3 similar accounts)
+    - Pro/Enterprise: Advanced + editable suggestions
+
+- [x] **AI Onboarding User Inputs**
+  - Primary Goal: Brand Awareness / Leads & Sales / Creator Growth
+  - Growth Urgency: Slow & Safe / Balanced (recommended) / Faster
+  - Target Country (optional)
+  - Competitors (optional, max 5)
+
+- [x] **AI Onboarding Outputs**
+  - Detected niche/category
+  - Recommended hashtags
+  - Similar accounts to target
+  - Target locations
+  - Growth intensity recommendation
+  - Suggested plan tier with reason
+  - Growth expectation (safe, advisory wording)
+  - Safety notes
+  - AI analysis summary
+
+- [x] **AI Onboarding UI Component**
+  - 3-step flow: Input → Loading → Results
+  - Clean panel design with clear CTAs
+  - Apply / Customize / Skip options
+  - Confidence level indicator
+  - Plan upsell (soft, advisory)
+
+- [x] **Integration with Instagram Connect Flow**
+  - AI hint shown on Connect Instagram page
+  - After connection → AI Onboarding modal appears
+  - User can apply recommendations or skip
+  - Recommendations stored for audit
+
+- [x] **Safety & Compliance**
+  - No guaranteed follower counts
+  - No specific timelines
+  - Advisory tone throughout
+  - Safe phrases: "Based on similar accounts", "Results may vary"
 
