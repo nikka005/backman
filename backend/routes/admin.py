@@ -358,6 +358,49 @@ async def admin_change_plan(
     return {"message": f"Plan changed to {new_plan}"}
 
 
+@router.post("/subscriptions/{subscription_id}/cancel")
+async def admin_cancel_subscription(
+    subscription_id: str,
+    current_user: dict = Depends(admin_required)
+):
+    """Admin can cancel a subscription."""
+    sub = await db.subscriptions.find_one({"id": subscription_id})
+    if not sub:
+        raise HTTPException(status_code=404, detail="Subscription not found")
+    
+    if sub['status'] == SubscriptionStatus.CANCELLED:
+        raise HTTPException(status_code=400, detail="Subscription already cancelled")
+    
+    await db.subscriptions.update_one(
+        {"id": subscription_id},
+        {"$set": {
+            "status": SubscriptionStatus.CANCELLED,
+            "cancelled_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    
+    await db.users.update_one(
+        {"id": sub['user_id']},
+        {"$set": {"current_plan": None}}
+    )
+    
+    # Log action
+    log = AdminLog(
+        admin_id=current_user['user_id'],
+        admin_email=current_user['email'],
+        action=AdminAction.SUBSCRIPTION_CANCEL,
+        target_type="subscription",
+        target_id=subscription_id,
+        description=f"Cancelled subscription {subscription_id}"
+    )
+    log_dict = log.model_dump()
+    log_dict['created_at'] = log_dict['created_at'].isoformat()
+    await db.admin_logs.insert_one(log_dict)
+    
+    return {"message": "Subscription cancelled"}
+
+
 # ==================== PAYMENT MANAGEMENT ====================
 
 @router.get("/payments")
