@@ -535,6 +535,26 @@ async def admin_update_growth(
     return {"message": "Growth settings updated"}
 
 
+@router.put("/instagram-accounts/{account_id}")
+async def admin_update_instagram_account(
+    account_id: str,
+    update_data: dict,
+    current_user: dict = Depends(admin_required)
+):
+    """Admin can update instagram account settings."""
+    account = await db.instagram_accounts.find_one({"id": account_id})
+    if not account:
+        raise HTTPException(status_code=404, detail="Account not found")
+    
+    allowed_fields = ["growth_paused", "growth_intensity", "niche", "status"]
+    update = {k: v for k, v in update_data.items() if k in allowed_fields}
+    update["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    await db.instagram_accounts.update_one({"id": account_id}, {"$set": update})
+    
+    return {"message": "Account updated"}
+
+
 # ==================== TICKET MANAGEMENT ====================
 
 @router.get("/tickets")
