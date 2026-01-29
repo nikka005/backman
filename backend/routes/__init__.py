@@ -69,5 +69,6 @@ all_routers = [
     push_notifications_router,
     rate_limits_router,
     export_router,
-    ai_intelligence_router
+    ai_intelligence_router,
+    ai_onboarding_router
 ]
