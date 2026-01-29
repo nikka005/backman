@@ -30,11 +30,13 @@ async def get_razorpay_client():
     # Try to get keys from database first (admin panel settings)
     if db is not None:
         try:
-            payment_config = await db.payment_options.find_one({"provider": "razorpay"})
+            # Check feature_payments collection (where admin panel saves payment configs)
+            payment_config = await db.feature_payments.find_one({"key": "feature_razorpay"})
             if payment_config and payment_config.get("api_key") and payment_config.get("api_secret"):
-                key_id = payment_config.get("api_key") or payment_config.get("public_key")
+                key_id = payment_config.get("api_key")
                 key_secret = payment_config.get("api_secret")
                 if key_id and key_secret and not key_id.startswith("YOUR_") and not key_secret.startswith("YOUR_"):
+                    logger.info("Using Razorpay credentials from database")
                     return razorpay.Client(auth=(key_id, key_secret))
         except Exception as e:
             logger.warning(f"Failed to get Razorpay keys from database: {e}")
