@@ -83,7 +83,7 @@ async def get_testimonials():
 @router.get("/faqs")
 async def get_faqs():
     """Get public FAQs."""
-    faqs = await db.cms_content.find_one({"key": "faqs"}, {"_id": 0}) if db else None
+    faqs = await db.cms_content.find_one({"key": "faqs"}, {"_id": 0}) if db is not None else None
     
     if faqs and faqs.get('content'):
         return faqs['content']
