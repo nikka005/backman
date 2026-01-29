@@ -251,6 +251,8 @@ async def handle_subscription_deleted(data: dict):
 
 async def handle_invoice_paid(data: dict):
     """Handle successful invoice payment."""
+    from utils.email import send_email
+    
     invoice_id = data.get("id")
     customer_id = data.get("customer")
     subscription_id = data.get("subscription")
@@ -275,6 +277,32 @@ async def handle_invoice_paid(data: dict):
             "created_at": datetime.now(timezone.utc).isoformat()
         }
         await db.payments.insert_one(payment_record)
+        
+        # Send confirmation email
+        try:
+            template = await db.email_templates.find_one({"key": "payment_confirmation"})
+            if template and template.get("enabled"):
+                settings = await db.site_settings.find_one({}, {"_id": 0})
+                branding = settings.get("branding", {}) if settings else {}
+                
+                # Get subscription details
+                sub = await db.subscriptions.find_one({"stripe_subscription_id": subscription_id})
+                plan_name = sub.get("plan", "Pro") if sub else "Pro"
+                billing = sub.get("billing_cycle", "Monthly").capitalize() if sub else "Monthly"
+                
+                subject = template["subject"].replace("{{brand_name}}", branding.get("site_name", "Adverlyx Digital"))
+                html = template["html_content"]
+                html = html.replace("{{name}}", user.get("name", "Customer"))
+                html = html.replace("{{plan}}", plan_name.capitalize())
+                html = html.replace("{{amount}}", f"{amount_paid:.2f}")
+                html = html.replace("{{billing}}", billing)
+                html = html.replace("{{brand_name}}", branding.get("site_name", "Adverlyx Digital"))
+                html = html.replace("{{dashboard_url}}", f"{os.environ.get('FRONTEND_URL', 'https://adverlyx.com')}/dashboard")
+                html = html.replace("{{bg_color}}", "#f4f4f5")
+                
+                await send_email(user["email"], subject, html)
+        except Exception as e:
+            logger.error(f"Failed to send payment confirmation email: {e}")
 
 
 async def handle_payment_failed(data: dict):
