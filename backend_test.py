@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 
 # Configuration
-BASE_URL = "https://instamagi.preview.emergentagent.com/api"
+BASE_URL = "https://dynamic-cms-11.preview.emergentagent.com/api"
 TIMEOUT = 30
 
 class APITester:
