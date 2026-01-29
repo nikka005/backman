@@ -783,45 +783,56 @@ const DashboardPage = () => {
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
-                      <input 
+                      <Input 
                         type="text" 
-                        className="w-full px-4 py-2 border rounded-lg"
-                        defaultValue={user?.name || ''}
+                        className="w-full"
+                        value={userSettings.name}
+                        onChange={(e) => setUserSettings(prev => ({ ...prev, name: e.target.value }))}
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                      <input 
+                      <Input 
                         type="email" 
-                        className="w-full px-4 py-2 border rounded-lg bg-gray-50"
+                        className="w-full bg-gray-50"
                         value={user?.email || ''}
                         disabled
                       />
                     </div>
                   </div>
-                  <Button className="bg-gray-900 text-white">Save Changes</Button>
+                  <Button 
+                    onClick={handleSaveSettings}
+                    disabled={savingSettings}
+                    className="bg-gray-900 text-white"
+                  >
+                    {savingSettings ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
+                    Save Changes
+                  </Button>
                 </div>
               </div>
+              
+              {/* Two-Factor Authentication */}
+              <TwoFactorSettings />
               
               <div className="bg-white rounded-2xl border border-gray-100 p-6">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">Notifications</h2>
                 <div className="space-y-4">
                   <label className="flex items-center justify-between">
                     <span className="text-gray-700">Email notifications</span>
-                    <input type="checkbox" defaultChecked className="w-5 h-5 rounded" />
+                    <input type="checkbox" defaultChecked className="w-5 h-5 rounded accent-pink-500" />
                   </label>
                   <label className="flex items-center justify-between">
                     <span className="text-gray-700">Growth milestone alerts</span>
-                    <input type="checkbox" defaultChecked className="w-5 h-5 rounded" />
+                    <input type="checkbox" defaultChecked className="w-5 h-5 rounded accent-pink-500" />
                   </label>
                   <label className="flex items-center justify-between">
                     <span className="text-gray-700">Weekly reports</span>
-                    <input type="checkbox" defaultChecked className="w-5 h-5 rounded" />
+                    <input type="checkbox" defaultChecked className="w-5 h-5 rounded accent-pink-500" />
                   </label>
                 </div>
               </div>
               
-              <div className="bg-white rounded-2xl border border-gray-100 p-6">
+              <div className="bg-white rounded-2xl border border-gray-100 p-6 border-red-200">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4 text-red-600">Danger Zone</h2>
                 <p className="text-sm text-gray-500 mb-4">Once you delete your account, there is no going back.</p>
                 <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50">
