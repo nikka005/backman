@@ -5,70 +5,130 @@ from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
-from pydantic import BaseModel, Field, ConfigDict
-from typing import List
-import uuid
-from datetime import datetime, timezone
+from contextlib import asynccontextmanager
 
-
+# Load environment variables
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+db = client[os.environ.get('DB_NAME', 'adverlyx')]
 
-# Create the main app without a prefix
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifecycle manager for FastAPI app."""
+    # Startup: Initialize routes with database
+    from routes import init_all_routes
+    init_all_routes(db)
+    
+    # Create indexes for better query performance
+    await create_indexes()
+    
+    logging.info("Application started successfully")
+    yield
+    
+    # Shutdown
+    client.close()
+    logging.info("Application shutdown complete")
+
+
+async def create_indexes():
+    """Create database indexes for better performance."""
+    try:
+        # Users indexes
+        await db.users.create_index("email", unique=True)
+        await db.users.create_index("id", unique=True)
+        await db.users.create_index("verification_token")
+        await db.users.create_index("reset_token")
+        
+        # Subscriptions indexes
+        await db.subscriptions.create_index("user_id")
+        await db.subscriptions.create_index("status")
+        await db.subscriptions.create_index([("user_id", 1), ("status", 1)])
+        
+        # Payments indexes
+        await db.payments.create_index("user_id")
+        await db.payments.create_index("status")
+        await db.payments.create_index("created_at")
+        
+        # Instagram accounts indexes
+        await db.instagram_accounts.create_index("user_id")
+        await db.instagram_accounts.create_index("username")
+        await db.instagram_accounts.create_index("status")
+        
+        # Targeting settings indexes
+        await db.targeting_settings.create_index("user_id")
+        await db.targeting_settings.create_index("instagram_account_id")
+        
+        # Growth logs indexes
+        await db.growth_logs.create_index("user_id")
+        await db.growth_logs.create_index("instagram_account_id")
+        await db.growth_logs.create_index("created_at")
+        
+        # Tickets indexes
+        await db.tickets.create_index("user_id")
+        await db.tickets.create_index("status")
+        await db.tickets.create_index("assigned_to")
+        
+        # Notifications indexes
+        await db.notifications.create_index("user_id")
+        await db.notifications.create_index("read")
+        await db.notifications.create_index("created_at")
+        
+        # Admin logs indexes
+        await db.admin_logs.create_index("admin_id")
+        await db.admin_logs.create_index("action")
+        await db.admin_logs.create_index("created_at")
+        
+        # CMS content indexes
+        await db.cms_content.create_index("key", unique=True)
+        
+        logging.info("Database indexes created successfully")
+    except Exception as e:
+        logging.warning(f"Some indexes may already exist: {e}")
+
+
+# Create the main app
+app = FastAPI(
+    title="Adverlyx Digital API",
+    description="Instagram Growth Platform API",
+    version="1.0.0",
+    lifespan=lifespan
+)
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
 
-# Define Models
-class StatusCheck(BaseModel):
-    model_config = ConfigDict(extra="ignore")  # Ignore MongoDB's _id field
-    
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-
-class StatusCheckCreate(BaseModel):
-    client_name: str
-
-# Add your routes to the router instead of directly to app
+# Health check endpoint
 @api_router.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "Adverlyx Digital API", "status": "healthy", "version": "1.0.0"}
 
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.model_dump()
-    status_obj = StatusCheck(**status_dict)
-    
-    # Convert to dict and serialize datetime to ISO string for MongoDB
-    doc = status_obj.model_dump()
-    doc['timestamp'] = doc['timestamp'].isoformat()
-    
-    _ = await db.status_checks.insert_one(doc)
-    return status_obj
 
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    # Exclude MongoDB's _id field from the query results
-    status_checks = await db.status_checks.find({}, {"_id": 0}).to_list(1000)
-    
-    # Convert ISO string timestamps back to datetime objects
-    for check in status_checks:
-        if isinstance(check['timestamp'], str):
-            check['timestamp'] = datetime.fromisoformat(check['timestamp'])
-    
-    return status_checks
+@api_router.get("/health")
+async def health_check():
+    try:
+        # Check database connection
+        await db.command("ping")
+        return {"status": "healthy", "database": "connected"}
+    except Exception as e:
+        return {"status": "unhealthy", "database": "disconnected", "error": str(e)}
 
-# Include the router in the main app
+
+# Include the base router
 app.include_router(api_router)
 
+# Include all feature routers
+from routes import all_routers
+for router in all_routers:
+    app.include_router(router, prefix="/api")
+
+
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
@@ -84,6 +144,34 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-@app.on_event("shutdown")
-async def shutdown_db_client():
-    client.close()
+
+# Seed initial admin user if not exists
+async def seed_admin():
+    """Create initial admin user if not exists."""
+    from utils.auth import hash_password
+    from models.user import User, UserRole, UserStatus
+    
+    admin_email = os.environ.get("ADMIN_EMAIL", "admin@adverlyx.com")
+    admin_password = os.environ.get("ADMIN_PASSWORD", "Admin123!")
+    
+    existing = await db.users.find_one({"email": admin_email})
+    if not existing:
+        admin = User(
+            email=admin_email,
+            name="Admin",
+            password_hash=hash_password(admin_password),
+            role=UserRole.ADMIN,
+            status=UserStatus.ACTIVE,
+            email_verified=True
+        )
+        admin_dict = admin.model_dump()
+        admin_dict['created_at'] = admin_dict['created_at'].isoformat()
+        admin_dict['updated_at'] = admin_dict['updated_at'].isoformat()
+        await db.users.insert_one(admin_dict)
+        logger.info(f"Admin user created: {admin_email}")
+
+
+@app.on_event("startup")
+async def startup_event():
+    """Additional startup tasks."""
+    await seed_admin()
