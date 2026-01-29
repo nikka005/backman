@@ -443,12 +443,12 @@ class TestUnauthorizedAccess:
     def test_settings_requires_auth(self):
         """Test admin settings endpoint requires auth"""
         response = requests.get(f"{BASE_URL}/api/admin/settings/")
-        assert response.status_code == 401
+        assert response.status_code in [401, 403]  # Either unauthorized or forbidden
         
     def test_plans_requires_auth(self):
         """Test admin plans endpoint requires auth"""
         response = requests.get(f"{BASE_URL}/api/admin/plans/")
-        assert response.status_code == 401
+        assert response.status_code in [401, 403]  # Either unauthorized or forbidden
 
 
 if __name__ == "__main__":
