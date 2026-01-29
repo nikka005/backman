@@ -434,15 +434,4 @@ const NotificationsManagement = () => (
   </div>
 );
 
-const SettingsPage = () => (
-  <div>
-    <h1 className="text-2xl font-bold text-gray-900 mb-2">Settings</h1>
-    <p className="text-gray-500 mb-8">Configure platform settings</p>
-    <div className="bg-white rounded-xl p-8 text-center">
-      <Settings className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-      <p className="text-gray-500">Settings features coming soon</p>
-    </div>
-  </div>
-);
-
 export default AdminDashboard;
