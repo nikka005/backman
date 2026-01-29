@@ -91,6 +91,10 @@ async def register(user_data: UserCreate, request: Request):
 @router.post("/login", response_model=TokenResponse)
 async def login(credentials: UserLogin, request: Request):
     """Login and get access token."""
+    # Rate limiting for auth attempts
+    client_ip = get_client_ip(request)
+    check_rate_limit(client_ip, "auth")
+    
     # Find user
     user_doc = await db.users.find_one({"email": credentials.email})
     if not user_doc:
