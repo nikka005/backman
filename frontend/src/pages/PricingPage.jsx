@@ -72,7 +72,29 @@ const PricingPage = () => {
     }
   };
 
-  const comparisonFeatures = [
+  // Load feature matrix dynamically
+  const [featureMatrix, setFeatureMatrix] = useState([]);
+  
+  useEffect(() => {
+    loadFeatureMatrix();
+  }, []);
+
+  const loadFeatureMatrix = async () => {
+    try {
+      const response = await publicAPI.getFeatureMatrix();
+      setFeatureMatrix(response.data);
+    } catch (error) {
+      console.error('Error loading feature matrix:', error);
+    }
+  };
+
+  // Transform feature matrix to comparison format
+  const comparisonFeatures = featureMatrix.length > 0 ? featureMatrix.map(f => ({
+    name: f.feature_name,
+    basic: f.is_boolean ? (f.basic_value === 'Yes') : f.basic_value,
+    pro: f.is_boolean ? (f.pro_value === 'Yes') : f.pro_value,
+    enterprise: f.is_boolean ? (f.enterprise_value === 'Yes') : f.enterprise_value,
+  })) : [
     { name: 'Guaranteed Followers/Month', basic: '1,000 - 1,500', pro: '2,500 - 3,500+', enterprise: '5,000+' },
     { name: 'AI-Powered Targeting', basic: true, pro: true, enterprise: true },
     { name: 'Real-Time Analytics', basic: true, pro: true, enterprise: true },
