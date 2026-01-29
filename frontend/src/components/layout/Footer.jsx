@@ -14,8 +14,8 @@ const Footer = () => {
     ],
     company: [
       { name: 'About Us', path: '/about' },
-      { name: 'Careers', path: '/careers' },
-      { name: 'Blog', path: '/blog' },
+      { name: 'Affiliate Program', path: '/affiliate' },
+      { name: 'Referral Program', path: '/referral' },
       { name: 'Contact', path: '/contact' },
     ],
     legal: [
@@ -28,15 +28,15 @@ const Footer = () => {
       { name: 'Help Center', path: '/help' },
       { name: 'FAQ', path: '/faq' },
       { name: 'Status', path: '/status' },
-      { name: 'Contact Support', path: '/support' },
+      { name: 'Contact Support', path: '/contact' },
     ],
   };
 
   const socialLinks = [
-    { icon: Instagram, href: '#', label: 'Instagram' },
-    { icon: Twitter, href: '#', label: 'Twitter' },
-    { icon: Linkedin, href: '#', label: 'LinkedIn' },
-    { icon: Youtube, href: '#', label: 'YouTube' },
+    { icon: Instagram, href: 'https://instagram.com/adverlyx', label: 'Instagram' },
+    { icon: Twitter, href: 'https://twitter.com/adverlyx', label: 'Twitter' },
+    { icon: Linkedin, href: 'https://linkedin.com/company/adverlyx', label: 'LinkedIn' },
+    { icon: Youtube, href: 'https://youtube.com/@adverlyx', label: 'YouTube' },
   ];
 
   return (
