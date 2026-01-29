@@ -47,6 +47,7 @@ def init_all_routes(database):
     init_export(database)
     init_ai_intelligence(database)
     init_ai_onboarding(database)
+    init_instagram_graph(database)
 
 
 all_routers = [
