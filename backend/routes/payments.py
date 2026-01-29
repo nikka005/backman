@@ -189,6 +189,17 @@ async def get_checkout_status(session_id: str, current_user: dict = Depends(get_
             
             update_data["subscription_created"] = True
             update_data["subscription_created_at"] = datetime.now(timezone.utc).isoformat()
+            
+            # Send payment confirmation email
+            user = await db.users.find_one({"id": transaction["user_id"]})
+            if user:
+                await send_payment_confirmation_email(
+                    email=user["email"],
+                    name=user.get("name", "Customer"),
+                    plan=transaction["plan"],
+                    amount=transaction["amount"],
+                    billing=transaction["billing"]
+                )
         
         # Update transaction
         await db.payment_transactions.update_one(
