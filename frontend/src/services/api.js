@@ -125,6 +125,16 @@ export const publicAPI = {
   getFeatureMatrix: () => api.get('/public/feature-matrix'),
 };
 
+// Payment API
+export const paymentAPI = {
+  createCheckoutSession: (packageId, originUrl) => 
+    api.post('/payments/checkout/session', null, { params: { package_id: packageId, origin_url: originUrl } }),
+  getCheckoutStatus: (sessionId) => api.get(`/payments/checkout/status/${sessionId}`),
+  getPaymentHistory: () => api.get('/payments/history'),
+  getCurrentSubscription: () => api.get('/payments/subscription'),
+  cancelSubscription: () => api.post('/payments/subscription/cancel'),
+};
+
 // Admin API
 export const adminAPI = {
   getDashboard: () => api.get('/admin/dashboard'),
