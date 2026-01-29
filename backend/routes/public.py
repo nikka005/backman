@@ -37,7 +37,7 @@ async def get_platform_stats():
 async def get_testimonials():
     """Get public testimonials."""
     # Try to get from database
-    testimonials = await db.cms_content.find_one({"key": "testimonials"}, {"_id": 0}) if db else None
+    testimonials = await db.cms_content.find_one({"key": "testimonials"}, {"_id": 0}) if db is not None else None
     
     if testimonials and testimonials.get('content'):
         return testimonials['content']
