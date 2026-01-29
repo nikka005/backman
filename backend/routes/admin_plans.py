@@ -202,6 +202,60 @@ async def seed_defaults(current_user: dict = Depends(admin_required)):
     return {"message": "Default plans seeded"}
 
 
+# ==================== FEATURE MATRIX ====================
+
+@router.get("/feature-matrix")
+async def get_feature_matrix(current_user: dict = Depends(admin_required)):
+    """Get the feature comparison matrix."""
+    matrix = await db.feature_matrix.find({}, {"_id": 0}).sort("category", 1).to_list(100)
+    if not matrix:
+        # Seed defaults and return
+        await seed_feature_matrix()
+        matrix = await db.feature_matrix.find({}, {"_id": 0}).sort("category", 1).to_list(100)
+    return matrix
+
+
+@router.put("/feature-matrix")
+async def update_feature_matrix(matrix: List[dict], current_user: dict = Depends(admin_required)):
+    """Update the entire feature matrix."""
+    # Clear and replace
+    await db.feature_matrix.delete_many({})
+    for item in matrix:
+        item['updated_at'] = datetime.now(timezone.utc).isoformat()
+        item['updated_by'] = current_user['user_id']
+        await db.feature_matrix.insert_one(item)
+    return {"message": "Feature matrix updated"}
+
+
+@router.put("/feature-matrix/{feature_key}")
+async def update_feature_matrix_item(feature_key: str, item: dict, current_user: dict = Depends(admin_required)):
+    """Update a single feature matrix item."""
+    item['updated_at'] = datetime.now(timezone.utc).isoformat()
+    item['updated_by'] = current_user['user_id']
+    await db.feature_matrix.update_one(
+        {"feature_key": feature_key},
+        {"$set": item},
+        upsert=True
+    )
+    return {"message": "Feature updated"}
+
+
+@router.post("/feature-matrix/seed")
+async def seed_matrix(current_user: dict = Depends(admin_required)):
+    """Seed default feature matrix."""
+    await seed_feature_matrix()
+    return {"message": "Feature matrix seeded"}
+
+
+async def seed_feature_matrix():
+    """Seed default feature matrix into database."""
+    for item in DEFAULT_FEATURE_MATRIX:
+        existing = await db.feature_matrix.find_one({"feature_key": item['feature_key']})
+        if not existing:
+            item['created_at'] = datetime.now(timezone.utc).isoformat()
+            await db.feature_matrix.insert_one(item)
+
+
 async def seed_default_plans():
     """Seed default plans into database."""
     for plan_data in DEFAULT_PLANS:
