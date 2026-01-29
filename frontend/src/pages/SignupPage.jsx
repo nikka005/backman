@@ -225,10 +225,19 @@ const SignupPage = () => {
             <Button 
               type="submit" 
               className="w-full bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white rounded-full py-6 group"
-              disabled={!agreeTerms}
+              disabled={!agreeTerms || loading}
             >
-              Create Account
-              <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Creating Account...
+                </>
+              ) : (
+                <>
+                  Create Account
+                  <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                </>
+              )}
             </Button>
           </form>
 
