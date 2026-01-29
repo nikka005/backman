@@ -329,15 +329,15 @@ class TestBulkOperations:
             page_key = pages[0]["key"]
             original_enabled = pages[0].get("enabled", True)
             
-            # Toggle to opposite state - uses query params and body is list of keys
+            # Toggle to opposite state - uses JSON body
             response = requests.post(
                 f"{BASE_URL}/api/admin/feature-management/bulk-toggle",
                 headers=auth_headers,
-                params={
+                json={
                     "feature_type": "page",
-                    "enabled": str(not original_enabled).lower()
-                },
-                json=[page_key]
+                    "keys": [page_key],
+                    "enabled": not original_enabled
+                }
             )
             assert response.status_code == 200, f"Bulk toggle failed: {response.text}"
             print(f"✓ Bulk toggle successful")
@@ -346,11 +346,11 @@ class TestBulkOperations:
             requests.post(
                 f"{BASE_URL}/api/admin/feature-management/bulk-toggle",
                 headers=auth_headers,
-                params={
+                json={
                     "feature_type": "page",
-                    "enabled": str(original_enabled).lower()
-                },
-                json=[page_key]
+                    "keys": [page_key],
+                    "enabled": original_enabled
+                }
             )
     
     def test_sync_to_site_settings(self, auth_headers):
