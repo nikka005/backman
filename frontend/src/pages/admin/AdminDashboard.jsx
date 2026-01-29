@@ -9,12 +9,13 @@ import {
   LayoutDashboard, Users, CreditCard, Instagram, MessageSquare,
   Bell, Settings, LogOut, ChevronRight, TrendingUp, DollarSign,
   UserPlus, AlertCircle, Search, MoreVertical, Eye, Pause, Play,
-  Loader2, RefreshCw, Package, Grid3X3, BarChart3
+  Loader2, RefreshCw, Package, Grid3X3, BarChart3, Megaphone
 } from 'lucide-react';
 import AdminSettings from './AdminSettings';
 import AdminPlans from './AdminPlans';
 import AdminFeatureMatrix from './AdminFeatureMatrix';
 import AdminAnalytics from './AdminAnalytics';
+import AdminPromotions from './AdminPromotions';
 
 const AdminDashboard = () => {
   const { user, logout, isAuthenticated, loading: authLoading } = useAuth();
