@@ -50,7 +50,6 @@ const DashboardPage = () => {
 
   // Default stats when no real data
   const defaultStats = {
-  const defaultStats = {
     followers: 0,
     followersGrowth: 0,
     engagement: 0,
