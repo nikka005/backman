@@ -239,8 +239,12 @@ async def verify_email(request_data: VerifyEmailRequest):
 
 
 @router.post("/forgot-password")
-async def forgot_password(request_data: ForgotPasswordRequest):
+async def forgot_password(request_data: ForgotPasswordRequest, request: Request):
     """Request password reset."""
+    # Rate limiting
+    client_ip = get_client_ip(request)
+    check_rate_limit(client_ip, "password_reset")
+    
     user_doc = await db.users.find_one({"email": request_data.email})
     if not user_doc:
         # Don't reveal if email exists
