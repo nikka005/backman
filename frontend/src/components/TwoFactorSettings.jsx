@@ -303,7 +303,7 @@ const TwoFactorSettings = () => {
             <div>
               <h4 className="font-semibold">Regenerate Backup Codes</h4>
               <p className="text-sm text-gray-500">
-                {status.backup_codes_remaining} codes remaining. Generate new codes if you've used most of them.
+                {status.backup_codes_remaining} codes remaining. Generate new codes if you&apos;ve used most of them.
               </p>
             </div>
             <Button variant="outline" className="gap-2">
