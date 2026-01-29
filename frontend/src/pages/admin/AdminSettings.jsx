@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/ta
 import {
   Palette, Type, Layout, Zap, Image, BarChart3, Bell, 
   Save, RefreshCw, Loader2, Check, X, Plus, Trash2, Edit2,
-  GripVertical, Eye, EyeOff
+  GripVertical, Eye, EyeOff, ExternalLink
 } from 'lucide-react';
 
 const AdminSettings = () => {
@@ -17,17 +17,29 @@ const AdminSettings = () => {
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('branding');
   const [settings, setSettings] = useState(null);
+  const [originalSettings, setOriginalSettings] = useState(null);
   const [message, setMessage] = useState(null);
+  const [showPreview, setShowPreview] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
     loadSettings();
   }, []);
+
+  // Track changes
+  useEffect(() => {
+    if (settings && originalSettings) {
+      const changed = JSON.stringify(settings) !== JSON.stringify(originalSettings);
+      setHasChanges(changed);
+    }
+  }, [settings, originalSettings]);
 
   const loadSettings = async () => {
     try {
       setLoading(true);
       const response = await adminAPI.getSettings();
       setSettings(response.data);
+      setOriginalSettings(JSON.parse(JSON.stringify(response.data)));
     } catch (error) {
       console.error('Error loading settings:', error);
       setMessage({ type: 'error', text: 'Failed to load settings' });
@@ -52,6 +64,7 @@ const AdminSettings = () => {
       } else if (section === 'promo_banner') {
         await adminAPI.updatePromoBanner(data);
       }
+      setOriginalSettings(JSON.parse(JSON.stringify(settings)));
       setMessage({ type: 'success', text: 'Settings saved successfully!' });
       setTimeout(() => setMessage(null), 3000);
     } catch (error) {
@@ -60,6 +73,19 @@ const AdminSettings = () => {
     } finally {
       setSaving(false);
     }
+  };
+
+  const discardChanges = () => {
+    setSettings(JSON.parse(JSON.stringify(originalSettings)));
+    setMessage({ type: 'success', text: 'Changes discarded' });
+    setTimeout(() => setMessage(null), 2000);
+  };
+
+  const openPreview = () => {
+    // Open homepage in new tab with preview mode
+    const previewUrl = `${window.location.origin}/?preview=true&t=${Date.now()}`;
+    window.open(previewUrl, '_blank');
+    setShowPreview(true);
   };
 
   const updateNestedSetting = (section, key, value) => {
