@@ -1,8 +1,17 @@
 import React from 'react';
-import { stats } from '../../data/mockData';
+import { useSiteSettings } from '../../context/SiteSettingsContext';
 import { Users, Heart, Clock, Star } from 'lucide-react';
 
 const StatsSection = () => {
+  const { stats: siteStats } = useSiteSettings();
+  
+  const stats = [
+    { label: 'Happy Users', value: siteStats?.happy_users || '55,000+' },
+    { label: 'New Fans Monthly', value: siteStats?.new_fans_monthly || '~4,500' },
+    { label: 'Hours Saved', value: siteStats?.hours_saved || '7M+' },
+    { label: 'Satisfaction Score', value: siteStats?.satisfaction_score || '9.8/10' },
+  ];
+  
   const icons = [Users, Heart, Clock, Star];
   const gradients = [
     'from-orange-500 to-pink-500',
