@@ -33,9 +33,9 @@ const AdminDashboard = () => {
   useEffect(() => {
     if (!authLoading) {
       if (!isAuthenticated) {
-        navigate('/login');
+        navigate('/backman');
       } else if (user?.role !== 'admin' && user?.role !== 'manager') {
-        navigate('/dashboard');
+        navigate('/backman');
       } else {
         loadDashboard();
       }
@@ -56,7 +56,7 @@ const AdminDashboard = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/backman');
   };
 
   const navItems = [
