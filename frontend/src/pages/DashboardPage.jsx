@@ -242,8 +242,8 @@ const DashboardPage = () => {
                   <Instagram className="w-7 h-7 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-white font-semibold">@yourusername</h2>
-                  <p className="text-gray-400 text-sm">Connected Account</p>
+                  <h2 className="text-white font-semibold">@{instagramAccount?.username || 'Connect Account'}</h2>
+                  <p className="text-gray-400 text-sm">{instagramAccount ? 'Connected Account' : 'No account connected'}</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
@@ -254,9 +254,10 @@ const DashboardPage = () => {
                   </span>
                 </div>
                 <Button
-                  onClick={() => setIsGrowthActive(!isGrowthActive)}
+                  onClick={toggleGrowth}
                   variant="outline"
                   className="border-white/20 text-white hover:bg-white/10 rounded-full"
+                  disabled={!instagramAccount}
                 >
                   {isGrowthActive ? (
                     <><Pause className="w-4 h-4 mr-2" /> Pause</>  
@@ -270,7 +271,7 @@ const DashboardPage = () => {
 
           {/* Stats Grid */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            {stats.map((stat) => {
+            {statsCards.map((stat) => {
               const Icon = stat.icon;
               return (
                 <div key={stat.label} className="bg-white rounded-xl p-5 border border-gray-100 hover:shadow-lg transition-all">
