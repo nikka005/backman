@@ -614,42 +614,59 @@ const DashboardPage = () => {
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">Targeting Settings</h2>
                 {instagramAccount ? (
                   <div className="space-y-6">
+                    {targetingMessage && (
+                      <div className={`p-3 rounded-lg ${targetingMessage.includes('success') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+                        {targetingMessage}
+                      </div>
+                    )}
                     <div className="grid md:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Niche</label>
-                        <input 
+                        <Input 
                           type="text" 
-                          className="w-full px-4 py-2 border rounded-lg"
+                          className="w-full"
                           placeholder="e.g., Fashion & Lifestyle"
-                          defaultValue={instagramAccount?.niche || ''}
+                          value={targeting.niche}
+                          onChange={(e) => setTargeting(prev => ({ ...prev, niche: e.target.value }))}
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Target Location</label>
-                        <input 
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Target Locations (comma separated)</label>
+                        <Input 
                           type="text" 
-                          className="w-full px-4 py-2 border rounded-lg"
-                          placeholder="e.g., United States"
+                          className="w-full"
+                          placeholder="e.g., United States, United Kingdom"
+                          value={targeting.locations}
+                          onChange={(e) => setTargeting(prev => ({ ...prev, locations: e.target.value }))}
                         />
                       </div>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Competitor Accounts (comma separated)</label>
-                      <input 
+                      <Input 
                         type="text" 
-                        className="w-full px-4 py-2 border rounded-lg"
+                        className="w-full"
                         placeholder="@competitor1, @competitor2"
+                        value={targeting.competitors}
+                        onChange={(e) => setTargeting(prev => ({ ...prev, competitors: e.target.value }))}
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Target Hashtags</label>
-                      <input 
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Target Hashtags (comma separated)</label>
+                      <Input 
                         type="text" 
-                        className="w-full px-4 py-2 border rounded-lg"
+                        className="w-full"
                         placeholder="#fashion, #lifestyle, #ootd"
+                        value={targeting.hashtags}
+                        onChange={(e) => setTargeting(prev => ({ ...prev, hashtags: e.target.value }))}
                       />
                     </div>
-                    <Button className="bg-gradient-to-r from-pink-500 to-purple-500 text-white">
+                    <Button 
+                      onClick={handleSaveTargeting}
+                      disabled={savingTargeting}
+                      className="bg-gradient-to-r from-pink-500 to-purple-500 text-white"
+                    >
+                      {savingTargeting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
                       Save Targeting
                     </Button>
                   </div>
