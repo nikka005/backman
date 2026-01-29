@@ -7,6 +7,7 @@ from .admin import router as admin_router, init_router as init_admin
 from .public import router as public_router, init_router as init_public
 from .admin_settings import router as admin_settings_router, init_router as init_admin_settings
 from .admin_plans import router as admin_plans_router, init_router as init_admin_plans
+from .admin_analytics import router as admin_analytics_router, init_router as init_admin_analytics
 
 
 def init_all_routes(database):
@@ -20,6 +21,7 @@ def init_all_routes(database):
     init_public(database)
     init_admin_settings(database)
     init_admin_plans(database)
+    init_admin_analytics(database)
 
 
 all_routers = [
@@ -31,5 +33,6 @@ all_routers = [
     admin_router,
     public_router,
     admin_settings_router,
-    admin_plans_router
+    admin_plans_router,
+    admin_analytics_router
 ]
