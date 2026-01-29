@@ -513,6 +513,196 @@ const DashboardPage = () => {
                 )}
               </div>
             </div>
+          ) : activeTab === 'targeting' ? (
+            /* Targeting Tab */
+            <div className="space-y-6">
+              <div className="bg-white rounded-2xl border border-gray-100 p-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Targeting Settings</h2>
+                {instagramAccount ? (
+                  <div className="space-y-6">
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Niche</label>
+                        <input 
+                          type="text" 
+                          className="w-full px-4 py-2 border rounded-lg"
+                          placeholder="e.g., Fashion & Lifestyle"
+                          defaultValue={instagramAccount?.niche || ''}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Target Location</label>
+                        <input 
+                          type="text" 
+                          className="w-full px-4 py-2 border rounded-lg"
+                          placeholder="e.g., United States"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Competitor Accounts (comma separated)</label>
+                      <input 
+                        type="text" 
+                        className="w-full px-4 py-2 border rounded-lg"
+                        placeholder="@competitor1, @competitor2"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Target Hashtags</label>
+                      <input 
+                        type="text" 
+                        className="w-full px-4 py-2 border rounded-lg"
+                        placeholder="#fashion, #lifestyle, #ootd"
+                      />
+                    </div>
+                    <Button className="bg-gradient-to-r from-pink-500 to-purple-500 text-white">
+                      Save Targeting
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Target className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                    <p className="text-gray-500">Connect your Instagram to configure targeting</p>
+                    <Link to="/connect-instagram" className="text-pink-600 hover:underline text-sm">
+                      Connect Now
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : activeTab === 'analytics' ? (
+            /* Analytics Tab */
+            <div className="space-y-6">
+              <div className="bg-white rounded-2xl border border-gray-100 p-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Growth Analytics</h2>
+                {stats ? (
+                  <div className="space-y-6">
+                    <div className="grid md:grid-cols-3 gap-4">
+                      <div className="p-4 bg-gradient-to-r from-pink-50 to-orange-50 rounded-xl">
+                        <p className="text-sm text-gray-500">Total Followers Gained</p>
+                        <p className="text-2xl font-bold text-gray-900">{(stats.total_followers_gained || 0).toLocaleString()}</p>
+                      </div>
+                      <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl">
+                        <p className="text-sm text-gray-500">This Month</p>
+                        <p className="text-2xl font-bold text-gray-900">{(stats.followers_this_month || 0).toLocaleString()}</p>
+                      </div>
+                      <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl">
+                        <p className="text-sm text-gray-500">Engagement Rate</p>
+                        <p className="text-2xl font-bold text-gray-900">{stats.engagement_rate || 0}%</p>
+                      </div>
+                    </div>
+                    <div className="h-64 bg-gray-50 rounded-xl flex items-center justify-center">
+                      <p className="text-gray-400">Detailed charts coming soon</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <TrendingUp className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                    <p className="text-gray-500">Connect your Instagram to see analytics</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : activeTab === 'support' ? (
+            /* Support Tab */
+            <div className="space-y-6">
+              <div className="bg-white rounded-2xl border border-gray-100 p-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Create Support Ticket</h2>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Subject</label>
+                    <input 
+                      type="text" 
+                      className="w-full px-4 py-2 border rounded-lg"
+                      placeholder="What do you need help with?"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                    <textarea 
+                      className="w-full px-4 py-2 border rounded-lg h-32 resize-none"
+                      placeholder="Describe your issue..."
+                    />
+                  </div>
+                  <Button className="bg-gradient-to-r from-pink-500 to-purple-500 text-white">
+                    Submit Ticket
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="bg-white rounded-2xl border border-gray-100 p-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">FAQ</h2>
+                <div className="space-y-3">
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <p className="font-medium">How long does it take to see results?</p>
+                    <p className="text-sm text-gray-500 mt-1">You'll start seeing new followers within 24-48 hours of activating your account.</p>
+                  </div>
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <p className="font-medium">Is my account safe?</p>
+                    <p className="text-sm text-gray-500 mt-1">Yes! We use 100% organic methods that comply with Instagram's terms of service.</p>
+                  </div>
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <p className="font-medium">Can I cancel anytime?</p>
+                    <p className="text-sm text-gray-500 mt-1">Absolutely. You can cancel your subscription at any time from the Billing tab.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : activeTab === 'settings' ? (
+            /* Settings Tab */
+            <div className="space-y-6">
+              <div className="bg-white rounded-2xl border border-gray-100 p-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Account Settings</h2>
+                <div className="space-y-6">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                      <input 
+                        type="text" 
+                        className="w-full px-4 py-2 border rounded-lg"
+                        defaultValue={user?.name || ''}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                      <input 
+                        type="email" 
+                        className="w-full px-4 py-2 border rounded-lg bg-gray-50"
+                        value={user?.email || ''}
+                        disabled
+                      />
+                    </div>
+                  </div>
+                  <Button className="bg-gray-900 text-white">Save Changes</Button>
+                </div>
+              </div>
+              
+              <div className="bg-white rounded-2xl border border-gray-100 p-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Notifications</h2>
+                <div className="space-y-4">
+                  <label className="flex items-center justify-between">
+                    <span className="text-gray-700">Email notifications</span>
+                    <input type="checkbox" defaultChecked className="w-5 h-5 rounded" />
+                  </label>
+                  <label className="flex items-center justify-between">
+                    <span className="text-gray-700">Growth milestone alerts</span>
+                    <input type="checkbox" defaultChecked className="w-5 h-5 rounded" />
+                  </label>
+                  <label className="flex items-center justify-between">
+                    <span className="text-gray-700">Weekly reports</span>
+                    <input type="checkbox" defaultChecked className="w-5 h-5 rounded" />
+                  </label>
+                </div>
+              </div>
+              
+              <div className="bg-white rounded-2xl border border-gray-100 p-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4 text-red-600">Danger Zone</h2>
+                <p className="text-sm text-gray-500 mb-4">Once you delete your account, there is no going back.</p>
+                <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50">
+                  Delete Account
+                </Button>
+              </div>
+            </div>
           ) : (
             /* Overview Tab */
             <>
