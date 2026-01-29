@@ -15,6 +15,18 @@ class PlanFeature(BaseModel):
     limit_type: Optional[str] = None  # "count", "percentage", "days"
 
 
+class FeatureMatrixItem(BaseModel):
+    """Feature comparison across plans."""
+    feature_key: str
+    feature_name: str
+    category: str  # "growth", "targeting", "support", "analytics", "advanced"
+    description: Optional[str] = None
+    basic_value: Optional[str] = None  # "Yes", "No", "5", "Unlimited", etc.
+    pro_value: Optional[str] = None
+    enterprise_value: Optional[str] = None
+    is_boolean: bool = True  # If true, values are Yes/No
+
+
 class DynamicPlan(BaseModel):
     """Fully dynamic plan - admin can create/modify anytime."""
     model_config = ConfigDict(extra="ignore")
@@ -111,11 +123,54 @@ class PlanUpdate(BaseModel):
     display_order: Optional[int] = None
     max_instagram_accounts: Optional[int] = None
     max_target_niches: Optional[int] = None
+    max_competitor_accounts: Optional[int] = None
+    max_hashtags: Optional[int] = None
+    max_locations: Optional[int] = None
     growth_speed: Optional[str] = None
     support_priority: Optional[str] = None
     has_dedicated_manager: Optional[bool] = None
+    response_time_hours: Optional[int] = None
     analytics_depth: Optional[str] = None
+    export_enabled: Optional[bool] = None
+    api_access: Optional[bool] = None
+    white_label_enabled: Optional[bool] = None
     trial_days: Optional[int] = None
+
+
+# Default Feature Matrix
+DEFAULT_FEATURE_MATRIX = [
+    # Growth Features
+    {"feature_key": "guaranteed_followers", "feature_name": "Guaranteed Followers/Month", "category": "growth", "is_boolean": False, "basic_value": "1,000-1,500", "pro_value": "2,500-3,500", "enterprise_value": "5,000+"},
+    {"feature_key": "instant_results", "feature_name": "Instant Results From Day 1", "category": "growth", "is_boolean": True, "basic_value": "Yes", "pro_value": "Yes", "enterprise_value": "Yes"},
+    {"feature_key": "organic_growth", "feature_name": "Organic Growth Only", "category": "growth", "is_boolean": True, "basic_value": "Yes", "pro_value": "Yes", "enterprise_value": "Yes"},
+    {"feature_key": "growth_speed", "feature_name": "Growth Speed", "category": "growth", "is_boolean": False, "basic_value": "Medium", "pro_value": "Fast", "enterprise_value": "Ultra"},
+    
+    # Targeting Features
+    {"feature_key": "ai_targeting", "feature_name": "AI-Powered Targeting", "category": "targeting", "is_boolean": True, "basic_value": "Yes", "pro_value": "Yes", "enterprise_value": "Yes"},
+    {"feature_key": "target_niches", "feature_name": "Target Niches", "category": "targeting", "is_boolean": False, "basic_value": "3", "pro_value": "10", "enterprise_value": "Unlimited"},
+    {"feature_key": "competitor_targeting", "feature_name": "Competitor Account Targeting", "category": "targeting", "is_boolean": False, "basic_value": "10", "pro_value": "25", "enterprise_value": "Unlimited"},
+    {"feature_key": "hashtag_targeting", "feature_name": "Hashtag Targeting", "category": "targeting", "is_boolean": False, "basic_value": "20", "pro_value": "50", "enterprise_value": "Unlimited"},
+    {"feature_key": "location_targeting", "feature_name": "Location Targeting", "category": "targeting", "is_boolean": False, "basic_value": "5", "pro_value": "15", "enterprise_value": "Unlimited"},
+    
+    # Support Features
+    {"feature_key": "support_team", "feature_name": "LA & London Team Support", "category": "support", "is_boolean": True, "basic_value": "Yes", "pro_value": "Yes", "enterprise_value": "Yes"},
+    {"feature_key": "priority_support", "feature_name": "Priority Support", "category": "support", "is_boolean": True, "basic_value": "No", "pro_value": "Yes", "enterprise_value": "Yes"},
+    {"feature_key": "dedicated_manager", "feature_name": "Dedicated Account Manager", "category": "support", "is_boolean": True, "basic_value": "No", "pro_value": "No", "enterprise_value": "Yes"},
+    {"feature_key": "response_time", "feature_name": "Response Time", "category": "support", "is_boolean": False, "basic_value": "24h", "pro_value": "4h", "enterprise_value": "1h"},
+    
+    # Analytics Features
+    {"feature_key": "analytics_dashboard", "feature_name": "Real-Time Analytics Dashboard", "category": "analytics", "is_boolean": True, "basic_value": "Yes", "pro_value": "Yes", "enterprise_value": "Yes"},
+    {"feature_key": "analytics_depth", "feature_name": "Analytics Depth", "category": "analytics", "is_boolean": False, "basic_value": "Basic", "pro_value": "Advanced", "enterprise_value": "Enterprise"},
+    {"feature_key": "export_reports", "feature_name": "Export Reports", "category": "analytics", "is_boolean": True, "basic_value": "No", "pro_value": "Yes", "enterprise_value": "Yes"},
+    {"feature_key": "white_label_reports", "feature_name": "White-label Reporting", "category": "analytics", "is_boolean": True, "basic_value": "No", "pro_value": "No", "enterprise_value": "Yes"},
+    
+    # Advanced Features
+    {"feature_key": "ai_engine", "feature_name": "AI-Powered Growth Engine", "category": "advanced", "is_boolean": True, "basic_value": "No", "pro_value": "Yes", "enterprise_value": "Yes"},
+    {"feature_key": "adverlyx_cloud", "feature_name": "Adverlyx Cloud™", "category": "advanced", "is_boolean": True, "basic_value": "No", "pro_value": "Yes", "enterprise_value": "Yes"},
+    {"feature_key": "api_access", "feature_name": "API Access", "category": "advanced", "is_boolean": True, "basic_value": "No", "pro_value": "No", "enterprise_value": "Yes"},
+    {"feature_key": "multiple_accounts", "feature_name": "Instagram Accounts", "category": "advanced", "is_boolean": False, "basic_value": "1", "pro_value": "2", "enterprise_value": "5"},
+    {"feature_key": "custom_strategy", "feature_name": "Custom Growth Strategy", "category": "advanced", "is_boolean": True, "basic_value": "No", "pro_value": "No", "enterprise_value": "Yes"},
+]
 
 
 # Default plans to seed
