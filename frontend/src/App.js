@@ -15,6 +15,7 @@ import FAQPage from './pages/FAQPage';
 import DashboardPage from './pages/DashboardPage';
 import ContactPage from './pages/ContactPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminLoginPage from './pages/AdminLoginPage';
 import PaymentSuccessPage from './pages/PaymentSuccessPage';
 import ConnectInstagramPage from './pages/ConnectInstagramPage';
 
@@ -36,6 +37,8 @@ function App() {
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/payment/success" element={<PaymentSuccessPage />} />
               <Route path="/connect-instagram" element={<ConnectInstagramPage />} />
+              {/* Admin Routes */}
+              <Route path="/backman" element={<AdminLoginPage />} />
               <Route path="/admin/*" element={<AdminDashboard />} />
               {/* Catch-all route */}
               <Route path="*" element={<HomePage />} />
