@@ -93,6 +93,33 @@ const PricingPage = () => {
     }
   };
 
+  const handleSelectPlan = async (plan) => {
+    // If not authenticated, redirect to signup
+    if (!isAuthenticated) {
+      navigate('/signup', { state: { selectedPlan: plan.slug } });
+      return;
+    }
+
+    setProcessingPlan(plan.slug);
+
+    try {
+      const packageId = `${plan.slug}_${isYearly ? 'yearly' : 'monthly'}`;
+      const originUrl = window.location.origin;
+      
+      const response = await paymentAPI.createCheckoutSession(packageId, originUrl);
+      
+      // Redirect to Stripe Checkout
+      if (response.data.url) {
+        window.location.href = response.data.url;
+      }
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
+      alert('Failed to start checkout. Please try again.');
+    } finally {
+      setProcessingPlan(null);
+    }
+  };
+
   // Transform feature matrix to comparison format
   const comparisonFeatures = featureMatrix.length > 0 ? featureMatrix.map(f => ({
     name: f.feature_name,
