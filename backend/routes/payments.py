@@ -83,10 +83,11 @@ async def create_checkout_session(
     client_ip = get_client_ip(request)
     check_rate_limit(client_ip, "payment")
     
-    global stripe_checkout
+    # Get Stripe client (checks DB first, then env)
+    checkout_client = await get_stripe_checkout()
     
-    if not stripe_checkout:
-        raise HTTPException(status_code=500, detail="Payment system not configured")
+    if not checkout_client:
+        raise HTTPException(status_code=500, detail="Stripe not configured. Please add API keys in Admin Panel > Features > Payment Options")
     
     # Validate package exists
     if package_id not in PLAN_PACKAGES:
@@ -107,7 +108,7 @@ async def create_checkout_session(
     # Set webhook URL dynamically
     host_url = str(request.base_url).rstrip('/')
     webhook_url = f"{host_url}/api/webhook/stripe"
-    stripe_checkout.webhook_url = webhook_url
+    checkout_client.webhook_url = webhook_url
     
     # Create checkout session
     try:
