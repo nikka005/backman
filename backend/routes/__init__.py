@@ -78,5 +78,6 @@ all_routers = [
     ai_intelligence_router,
     ai_onboarding_router,
     instagram_graph_router,
-    affiliate_referral_router
+    affiliate_referral_router,
+    admin_programs_router
 ]
