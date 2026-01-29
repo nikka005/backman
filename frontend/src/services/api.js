@@ -199,6 +199,42 @@ export const adminAPI = {
   getGrowthEngineAnalytics: () => api.get('/admin/analytics/growth-engine'),
   getFunnelAnalytics: (days = 30) => api.get('/admin/analytics/funnel', { params: { days } }),
   trackEvent: (event) => api.post('/admin/analytics/events', event),
+  
+  // Promotions - Dashboard
+  getPromotionsDashboard: () => api.get('/admin/promotions/dashboard'),
+  
+  // Promotions - ICPs
+  getICPs: () => api.get('/admin/promotions/icps'),
+  getICP: (icpId) => api.get(`/admin/promotions/icps/${icpId}`),
+  createICP: (data) => api.post('/admin/promotions/icps', data),
+  updateICP: (icpId, data) => api.put(`/admin/promotions/icps/${icpId}`, data),
+  deleteICP: (icpId) => api.delete(`/admin/promotions/icps/${icpId}`),
+  setPrimaryICP: (icpId) => api.post(`/admin/promotions/icps/${icpId}/set-primary`),
+  
+  // Promotions - A/B Tests
+  getABTests: (status) => api.get('/admin/promotions/ab-tests', { params: { status } }),
+  getABTest: (testId) => api.get(`/admin/promotions/ab-tests/${testId}`),
+  createABTest: (data) => api.post('/admin/promotions/ab-tests', data),
+  updateABTest: (testId, data) => api.put(`/admin/promotions/ab-tests/${testId}`, data),
+  startABTest: (testId) => api.post(`/admin/promotions/ab-tests/${testId}/start`),
+  stopABTest: (testId) => api.post(`/admin/promotions/ab-tests/${testId}/stop`),
+  selectABWinner: (testId, variantId) => api.post(`/admin/promotions/ab-tests/${testId}/select-winner/${variantId}`),
+  
+  // Promotions - Campaigns
+  getCampaigns: (status, type) => api.get('/admin/promotions/campaigns', { params: { status, campaign_type: type } }),
+  getCampaign: (campaignId) => api.get(`/admin/promotions/campaigns/${campaignId}`),
+  createCampaign: (data) => api.post('/admin/promotions/campaigns', data),
+  updateCampaign: (campaignId, data) => api.put(`/admin/promotions/campaigns/${campaignId}`, data),
+  deleteCampaign: (campaignId) => api.delete(`/admin/promotions/campaigns/${campaignId}`),
+  launchCampaign: (campaignId) => api.post(`/admin/promotions/campaigns/${campaignId}/launch`),
+  pauseCampaign: (campaignId) => api.post(`/admin/promotions/campaigns/${campaignId}/pause`),
+  completeCampaign: (campaignId) => api.post(`/admin/promotions/campaigns/${campaignId}/complete`),
+  
+  // Promotions - Templates
+  getTemplates: () => api.get('/admin/promotions/templates'),
+  createTemplate: (data) => api.post('/admin/promotions/templates', data),
+  updateTemplate: (templateId, data) => api.put(`/admin/promotions/templates/${templateId}`, data),
+  deleteTemplate: (templateId) => api.delete(`/admin/promotions/templates/${templateId}`),
 };
 
 export default api;
