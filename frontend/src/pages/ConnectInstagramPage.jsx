@@ -173,6 +173,12 @@ const ConnectInstagramPage = () => {
                 </>
               )}
             </Button>
+            
+            {/* AI Setup Hint */}
+            <div className="flex items-center justify-center gap-2 mt-3 text-xs text-gray-500">
+              <Sparkles className="w-3.5 h-3.5 text-pink-500" />
+              <span>AI will recommend optimal settings after connection</span>
+            </div>
           </form>
 
           <p className="text-center text-xs text-gray-400 mt-6">
