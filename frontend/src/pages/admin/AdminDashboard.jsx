@@ -66,6 +66,7 @@ const AdminDashboard = () => {
     { icon: Brain, label: 'AI Intelligence', path: '/admin/ai' },
     { icon: BarChart3, label: 'Analytics', path: '/admin/analytics' },
     { icon: Megaphone, label: 'Promotions', path: '/admin/promotions' },
+    { icon: Gift, label: 'Partner Programs', path: '/admin/programs' },
     { icon: Users, label: 'Users', path: '/admin/users' },
     { icon: Package, label: 'Plans', path: '/admin/plans' },
     { icon: Grid3X3, label: 'Feature Matrix', path: '/admin/feature-matrix' },
