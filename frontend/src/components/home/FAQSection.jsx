@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { faqs } from '../../data/mockData';
 import {
   Accordion,
@@ -22,9 +23,9 @@ const FAQSection = () => {
           </h2>
           <p className="text-gray-600">
             Can't find what you are looking for?{' '}
-            <a href="/contact" className="text-pink-600 hover:text-pink-700 font-medium">
+            <Link to="/contact" className="text-pink-600 hover:text-pink-700 font-medium">
               Contact our support team
-            </a>
+            </Link>
           </p>
         </div>
 
