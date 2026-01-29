@@ -5,7 +5,8 @@ import { Badge } from '../../components/ui/badge';
 import {
   TrendingUp, TrendingDown, Users, DollarSign, CreditCard, 
   Activity, Target, Zap, RefreshCw, Loader2, ArrowUpRight,
-  ArrowDownRight, BarChart3, PieChart, Calendar, Clock
+  ArrowDownRight, BarChart3, PieChart, Calendar, Clock,
+  Globe, MapPin, Eye, UserPlus, Gift, ChevronRight
 } from 'lucide-react';
 
 const AdminAnalytics = () => {
@@ -14,6 +15,8 @@ const AdminAnalytics = () => {
   const [platformData, setPlatformData] = useState(null);
   const [trendsData, setTrendsData] = useState(null);
   const [growthData, setGrowthData] = useState(null);
+  const [geoData, setGeoData] = useState(null);
+  const [funnelData, setFunnelData] = useState(null);
 
   useEffect(() => {
     loadAnalytics();
@@ -22,14 +25,18 @@ const AdminAnalytics = () => {
   const loadAnalytics = async () => {
     try {
       setLoading(true);
-      const [platform, trends, growth] = await Promise.all([
+      const [platform, trends, growth, geo, funnel] = await Promise.all([
         adminAPI.getPlatformAnalytics(period),
         adminAPI.getPlatformTrends(period === 'weekly' ? 7 : period === 'monthly' ? 30 : 90),
-        adminAPI.getGrowthEngineAnalytics()
+        adminAPI.getGrowthEngineAnalytics(),
+        adminAPI.getGeographyAnalytics(),
+        adminAPI.getConversionFunnel(period === 'weekly' ? 7 : period === 'monthly' ? 30 : 90)
       ]);
       setPlatformData(platform.data);
       setTrendsData(trends.data);
       setGrowthData(growth.data);
+      setGeoData(geo.data);
+      setFunnelData(funnel.data);
     } catch (error) {
       console.error('Error loading analytics:', error);
     } finally {
@@ -116,6 +123,15 @@ const AdminAnalytics = () => {
         />
       </div>
 
+      {/* Conversion Funnel */}
+      <div className="bg-white rounded-xl p-6 shadow-sm mb-8">
+        <h3 className="text-lg font-semibold mb-6 flex items-center gap-2">
+          <Target className="w-5 h-5 text-pink-500" />
+          Conversion Funnel
+        </h3>
+        <ConversionFunnel data={funnelData} />
+      </div>
+
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Revenue Trend Chart */}
@@ -145,8 +161,17 @@ const AdminAnalytics = () => {
         </div>
       </div>
 
-      {/* Plan Distribution & Growth Engine */}
+      {/* Geographic Distribution & Plan Distribution */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {/* Geographic Distribution */}
+        <div className="bg-white rounded-xl p-6 shadow-sm">
+          <h3 className="text-lg font-semibold mb-6 flex items-center gap-2">
+            <Globe className="w-5 h-5 text-blue-500" />
+            Geographic Distribution
+          </h3>
+          <CountryDistribution data={geoData?.country_distribution || {}} />
+        </div>
+
         {/* Plan Distribution */}
         <div className="bg-white rounded-xl p-6 shadow-sm">
           <h3 className="text-lg font-semibold mb-6 flex items-center gap-2">
@@ -167,8 +192,10 @@ const AdminAnalytics = () => {
             )}
           </div>
         </div>
+      </div>
 
-        {/* Growth Engine Stats */}
+      {/* Growth Engine Stats */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <div className="bg-white rounded-xl p-6 shadow-sm">
           <h3 className="text-lg font-semibold mb-6 flex items-center gap-2">
             <Zap className="w-5 h-5 text-yellow-500" />
@@ -207,6 +234,31 @@ const AdminAnalytics = () => {
               </div>
             </div>
           )}
+        </div>
+
+        {/* Conversion Rates Summary */}
+        <div className="bg-white rounded-xl p-6 shadow-sm">
+          <h3 className="text-lg font-semibold mb-6 flex items-center gap-2">
+            <Activity className="w-5 h-5 text-green-500" />
+            Conversion Rates
+          </h3>
+          <div className="space-y-6">
+            <ConversionRate 
+              label="Visitor → Signup"
+              rate={funnelData?.conversion_rates?.visitor_to_signup || 0}
+              color="blue"
+            />
+            <ConversionRate 
+              label="Signup → Trial"
+              rate={funnelData?.conversion_rates?.signup_to_trial || 0}
+              color="purple"
+            />
+            <ConversionRate 
+              label="Trial → Paid"
+              rate={funnelData?.conversion_rates?.trial_to_paid || 0}
+              color="green"
+            />
+          </div>
         </div>
       </div>
 
@@ -272,6 +324,121 @@ const MetricCard = ({ title, value, subtext, icon: Icon, trend, trendUp, color, 
     <p className="text-sm text-gray-400 mt-1">{subtext}</p>
   </div>
 );
+
+// Conversion Funnel Component
+const ConversionFunnel = ({ data }) => {
+  const stages = data?.funnel || [
+    { stage: 'Visitors', count: 1000, icon: 'eye' },
+    { stage: 'Signups', count: 0, icon: 'user-plus' },
+    { stage: 'Free Trial', count: 0, icon: 'gift' },
+    { stage: 'Paid', count: 0, icon: 'credit-card' }
+  ];
+
+  const maxCount = Math.max(...stages.map(s => s.count), 1);
+  const icons = { eye: Eye, 'user-plus': UserPlus, gift: Gift, 'credit-card': CreditCard };
+
+  return (
+    <div className="flex items-center justify-between gap-2">
+      {stages.map((stage, idx) => {
+        const Icon = icons[stage.icon] || Eye;
+        const width = Math.max((stage.count / maxCount) * 100, 20);
+        
+        return (
+          <React.Fragment key={stage.stage}>
+            <div className="flex-1 text-center">
+              <div 
+                className="mx-auto mb-3 bg-gradient-to-br from-pink-100 to-purple-100 rounded-xl flex items-center justify-center transition-all"
+                style={{ width: `${width}%`, minWidth: '60px', height: '60px' }}
+              >
+                <Icon className="w-6 h-6 text-pink-600" />
+              </div>
+              <p className="text-2xl font-bold text-gray-900">{stage.count.toLocaleString()}</p>
+              <p className="text-sm text-gray-500">{stage.stage}</p>
+            </div>
+            {idx < stages.length - 1 && (
+              <ChevronRight className="w-5 h-5 text-gray-300 flex-shrink-0" />
+            )}
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+};
+
+// Country Distribution Component
+const CountryDistribution = ({ data }) => {
+  const countries = Object.entries(data).slice(0, 8);
+  const total = countries.reduce((sum, [_, count]) => sum + count, 0) || 1;
+  
+  const colors = [
+    'from-pink-500 to-rose-500',
+    'from-blue-500 to-cyan-500',
+    'from-purple-500 to-pink-500',
+    'from-green-500 to-emerald-500',
+    'from-orange-500 to-yellow-500',
+    'from-indigo-500 to-purple-500',
+    'from-teal-500 to-cyan-500',
+    'from-red-500 to-pink-500'
+  ];
+
+  if (countries.length === 0) {
+    return (
+      <div className="text-center py-8 text-gray-500">
+        <Globe className="w-12 h-12 mx-auto mb-3 opacity-50" />
+        <p>No geographic data available</p>
+        <p className="text-sm">Data will appear as users set their targeting</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {countries.map(([country, count], idx) => (
+        <div key={country} className="flex items-center gap-3">
+          <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${colors[idx % colors.length]} flex items-center justify-center`}>
+            <MapPin className="w-4 h-4 text-white" />
+          </div>
+          <div className="flex-1">
+            <div className="flex justify-between mb-1">
+              <span className="font-medium text-gray-900">{country}</span>
+              <span className="text-sm text-gray-500">{count} ({((count / total) * 100).toFixed(1)}%)</span>
+            </div>
+            <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div 
+                className={`h-full bg-gradient-to-r ${colors[idx % colors.length]} rounded-full`}
+                style={{ width: `${(count / total) * 100}%` }}
+              />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// Conversion Rate Component
+const ConversionRate = ({ label, rate, color }) => {
+  const colorClasses = {
+    blue: 'from-blue-500 to-cyan-500',
+    purple: 'from-purple-500 to-pink-500',
+    green: 'from-green-500 to-emerald-500'
+  };
+
+  return (
+    <div>
+      <div className="flex justify-between mb-2">
+        <span className="text-gray-600">{label}</span>
+        <span className="font-semibold text-gray-900">{rate}%</span>
+      </div>
+      <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+        <div 
+          className={`h-full bg-gradient-to-r ${colorClasses[color]} rounded-full transition-all`}
+          style={{ width: `${Math.min(rate, 100)}%` }}
+        />
+      </div>
+    </div>
+  );
+};
 
 // Simple Trend Chart (CSS-based)
 const SimpleTrendChart = ({ data, dataKey, color }) => {
