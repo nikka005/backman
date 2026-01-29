@@ -432,11 +432,12 @@ export default function AdminAIIntelligence() {
                               : 'bg-gray-100 text-gray-800'
                           }`}
                         >
-                          <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                          {msg.provider && (
-                            <p className="text-xs mt-2 opacity-60">
-                              via {msg.provider}/{msg.model}
-                            </p>
+                          {msg.role === 'assistant' ? (
+                            <div className="text-sm prose prose-sm max-w-none prose-headings:text-gray-800 prose-headings:font-semibold prose-headings:mt-2 prose-headings:mb-1 prose-p:my-1 prose-ul:my-1 prose-li:my-0">
+                              <ReactMarkdown>{msg.content}</ReactMarkdown>
+                            </div>
+                          ) : (
+                            <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                           )}
                         </div>
                       </div>
