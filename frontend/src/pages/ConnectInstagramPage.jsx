@@ -6,8 +6,9 @@ import { Checkbox } from '../components/ui/checkbox';
 import { instagramAPI } from '../services/api';
 import { 
   Instagram, Shield, Check, AlertTriangle, Loader2,
-  Lock, Eye, TrendingUp, Users, Zap, ArrowRight
+  Lock, Eye, TrendingUp, Users, Zap, ArrowRight, Sparkles
 } from 'lucide-react';
+import AIOnboardingRecommendations from '../components/AIOnboardingRecommendations';
 
 const ConnectInstagramPage = () => {
   const navigate = useNavigate();
@@ -15,6 +16,8 @@ const ConnectInstagramPage = () => {
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showAIOnboarding, setShowAIOnboarding] = useState(false);
+  const [connectionComplete, setConnectionComplete] = useState(false);
 
   const handleConnect = async (e) => {
     e.preventDefault();
@@ -38,13 +41,42 @@ const ConnectInstagramPage = () => {
         risk_disclaimer_accepted: true
       });
       
-      navigate('/dashboard', { state: { connected: true } });
+      // Show AI onboarding instead of navigating directly
+      setConnectionComplete(true);
+      setShowAIOnboarding(true);
     } catch (err) {
       setError(err.response?.data?.detail || 'Failed to connect Instagram account');
     } finally {
       setLoading(false);
     }
   };
+
+  const handleAIOnboardingComplete = (recommendation) => {
+    // Navigate to dashboard with recommendation data
+    navigate('/dashboard', { 
+      state: { 
+        connected: true, 
+        aiRecommendation: recommendation,
+        showTargeting: true 
+      } 
+    });
+  };
+
+  const handleAIOnboardingSkip = () => {
+    navigate('/dashboard', { state: { connected: true } });
+  };
+
+  // Show AI Onboarding if connection is complete
+  if (showAIOnboarding) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-orange-700 flex items-center justify-center p-8">
+        <AIOnboardingRecommendations 
+          onComplete={handleAIOnboardingComplete}
+          onSkip={handleAIOnboardingSkip}
+        />
+      </div>
+    );
+  }
 
   const features = [
     { icon: Shield, title: 'Account Safe', desc: 'We never store your password' },
