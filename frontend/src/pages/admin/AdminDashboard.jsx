@@ -386,60 +386,513 @@ const UsersManagement = () => {
   );
 };
 
-// Placeholder components for other routes
-const SubscriptionsManagement = () => (
-  <div>
-    <h1 className="text-2xl font-bold text-gray-900 mb-2">Subscriptions</h1>
-    <p className="text-gray-500 mb-8">Manage user subscriptions and plans</p>
-    <div className="bg-white rounded-xl p-8 text-center">
-      <CreditCard className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-      <p className="text-gray-500">Subscription management features coming soon</p>
-    </div>
-  </div>
-);
+// Subscriptions Management Component
+const SubscriptionsManagement = () => {
+  const [subscriptions, setSubscriptions] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-const PaymentsManagement = () => (
-  <div>
-    <h1 className="text-2xl font-bold text-gray-900 mb-2">Payments</h1>
-    <p className="text-gray-500 mb-8">View and manage payments</p>
-    <div className="bg-white rounded-xl p-8 text-center">
-      <DollarSign className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-      <p className="text-gray-500">Payment management features coming soon</p>
-    </div>
-  </div>
-);
+  useEffect(() => {
+    loadSubscriptions();
+  }, []);
 
-const InstagramManagement = () => (
-  <div>
-    <h1 className="text-2xl font-bold text-gray-900 mb-2">Instagram Accounts</h1>
-    <p className="text-gray-500 mb-8">Manage connected Instagram accounts</p>
-    <div className="bg-white rounded-xl p-8 text-center">
-      <Instagram className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-      <p className="text-gray-500">Instagram management features coming soon</p>
-    </div>
-  </div>
-);
+  const loadSubscriptions = async () => {
+    try {
+      setLoading(true);
+      const response = await adminAPI.getSubscriptions();
+      setSubscriptions(response.data || []);
+    } catch (error) {
+      console.error('Error loading subscriptions:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-const TicketsManagement = () => (
-  <div>
-    <h1 className="text-2xl font-bold text-gray-900 mb-2">Support Tickets</h1>
-    <p className="text-gray-500 mb-8">Manage support tickets</p>
-    <div className="bg-white rounded-xl p-8 text-center">
-      <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-      <p className="text-gray-500">Ticket management features coming soon</p>
-    </div>
-  </div>
-);
+  const handleCancel = async (subscriptionId) => {
+    if (!window.confirm('Are you sure you want to cancel this subscription?')) return;
+    try {
+      await adminAPI.cancelSubscription(subscriptionId);
+      loadSubscriptions();
+    } catch (error) {
+      console.error('Error cancelling subscription:', error);
+    }
+  };
 
-const NotificationsManagement = () => (
-  <div>
-    <h1 className="text-2xl font-bold text-gray-900 mb-2">Notifications</h1>
-    <p className="text-gray-500 mb-8">Send announcements and notifications</p>
-    <div className="bg-white rounded-xl p-8 text-center">
-      <Bell className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-      <p className="text-gray-500">Notification features coming soon</p>
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Subscriptions</h1>
+          <p className="text-gray-500">Manage user subscriptions and plans</p>
+        </div>
+        <Button onClick={loadSubscriptions} variant="outline" className="gap-2">
+          <RefreshCw className="w-4 h-4" />
+          Refresh
+        </Button>
+      </div>
+
+      {loading ? (
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="w-8 h-8 animate-spin text-pink-500" />
+        </div>
+      ) : subscriptions.length > 0 ? (
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="text-left py-4 px-6 font-semibold text-gray-600">User</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-600">Plan</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-600">Billing</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-600">Amount</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-600">Status</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-600">Started</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-600">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {subscriptions.map((sub) => (
+                <tr key={sub.id} className="border-t border-gray-100">
+                  <td className="py-4 px-6">
+                    <div>
+                      <p className="font-medium text-gray-900">{sub.user_name || 'Unknown'}</p>
+                      <p className="text-sm text-gray-500">{sub.user_email}</p>
+                    </div>
+                  </td>
+                  <td className="py-4 px-6">
+                    <Badge className="bg-purple-100 text-purple-700 capitalize">{sub.plan}</Badge>
+                  </td>
+                  <td className="py-4 px-6 capitalize">{sub.billing_cycle}</td>
+                  <td className="py-4 px-6 font-medium">${sub.amount?.toFixed(2)}</td>
+                  <td className="py-4 px-6">
+                    <Badge className={sub.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}>
+                      {sub.status}
+                    </Badge>
+                  </td>
+                  <td className="py-4 px-6 text-gray-500">{new Date(sub.created_at).toLocaleDateString()}</td>
+                  <td className="py-4 px-6">
+                    {sub.status === 'active' && (
+                      <Button size="sm" variant="outline" className="text-red-600" onClick={() => handleCancel(sub.id)}>
+                        Cancel
+                      </Button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="bg-white rounded-xl p-8 text-center">
+          <CreditCard className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <p className="text-gray-500">No subscriptions found</p>
+        </div>
+      )}
     </div>
-  </div>
-);
+  );
+};
+
+// Payments Management Component
+const PaymentsManagement = () => {
+  const [payments, setPayments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({ total: 0, thisMonth: 0, pending: 0 });
+
+  useEffect(() => {
+    loadPayments();
+  }, []);
+
+  const loadPayments = async () => {
+    try {
+      setLoading(true);
+      const response = await adminAPI.getPayments();
+      const paymentList = response.data || [];
+      setPayments(paymentList);
+      
+      // Calculate stats
+      const now = new Date();
+      const thisMonth = paymentList.filter(p => {
+        const pDate = new Date(p.created_at);
+        return pDate.getMonth() === now.getMonth() && pDate.getFullYear() === now.getFullYear();
+      });
+      
+      setStats({
+        total: paymentList.reduce((sum, p) => sum + (p.amount || 0), 0),
+        thisMonth: thisMonth.reduce((sum, p) => sum + (p.amount || 0), 0),
+        pending: paymentList.filter(p => p.status === 'pending').length
+      });
+    } catch (error) {
+      console.error('Error loading payments:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Payments</h1>
+          <p className="text-gray-500">View payment transactions</p>
+        </div>
+        <Button onClick={loadPayments} variant="outline" className="gap-2">
+          <RefreshCw className="w-4 h-4" />
+          Refresh
+        </Button>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="bg-white rounded-xl p-6 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+              <DollarSign className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Total Revenue</p>
+              <p className="text-2xl font-bold">${stats.total.toFixed(2)}</p>
+            </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-xl p-6 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+              <TrendingUp className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">This Month</p>
+              <p className="text-2xl font-bold">${stats.thisMonth.toFixed(2)}</p>
+            </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-xl p-6 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center">
+              <AlertCircle className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Pending</p>
+              <p className="text-2xl font-bold">{stats.pending}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="w-8 h-8 animate-spin text-pink-500" />
+        </div>
+      ) : payments.length > 0 ? (
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="text-left py-4 px-6 font-semibold text-gray-600">Date</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-600">User</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-600">Amount</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-600">Method</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-600">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {payments.map((payment) => (
+                <tr key={payment.id} className="border-t border-gray-100">
+                  <td className="py-4 px-6 text-gray-500">{new Date(payment.created_at).toLocaleDateString()}</td>
+                  <td className="py-4 px-6">
+                    <p className="font-medium">{payment.user_name || payment.user_email || 'Unknown'}</p>
+                  </td>
+                  <td className="py-4 px-6 font-medium">${payment.amount?.toFixed(2)} {payment.currency?.toUpperCase()}</td>
+                  <td className="py-4 px-6 capitalize">{payment.payment_method || 'Card'}</td>
+                  <td className="py-4 px-6">
+                    <Badge className={
+                      payment.status === 'success' || payment.status === 'paid' ? 'bg-green-100 text-green-700' :
+                      payment.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'
+                    }>
+                      {payment.status}
+                    </Badge>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="bg-white rounded-xl p-8 text-center">
+          <DollarSign className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <p className="text-gray-500">No payments yet</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Instagram Management Component
+const InstagramManagement = () => {
+  const [accounts, setAccounts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadAccounts();
+  }, []);
+
+  const loadAccounts = async () => {
+    try {
+      setLoading(true);
+      const response = await adminAPI.getInstagramAccounts();
+      setAccounts(response.data || []);
+    } catch (error) {
+      console.error('Error loading Instagram accounts:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleGrowth = async (accountId, currentPaused) => {
+    try {
+      await adminAPI.updateInstagramAccount(accountId, { growth_paused: !currentPaused });
+      loadAccounts();
+    } catch (error) {
+      console.error('Error toggling growth:', error);
+    }
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Instagram Accounts</h1>
+          <p className="text-gray-500">Manage connected Instagram accounts</p>
+        </div>
+        <Button onClick={loadAccounts} variant="outline" className="gap-2">
+          <RefreshCw className="w-4 h-4" />
+          Refresh
+        </Button>
+      </div>
+
+      {loading ? (
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="w-8 h-8 animate-spin text-pink-500" />
+        </div>
+      ) : accounts.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {accounts.map((account) => (
+            <div key={account.id} className="bg-white rounded-xl p-6 shadow-sm">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center">
+                  <Instagram className="w-7 h-7 text-white" />
+                </div>
+                <div>
+                  <p className="font-semibold">@{account.username}</p>
+                  <p className="text-sm text-gray-500">{account.user_name || 'User'}</p>
+                </div>
+              </div>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Followers</span>
+                  <span className="font-medium">{(account.followers_count || 0).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Gained</span>
+                  <span className="font-medium text-green-600">+{(account.total_followers_gained || 0).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Engagement</span>
+                  <span className="font-medium">{account.engagement_rate || 0}%</span>
+                </div>
+              </div>
+              <div className="mt-4 pt-4 border-t flex justify-between items-center">
+                <Badge className={account.growth_paused ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'}>
+                  {account.growth_paused ? 'Paused' : 'Active'}
+                </Badge>
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  onClick={() => toggleGrowth(account.id, account.growth_paused)}
+                >
+                  {account.growth_paused ? <Play className="w-4 h-4 mr-1" /> : <Pause className="w-4 h-4 mr-1" />}
+                  {account.growth_paused ? 'Resume' : 'Pause'}
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="bg-white rounded-xl p-8 text-center">
+          <Instagram className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <p className="text-gray-500">No Instagram accounts connected</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Tickets Management Component
+const TicketsManagement = () => {
+  const [tickets, setTickets] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadTickets();
+  }, []);
+
+  const loadTickets = async () => {
+    try {
+      setLoading(true);
+      const response = await adminAPI.getTickets();
+      setTickets(response.data || []);
+    } catch (error) {
+      console.error('Error loading tickets:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateStatus = async (ticketId, status) => {
+    try {
+      await adminAPI.updateTicket(ticketId, { status });
+      loadTickets();
+    } catch (error) {
+      console.error('Error updating ticket:', error);
+    }
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Support Tickets</h1>
+          <p className="text-gray-500">Manage customer support requests</p>
+        </div>
+        <Button onClick={loadTickets} variant="outline" className="gap-2">
+          <RefreshCw className="w-4 h-4" />
+          Refresh
+        </Button>
+      </div>
+
+      {loading ? (
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="w-8 h-8 animate-spin text-pink-500" />
+        </div>
+      ) : tickets.length > 0 ? (
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="text-left py-4 px-6 font-semibold text-gray-600">Subject</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-600">User</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-600">Priority</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-600">Status</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-600">Created</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-600">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tickets.map((ticket) => (
+                <tr key={ticket.id} className="border-t border-gray-100">
+                  <td className="py-4 px-6">
+                    <p className="font-medium">{ticket.subject}</p>
+                  </td>
+                  <td className="py-4 px-6 text-gray-500">{ticket.user_email}</td>
+                  <td className="py-4 px-6">
+                    <Badge className={
+                      ticket.priority === 'high' ? 'bg-red-100 text-red-700' :
+                      ticket.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'
+                    }>
+                      {ticket.priority}
+                    </Badge>
+                  </td>
+                  <td className="py-4 px-6">
+                    <Badge className={
+                      ticket.status === 'open' ? 'bg-blue-100 text-blue-700' :
+                      ticket.status === 'in_progress' ? 'bg-yellow-100 text-yellow-700' :
+                      ticket.status === 'resolved' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                    }>
+                      {ticket.status}
+                    </Badge>
+                  </td>
+                  <td className="py-4 px-6 text-gray-500">{new Date(ticket.created_at).toLocaleDateString()}</td>
+                  <td className="py-4 px-6">
+                    <select 
+                      value={ticket.status}
+                      onChange={(e) => updateStatus(ticket.id, e.target.value)}
+                      className="text-sm border rounded px-2 py-1"
+                    >
+                      <option value="open">Open</option>
+                      <option value="in_progress">In Progress</option>
+                      <option value="resolved">Resolved</option>
+                      <option value="closed">Closed</option>
+                    </select>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="bg-white rounded-xl p-8 text-center">
+          <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <p className="text-gray-500">No support tickets</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Notifications Management Component
+const NotificationsManagement = () => {
+  const [title, setTitle] = useState('');
+  const [message, setMsg] = useState('');
+  const [sending, setSending] = useState(false);
+
+  const sendNotification = async () => {
+    if (!title || !message) return;
+    try {
+      setSending(true);
+      await adminAPI.sendNotification({ title, message, target: 'all' });
+      setTitle('');
+      setMsg('');
+      alert('Notification sent successfully!');
+    } catch (error) {
+      console.error('Error sending notification:', error);
+      alert('Failed to send notification');
+    } finally {
+      setSending(false);
+    }
+  };
+
+  return (
+    <div>
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
+        <p className="text-gray-500">Send announcements to users</p>
+      </div>
+
+      <div className="bg-white rounded-xl p-6 shadow-sm max-w-2xl">
+        <h3 className="text-lg font-semibold mb-4">Send Announcement</h3>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Title</label>
+            <Input 
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Notification title"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Message</label>
+            <textarea 
+              value={message}
+              onChange={(e) => setMsg(e.target.value)}
+              placeholder="Write your message..."
+              className="w-full px-3 py-2 border rounded-lg resize-none h-32"
+            />
+          </div>
+          <Button onClick={sendNotification} disabled={sending || !title || !message} className="w-full">
+            {sending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Bell className="w-4 h-4 mr-2" />}
+            Send to All Users
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default AdminDashboard;
