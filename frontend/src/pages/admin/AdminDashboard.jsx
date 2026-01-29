@@ -53,6 +53,7 @@ const AdminDashboard = () => {
   const navItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
     { icon: Users, label: 'Users', path: '/admin/users' },
+    { icon: Package, label: 'Plans', path: '/admin/plans' },
     { icon: CreditCard, label: 'Subscriptions', path: '/admin/subscriptions' },
     { icon: DollarSign, label: 'Payments', path: '/admin/payments' },
     { icon: Instagram, label: 'Instagram Accounts', path: '/admin/instagram' },
