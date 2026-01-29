@@ -13,6 +13,7 @@ from utils.auth import (
     generate_reset_token, get_current_user
 )
 from utils.email import send_verification_email, send_password_reset_email, send_welcome_email
+from utils.security import check_rate_limit, get_client_ip, validate_password, validate_email
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
