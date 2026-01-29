@@ -178,20 +178,33 @@ async def get_faqs():
 
 @router.get("/plans")
 async def get_pricing_plans():
-    """Get public pricing plans."""
-    plans = []
+    """Get public pricing plans from database."""
+    # First try to get dynamic plans from database
+    if db is not None:
+        plans = await db.plans.find(
+            {"is_active": True, "is_hidden": {"$ne": True}},
+            {"_id": 0}
+        ).sort("display_order", 1).to_list(100)
+        
+        if plans:
+            return plans
+    
+    # Fallback to static plans
+    result = []
     for plan_type, details in PLAN_CONFIG.items():
-        plans.append({
+        result.append({
             "id": plan_type.value,
             "name": details.name,
+            "slug": plan_type.value,
+            "description": f"{'Perfect for getting started' if plan_type.value == 'basic' else 'Most popular choice' if plan_type.value == 'pro' else 'For serious growth'}",
             "monthly_price": details.monthly_price,
             "yearly_price": details.yearly_price,
             "followers_min": details.followers_min,
             "followers_max": details.followers_max,
-            "features": details.features,
-            "popular": plan_type == PlanType.PRO
+            "feature_list": details.features,
+            "is_popular": plan_type == PlanType.PRO
         })
-    return plans
+    return result
 
 
 @router.get("/reviews")
