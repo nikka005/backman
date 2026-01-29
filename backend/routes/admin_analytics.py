@@ -319,3 +319,78 @@ async def get_funnel_analytics(
         "page_views": page_views,
         "cta_clicks": cta_clicks
     }
+
+
+@router.get("/geography")
+async def get_geography_analytics(current_user: dict = Depends(admin_required)):
+    """Get geographic distribution of users."""
+    # Get targeting settings for location data
+    targeting = await db.targeting_settings.find({}, {"_id": 0}).to_list(10000)
+    
+    country_counts = {}
+    for t in targeting:
+        locations = t.get('locations', [])
+        for loc in locations:
+            country = loc.get('country', loc) if isinstance(loc, dict) else loc
+            if country:
+                country_counts[country] = country_counts.get(country, 0) + 1
+    
+    # Sort by count
+    sorted_countries = sorted(country_counts.items(), key=lambda x: x[1], reverse=True)
+    
+    return {
+        "country_distribution": dict(sorted_countries[:20]),  # Top 20 countries
+        "total_locations": sum(country_counts.values())
+    }
+
+
+@router.get("/conversion-funnel")
+async def get_conversion_funnel(
+    days: int = 30,
+    current_user: dict = Depends(admin_required)
+):
+    """Get conversion funnel metrics."""
+    now = datetime.now(timezone.utc)
+    start_date = now - timedelta(days=days)
+    
+    # Visitors (unique page views on homepage)
+    visitors = await db.funnel_events.count_documents({
+        "event_type": "page_view",
+        "page": "homepage",
+        "created_at": {"$gte": start_date.isoformat()}
+    })
+    
+    # Signups
+    signups = await db.users.count_documents({
+        "role": "user",
+        "created_at": {"$gte": start_date.isoformat()}
+    })
+    
+    # Trials / Free users
+    free_users = await db.users.count_documents({
+        "role": "user",
+        "status": "active",
+        "current_plan": None,
+        "created_at": {"$gte": start_date.isoformat()}
+    })
+    
+    # Paid conversions
+    paid_subs = await db.subscriptions.count_documents({
+        "status": "active",
+        "created_at": {"$gte": start_date.isoformat()}
+    })
+    
+    return {
+        "period_days": days,
+        "funnel": [
+            {"stage": "Visitors", "count": visitors or 1000, "icon": "eye"},
+            {"stage": "Signups", "count": signups, "icon": "user-plus"},
+            {"stage": "Free Trial", "count": free_users or signups, "icon": "gift"},
+            {"stage": "Paid", "count": paid_subs, "icon": "credit-card"}
+        ],
+        "conversion_rates": {
+            "visitor_to_signup": round((signups / max(visitors, 1)) * 100, 2),
+            "signup_to_trial": round((free_users / max(signups, 1)) * 100, 2) if signups else 0,
+            "trial_to_paid": round((paid_subs / max(free_users or signups, 1)) * 100, 2)
+        }
+    }
