@@ -208,17 +208,19 @@ const DashboardPage = () => {
                 </Link>
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">Welcome back, {userName}!</h1>
+                <h1 className="text-xl font-bold text-gray-900">Welcome back, {user?.name || 'User'}!</h1>
                 <p className="text-sm text-gray-500">Here's your growth overview</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <button className="p-2 rounded-full hover:bg-gray-100 transition-colors relative">
                 <Bell className="w-5 h-5 text-gray-600" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-pink-500 rounded-full"></span>
+                {unreadCount > 0 && (
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-pink-500 rounded-full"></span>
+                )}
               </button>
               <div className="w-10 h-10 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center text-white font-semibold">
-                {userName.charAt(0).toUpperCase()}
+                {(user?.name || 'U').charAt(0).toUpperCase()}
               </div>
             </div>
           </div>
@@ -226,6 +228,12 @@ const DashboardPage = () => {
 
         {/* Content */}
         <div className="p-6">
+          {loading ? (
+            <div className="flex items-center justify-center h-64">
+              <Loader2 className="w-8 h-8 animate-spin text-pink-500" />
+            </div>
+          ) : (
+            <>
           {/* Growth Status Card */}
           <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-2xl p-6 mb-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
