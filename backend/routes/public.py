@@ -216,3 +216,22 @@ async def get_reviews():
         {"platform": "Capterra", "rating": "4.9/5", "reviews": "634+"},
         {"platform": "GetApp", "rating": "4.7/5", "reviews": "180+"}
     ]
+
+
+@router.get("/feature-matrix")
+async def get_public_feature_matrix():
+    """Get the feature comparison matrix for pricing page."""
+    if db is not None:
+        matrix = await db.feature_matrix.find({}, {"_id": 0}).sort("category", 1).to_list(100)
+        if matrix:
+            return matrix
+    
+    # Return defaults
+    return [
+        {"feature_key": "guaranteed_followers", "feature_name": "Guaranteed Followers/Month", "category": "growth", "is_boolean": False, "basic_value": "1,000-1,500", "pro_value": "2,500-3,500", "enterprise_value": "5,000+"},
+        {"feature_key": "ai_targeting", "feature_name": "AI-Powered Targeting", "category": "targeting", "is_boolean": True, "basic_value": "Yes", "pro_value": "Yes", "enterprise_value": "Yes"},
+        {"feature_key": "analytics_dashboard", "feature_name": "Real-Time Analytics", "category": "analytics", "is_boolean": True, "basic_value": "Yes", "pro_value": "Yes", "enterprise_value": "Yes"},
+        {"feature_key": "ai_engine", "feature_name": "AI Growth Engine", "category": "advanced", "is_boolean": True, "basic_value": "No", "pro_value": "Yes", "enterprise_value": "Yes"},
+        {"feature_key": "dedicated_manager", "feature_name": "Dedicated Account Manager", "category": "support", "is_boolean": True, "basic_value": "No", "pro_value": "No", "enterprise_value": "Yes"},
+        {"feature_key": "api_access", "feature_name": "API Access", "category": "advanced", "is_boolean": True, "basic_value": "No", "pro_value": "No", "enterprise_value": "Yes"},
+    ]
