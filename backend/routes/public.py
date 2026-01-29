@@ -235,3 +235,82 @@ async def get_public_feature_matrix():
         {"feature_key": "dedicated_manager", "feature_name": "Dedicated Account Manager", "category": "support", "is_boolean": True, "basic_value": "No", "pro_value": "No", "enterprise_value": "Yes"},
         {"feature_key": "api_access", "feature_name": "API Access", "category": "advanced", "is_boolean": True, "basic_value": "No", "pro_value": "No", "enterprise_value": "Yes"},
     ]
+
+
+
+@router.get("/localized-pricing")
+async def get_localized_pricing(request: Request):
+    """
+    Get pricing localized to client's country based on IP.
+    Returns currency, prices, and recommended payment provider.
+    """
+    from fastapi import Request
+    from utils.currency import get_localized_pricing, BASE_PLAN_PRICES_USD
+    from utils.security import get_client_ip
+    
+    client_ip = get_client_ip(request)
+    
+    # Get localized pricing
+    pricing = await get_localized_pricing(client_ip, BASE_PLAN_PRICES_USD)
+    
+    # Get plans from database
+    plans = []
+    if db is not None:
+        db_plans = await db.plans.find({"is_active": True}, {"_id": 0}).to_list(10)
+        if db_plans:
+            for plan in db_plans:
+                plan_key = plan.get("name", "").lower()
+                monthly_key = f"{plan_key}_monthly"
+                yearly_key = f"{plan_key}_yearly"
+                
+                plans.append({
+                    "id": plan.get("id"),
+                    "name": plan.get("name"),
+                    "description": plan.get("description"),
+                    "monthly_price": pricing["prices"].get(monthly_key, plan.get("monthly_price", 0)),
+                    "yearly_price": pricing["prices"].get(yearly_key, plan.get("yearly_price", 0)),
+                    "features": plan.get("features", []),
+                    "is_popular": plan.get("is_popular", False)
+                })
+    
+    # If no plans in DB, use defaults
+    if not plans:
+        plans = [
+            {
+                "id": "basic",
+                "name": "Basic",
+                "description": "Perfect for getting started",
+                "monthly_price": pricing["prices"].get("basic_monthly", 49),
+                "yearly_price": pricing["prices"].get("basic_yearly", 348),
+                "features": ["1,000-1,500 followers/month", "AI Targeting", "Basic Analytics"],
+                "is_popular": False
+            },
+            {
+                "id": "pro",
+                "name": "Pro",
+                "description": "Most popular for growing accounts",
+                "monthly_price": pricing["prices"].get("pro_monthly", 69),
+                "yearly_price": pricing["prices"].get("pro_yearly", 492),
+                "features": ["2,500-3,500 followers/month", "Advanced AI", "Priority Support"],
+                "is_popular": True
+            },
+            {
+                "id": "enterprise",
+                "name": "Enterprise",
+                "description": "For serious influencers & agencies",
+                "monthly_price": pricing["prices"].get("enterprise_monthly", 149),
+                "yearly_price": pricing["prices"].get("enterprise_yearly", 1188),
+                "features": ["5,000+ followers/month", "Dedicated Manager", "API Access"],
+                "is_popular": False
+            }
+        ]
+    
+    return {
+        "country_code": pricing["country_code"],
+        "currency": pricing["currency"],
+        "currency_symbol": pricing["currency_symbol"],
+        "currency_name": pricing["currency_name"],
+        "payment_provider": pricing["payment_provider"],
+        "exchange_rate": pricing["exchange_rate"],
+        "plans": plans
+    }
