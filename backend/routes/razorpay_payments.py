@@ -101,8 +101,10 @@ async def create_razorpay_order(
     client_ip = get_client_ip(request)
     check_rate_limit(client_ip, "payment")
     
-    if not razorpay_client:
-        raise HTTPException(status_code=500, detail="Razorpay not configured")
+    # Get Razorpay client (checks DB first, then env)
+    client = await get_razorpay_client()
+    if not client:
+        raise HTTPException(status_code=500, detail="Razorpay not configured. Please add API keys in Admin Panel > Features > Payment Options")
     
     # Validate package
     if package_id not in PLAN_PACKAGES_INR:
@@ -110,6 +112,18 @@ async def create_razorpay_order(
     
     package = PLAN_PACKAGES_INR[package_id]
     amount_paise = package["amount"] * 100  # Convert to paise
+    
+    # Get key_id for frontend
+    key_id = None
+    if db is not None:
+        try:
+            payment_config = await db.payment_options.find_one({"provider": "razorpay"})
+            if payment_config:
+                key_id = payment_config.get("api_key") or payment_config.get("public_key")
+        except:
+            pass
+    if not key_id:
+        key_id = os.environ.get("RAZORPAY_KEY_ID", "")
     
     try:
         # Create Razorpay order
@@ -125,7 +139,7 @@ async def create_razorpay_order(
             }
         }
         
-        order = razorpay_client.order.create(data=order_data)
+        order = client.order.create(data=order_data)
         
         # Store order in database
         order_record = {
