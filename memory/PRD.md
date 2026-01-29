@@ -141,6 +141,27 @@ Adverlyx Digital is a full-stack SaaS platform for Instagram growth services (pl
   - Funnel events for analytics
   - Growth logs for tracking
 
+### UI/UX Fixes (January 29, 2026)
+
+- [x] **Admin Sidebar Scroll Fix**
+  - Fixed sidebar overflow issue where navigation was hidden
+  - Proper flex layout with scrollable nav area
+  - Logout button no longer overlapped by menu items
+
+- [x] **Admin Management Pages (No More "Coming Soon")**
+  - Subscriptions page - View all subscriptions, cancel subscriptions
+  - Payments page - View payments with stats (total revenue, this month, pending)
+  - Instagram Accounts page - View connected accounts, toggle growth pause/resume
+  - Support Tickets page - View and update ticket status
+  - Notifications page - Send broadcast announcements
+
+- [x] **User Dashboard Tabs**
+  - All menu items now functional (Targeting, Analytics, Support, Settings)
+  - Targeting tab - Configure niche, location, competitors, hashtags
+  - Analytics tab - View growth metrics and stats
+  - Support tab - Create tickets, view FAQ
+  - Settings tab - Account settings, notifications, danger zone
+
 ---
 
 ## Technical Architecture
