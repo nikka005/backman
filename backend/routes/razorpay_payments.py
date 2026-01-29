@@ -23,19 +23,45 @@ db = None
 razorpay_client = None
 
 
+async def get_razorpay_client():
+    """Get Razorpay client, checking database for keys first, then env vars."""
+    global razorpay_client
+    
+    # Try to get keys from database first (admin panel settings)
+    if db is not None:
+        try:
+            payment_config = await db.payment_options.find_one({"provider": "razorpay"})
+            if payment_config and payment_config.get("api_key") and payment_config.get("api_secret"):
+                key_id = payment_config.get("api_key") or payment_config.get("public_key")
+                key_secret = payment_config.get("api_secret")
+                if key_id and key_secret and not key_id.startswith("YOUR_") and not key_secret.startswith("YOUR_"):
+                    return razorpay.Client(auth=(key_id, key_secret))
+        except Exception as e:
+            logger.warning(f"Failed to get Razorpay keys from database: {e}")
+    
+    # Fallback to environment variables
+    key_id = os.environ.get("RAZORPAY_KEY_ID")
+    key_secret = os.environ.get("RAZORPAY_KEY_SECRET")
+    
+    if key_id and key_secret and not key_id.startswith("YOUR_") and not key_secret.startswith("YOUR_"):
+        return razorpay.Client(auth=(key_id, key_secret))
+    
+    return None
+
+
 def init_router(database):
     global db, razorpay_client
     db = database
     
-    # Initialize Razorpay client
+    # Initialize Razorpay client from env (will also check DB at runtime)
     key_id = os.environ.get("RAZORPAY_KEY_ID")
     key_secret = os.environ.get("RAZORPAY_KEY_SECRET")
     
-    if key_id and key_secret:
+    if key_id and key_secret and not key_id.startswith("YOUR_") and not key_secret.startswith("YOUR_"):
         razorpay_client = razorpay.Client(auth=(key_id, key_secret))
-        logger.info("Razorpay client initialized")
+        logger.info("Razorpay client initialized from environment")
     else:
-        logger.warning("Razorpay credentials not configured")
+        logger.info("Razorpay will check database for credentials at runtime")
 
 
 # Plan packages in INR (Indian Rupees) - amounts in paise (multiply by 100)
