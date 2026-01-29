@@ -72,5 +72,6 @@ all_routers = [
     rate_limits_router,
     export_router,
     ai_intelligence_router,
-    ai_onboarding_router
+    ai_onboarding_router,
+    instagram_graph_router
 ]
