@@ -20,6 +20,53 @@ def init_router(database):
 admin_required = require_roles([UserRole.ADMIN, UserRole.MANAGER])
 
 
+# ==================== FEATURE MATRIX (Must be before /{plan_id}) ====================
+
+@router.get("/feature-matrix")
+async def get_feature_matrix(current_user: dict = Depends(admin_required)):
+    """Get the feature comparison matrix."""
+    matrix = await db.feature_matrix.find({}, {"_id": 0}).sort("category", 1).to_list(100)
+    if not matrix:
+        # Seed defaults and return
+        await seed_feature_matrix()
+        matrix = await db.feature_matrix.find({}, {"_id": 0}).sort("category", 1).to_list(100)
+    return matrix
+
+
+@router.put("/feature-matrix")
+async def update_feature_matrix(matrix: List[dict], current_user: dict = Depends(admin_required)):
+    """Update the entire feature matrix."""
+    # Clear and replace
+    await db.feature_matrix.delete_many({})
+    for item in matrix:
+        item['updated_at'] = datetime.now(timezone.utc).isoformat()
+        item['updated_by'] = current_user['user_id']
+        await db.feature_matrix.insert_one(item)
+    return {"message": "Feature matrix updated"}
+
+
+@router.put("/feature-matrix/{feature_key}")
+async def update_feature_matrix_item(feature_key: str, item: dict, current_user: dict = Depends(admin_required)):
+    """Update a single feature matrix item."""
+    item['updated_at'] = datetime.now(timezone.utc).isoformat()
+    item['updated_by'] = current_user['user_id']
+    await db.feature_matrix.update_one(
+        {"feature_key": feature_key},
+        {"$set": item},
+        upsert=True
+    )
+    return {"message": "Feature updated"}
+
+
+@router.post("/feature-matrix/seed")
+async def seed_matrix(current_user: dict = Depends(admin_required)):
+    """Seed default feature matrix."""
+    await seed_feature_matrix()
+    return {"message": "Feature matrix seeded"}
+
+
+# ==================== PLANS CRUD ====================
+
 @router.get("/", response_model=List[dict])
 async def get_all_plans(include_hidden: bool = False, current_user: dict = Depends(admin_required)):
     """Get all plans (admin view - includes hidden plans)."""
