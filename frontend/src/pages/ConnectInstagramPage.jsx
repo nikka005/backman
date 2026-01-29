@@ -95,7 +95,7 @@ const ConnectInstagramPage = () => {
                 />
               </div>
               <p className="text-xs text-gray-500 mt-2">
-                We'll never ask for your password
+                We&apos;ll never ask for your password
               </p>
             </div>
 
