@@ -97,7 +97,9 @@ const AdminDashboard = () => {
         <nav className="flex-1 overflow-y-auto px-4 space-y-1 pb-4">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = location.pathname === item.path;
+            // Check both exact match and nested paths (for feature manager)
+            const isActive = location.pathname === item.path || 
+              (item.path !== '/admin' && location.pathname.startsWith(item.path + '/'));
             return (
               <Link
                 key={item.path}
