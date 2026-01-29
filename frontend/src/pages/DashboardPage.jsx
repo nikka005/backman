@@ -719,13 +719,21 @@ const DashboardPage = () => {
             <div className="space-y-6">
               <div className="bg-white rounded-2xl border border-gray-100 p-6">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">Create Support Ticket</h2>
+                {ticketSuccess && (
+                  <div className="mb-4 p-3 bg-green-50 text-green-700 rounded-lg flex items-center gap-2">
+                    <CheckCircle className="w-5 h-5" />
+                    Ticket submitted successfully! We&apos;ll get back to you soon.
+                  </div>
+                )}
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Subject</label>
-                    <input 
+                    <Input 
                       type="text" 
-                      className="w-full px-4 py-2 border rounded-lg"
+                      className="w-full"
                       placeholder="What do you need help with?"
+                      value={ticketSubject}
+                      onChange={(e) => setTicketSubject(e.target.value)}
                     />
                   </div>
                   <div>
@@ -733,9 +741,16 @@ const DashboardPage = () => {
                     <textarea 
                       className="w-full px-4 py-2 border rounded-lg h-32 resize-none"
                       placeholder="Describe your issue..."
+                      value={ticketMessage}
+                      onChange={(e) => setTicketMessage(e.target.value)}
                     />
                   </div>
-                  <Button className="bg-gradient-to-r from-pink-500 to-purple-500 text-white">
+                  <Button 
+                    onClick={handleSubmitTicket}
+                    disabled={submittingTicket || !ticketSubject || !ticketMessage}
+                    className="bg-gradient-to-r from-pink-500 to-purple-500 text-white"
+                  >
+                    {submittingTicket ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <MessageCircle className="w-4 h-4 mr-2" />}
                     Submit Ticket
                   </Button>
                 </div>
