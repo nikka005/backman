@@ -122,6 +122,7 @@ export const publicAPI = {
   getFaqs: () => api.get('/public/faqs'),
   getPlans: () => api.get('/public/plans'),
   getReviews: () => api.get('/public/reviews'),
+  getFeatureMatrix: () => api.get('/public/feature-matrix'),
 };
 
 // Admin API
