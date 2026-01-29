@@ -157,6 +157,7 @@ const AdminDashboard = () => {
           <Route path="/ai" element={<AdminAIIntelligence />} />
           <Route path="/analytics" element={<AdminAnalytics />} />
           <Route path="/promotions" element={<AdminPromotions />} />
+          <Route path="/programs" element={<AdminPrograms />} />
           <Route path="/users" element={<UsersManagement />} />
           <Route path="/plans" element={<AdminPlans />} />
           <Route path="/feature-matrix" element={<AdminFeatureMatrix />} />
