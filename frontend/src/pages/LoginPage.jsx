@@ -52,6 +52,12 @@ const LoginPage = () => {
             Sign in to your account to continue growing your Instagram
           </p>
 
+          {error && (
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
+              {error}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email */}
             <div className="space-y-2">
