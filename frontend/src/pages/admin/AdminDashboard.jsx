@@ -9,8 +9,10 @@ import {
   LayoutDashboard, Users, CreditCard, Instagram, MessageSquare,
   Bell, Settings, LogOut, ChevronRight, TrendingUp, DollarSign,
   UserPlus, AlertCircle, Search, MoreVertical, Eye, Pause, Play,
-  Loader2, RefreshCw
+  Loader2, RefreshCw, Package
 } from 'lucide-react';
+import AdminSettings from './AdminSettings';
+import AdminPlans from './AdminPlans';
 
 const AdminDashboard = () => {
   const { user, logout, isAuthenticated, loading: authLoading } = useAuth();
