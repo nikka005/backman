@@ -13,6 +13,10 @@ from .payments import router as payments_router, init_router as init_payments
 from .webhooks import router as webhooks_router, init_router as init_webhooks
 from .two_factor import router as two_factor_router, init_router as init_two_factor
 from .feature_management import router as feature_management_router, init_router as init_feature_management
+from .admin_email_templates import router as email_templates_router, init_router as init_email_templates
+from .push_notifications import router as push_notifications_router, init_router as init_push_notifications
+from .admin_rate_limits import router as rate_limits_router, init_router as init_rate_limits
+from .admin_export import router as export_router, init_router as init_export
 
 
 def init_all_routes(database):
@@ -32,6 +36,10 @@ def init_all_routes(database):
     init_webhooks(database)
     init_two_factor(database)
     init_feature_management(database)
+    init_email_templates(database)
+    init_push_notifications(database)
+    init_rate_limits(database)
+    init_export(database)
 
 
 all_routers = [
@@ -49,5 +57,9 @@ all_routers = [
     payments_router,
     webhooks_router,
     two_factor_router,
-    feature_management_router
+    feature_management_router,
+    email_templates_router,
+    push_notifications_router,
+    rate_limits_router,
+    export_router
 ]
