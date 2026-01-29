@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from typing import Optional, List
 import uuid
 
-from models.plans import DynamicPlan, PlanCreate, PlanUpdate, DEFAULT_PLANS
+from models.plans import DynamicPlan, PlanCreate, PlanUpdate, DEFAULT_PLANS, DEFAULT_FEATURE_MATRIX
 from models.admin_log import AdminLog, AdminAction
 from utils.auth import get_current_user, require_roles
 from models.user import UserRole
