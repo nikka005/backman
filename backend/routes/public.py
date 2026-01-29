@@ -20,7 +20,7 @@ def init_router(database):
 async def get_platform_stats():
     """Get public platform statistics."""
     # Try to get from CMS, else return defaults
-    cms_stats = await db.cms_content.find_one({"key": "platform_stats"}, {"_id": 0}) if db else None
+    cms_stats = await db.cms_content.find_one({"key": "platform_stats"}, {"_id": 0}) if db is not None else None
     
     if cms_stats and cms_stats.get('content'):
         return cms_stats['content']
