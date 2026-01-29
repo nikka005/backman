@@ -130,76 +130,84 @@ const PricingPage = () => {
         {/* Pricing Cards */}
         <section className="pb-20">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid md:grid-cols-3 gap-6">
-              {pricingPlans.map((plan) => (
-                <div
-                  key={plan.id}
-                  className={`relative bg-white rounded-2xl border-2 transition-all duration-300 ${
-                    plan.popular
-                      ? 'border-pink-500 shadow-xl shadow-pink-100 scale-105 z-10'
-                      : 'border-gray-200 hover:border-gray-300 hover:shadow-lg'
-                  }`}
-                >
-                  {plan.popular && (
-                    <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                      <Badge className="bg-gradient-to-r from-orange-500 to-pink-500 text-white px-4 py-1">
-                        Most Popular
-                      </Badge>
-                    </div>
-                  )}
-
-                  <div className="p-8">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
-                    <p className="text-gray-500 mb-6 h-12">{plan.description}</p>
-
-                    <div className="mb-6">
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-5xl font-bold text-gray-900">
-                          ${isYearly ? plan.yearlyPrice : plan.monthlyPrice}
-                        </span>
-                        <span className="text-gray-500">/mo</span>
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-8 h-8 animate-spin text-pink-500" />
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-3 gap-6">
+                {plans.map((plan) => (
+                  <div
+                    key={plan.id}
+                    className={`relative bg-white rounded-2xl border-2 transition-all duration-300 ${
+                      plan.popular
+                        ? 'border-pink-500 shadow-xl shadow-pink-100 scale-105 z-10'
+                        : 'border-gray-200 hover:border-gray-300 hover:shadow-lg'
+                    }`}
+                    data-testid={`pricing-card-${plan.id}`}
+                  >
+                    {plan.popular && (
+                      <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                        <Badge className="bg-gradient-to-r from-orange-500 to-pink-500 text-white px-4 py-1">
+                          Most Popular
+                        </Badge>
                       </div>
-                      {isYearly && (
-                        <p className="text-sm text-gray-400 line-through mt-1">
-                          ${plan.monthlyPrice}/mo
+                    )}
+
+                    <div className="p-8">
+                      <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
+                      <p className="text-gray-500 mb-6 h-12">{plan.description}</p>
+
+                      <div className="mb-6">
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-5xl font-bold text-gray-900">
+                            ${isYearly ? plan.yearlyPrice : plan.monthlyPrice}
+                          </span>
+                          <span className="text-gray-500">/mo</span>
+                        </div>
+                        {isYearly && (
+                          <p className="text-sm text-gray-400 line-through mt-1">
+                            ${plan.monthlyPrice}/mo
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 mb-6">
+                        <p className="text-sm text-gray-600">Guaranteed</p>
+                        <p className="text-xl font-bold text-green-700">
+                          {plan.followers} Followers/mo
                         </p>
-                      )}
+                      </div>
+
+                      <Link to="/signup">
+                        <Button
+                          className={`w-full rounded-full py-6 mb-6 group ${
+                            plan.popular
+                              ? 'bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white'
+                              : 'bg-gray-900 hover:bg-gray-800 text-white'
+                          }`}
+                          data-testid={`get-started-${plan.id}`}
+                        >
+                          Get Started
+                          <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-0.5 transition-transform" />
+                        </Button>
+                      </Link>
+
+                      <ul className="space-y-3">
+                        {plan.features.map((feature, index) => (
+                          <li key={index} className="flex items-start gap-3">
+                            <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <Check className="w-3 h-3 text-green-600" />
+                            </div>
+                            <span className="text-gray-600">{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-
-                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 mb-6">
-                      <p className="text-sm text-gray-600">Guaranteed</p>
-                      <p className="text-xl font-bold text-green-700">
-                        {plan.followers} Followers/mo
-                      </p>
-                    </div>
-
-                    <Link to="/signup">
-                      <Button
-                        className={`w-full rounded-full py-6 mb-6 group ${
-                          plan.popular
-                            ? 'bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white'
-                            : 'bg-gray-900 hover:bg-gray-800 text-white'
-                        }`}
-                      >
-                        Get Started
-                        <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-0.5 transition-transform" />
-                      </Button>
-                    </Link>
-
-                    <ul className="space-y-3">
-                      {plan.features.map((feature, index) => (
-                        <li key={index} className="flex items-start gap-3">
-                          <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                            <Check className="w-3 h-3 text-green-600" />
-                          </div>
-                          <span className="text-gray-600">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </section>
 
