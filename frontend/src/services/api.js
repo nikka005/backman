@@ -337,6 +337,26 @@ export const adminAPI = {
   exportFunnelEvents: (format = 'csv', days = 30) => api.get('/admin/export/funnel-events', { params: { format, days }, responseType: 'blob' }),
   exportGrowthLogs: (format = 'csv', days = 30) => api.get('/admin/export/growth-logs', { params: { format, days }, responseType: 'blob' }),
   exportFullReport: (days = 30) => api.get('/admin/export/full-report', { params: { format: 'json', period_days: days }, responseType: 'blob' }),
+  
+  // AI Intelligence
+  aiChat: (message, conversationId, context) => api.post('/admin/ai/chat', { message, conversation_id: conversationId, context }),
+  aiGetConversations: (limit = 20) => api.get('/admin/ai/conversations', { params: { limit } }),
+  aiGetConversation: (conversationId) => api.get(`/admin/ai/conversations/${conversationId}`),
+  aiDeleteConversation: (conversationId) => api.delete(`/admin/ai/conversations/${conversationId}`),
+  aiGenerateGrowthPlan: (userId, includeTargeting = true, includeHistory = true) => 
+    api.post('/admin/ai/growth-plan/generate', { user_id: userId, include_targeting: includeTargeting, include_history: includeHistory }),
+  aiGetGrowthPlans: (userId, status, limit = 20) => api.get('/admin/ai/growth-plans', { params: { user_id: userId, status, limit } }),
+  aiApproveGrowthPlan: (planId, notes) => api.put(`/admin/ai/growth-plans/${planId}/approve`, null, { params: { notes } }),
+  aiAnalyzeAnalytics: (analysisType = 'general', timePeriod = 'last_30_days', metrics = []) => 
+    api.post('/admin/ai/analytics/analyze', { analysis_type: analysisType, time_period: timePeriod, metrics }),
+  aiGetAnalyticsInsights: (limit = 20) => api.get('/admin/ai/analytics/insights', { params: { limit } }),
+  aiAssessRisk: (targetType, targetId, additionalContext) => 
+    api.post('/admin/ai/risk/assess', { target_type: targetType, target_id: targetId, additional_context: additionalContext }),
+  aiGetRiskAssessments: (targetType, limit = 20) => api.get('/admin/ai/risk/assessments', { params: { target_type: targetType, limit } }),
+  aiGetSettings: () => api.get('/admin/ai/settings'),
+  aiUpdateSettings: (data) => api.put('/admin/ai/settings', data),
+  aiGetLogs: (moduleType, limit = 50) => api.get('/admin/ai/logs', { params: { module_type: moduleType, limit } }),
+  aiGetStats: () => api.get('/admin/ai/stats'),
 };
 
 export default api;
