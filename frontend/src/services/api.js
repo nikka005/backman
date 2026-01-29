@@ -183,6 +183,12 @@ export const adminAPI = {
   clonePlan: (planId, newName, newSlug) => api.post(`/admin/plans/${planId}/clone?new_name=${newName}&new_slug=${newSlug}`),
   togglePlanPopular: (planId) => api.post(`/admin/plans/${planId}/toggle-popular`),
   reorderPlans: (planOrders) => api.post('/admin/plans/reorder', planOrders),
+  
+  // Feature Matrix Management
+  getFeatureMatrix: () => api.get('/admin/plans/feature-matrix'),
+  updateFeatureMatrix: (matrix) => api.put('/admin/plans/feature-matrix', matrix),
+  updateFeatureMatrixItem: (featureKey, item) => api.put(`/admin/plans/feature-matrix/${featureKey}`, item),
+  seedFeatureMatrix: () => api.post('/admin/plans/feature-matrix/seed'),
 };
 
 export default api;
