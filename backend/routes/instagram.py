@@ -1,0 +1,258 @@
+from fastapi import APIRouter, HTTPException, status, Depends
+from datetime import datetime, timezone
+from typing import List, Optional
+from pydantic import BaseModel
+
+from models.instagram_account import (
+    InstagramAccount, InstagramAccountCreate, InstagramAccountUpdate,
+    GrowthIntensity, AccountStatus
+)
+from models.targeting import TargetingSettings, TargetingSettingsCreate, TargetingSettingsUpdate
+from models.growth_log import GrowthLog, GrowthLogCreate, GrowthLogType
+from utils.auth import get_current_user
+
+router = APIRouter(prefix="/instagram", tags=["Instagram"])
+
+db = None
+
+def init_router(database):
+    global db
+    db = database
+
+
+class InstagramStatsResponse(BaseModel):
+    followers_count: int
+    following_count: int
+    posts_count: int
+    engagement_rate: float
+    total_followers_gained: int
+    followers_this_month: int
+    growth_percentage: float
+
+
+@router.post("/connect", response_model=InstagramAccount)
+async def connect_instagram(account_data: InstagramAccountCreate, current_user: dict = Depends(get_current_user)):
+    """Connect an Instagram account."""
+    # Check if user already has an account connected
+    existing = await db.instagram_accounts.find_one({
+        "user_id": current_user['user_id'],
+        "status": {"$ne": AccountStatus.DISCONNECTED}
+    })
+    
+    if existing:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You already have an Instagram account connected. Please disconnect it first."
+        )
+    
+    # Check if username is already used by another user
+    username_exists = await db.instagram_accounts.find_one({
+        "username": account_data.username.lower().replace("@", ""),
+        "status": {"$ne": AccountStatus.DISCONNECTED}
+    })
+    
+    if username_exists:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This Instagram username is already connected to another account."
+        )
+    
+    # Create account
+    account = InstagramAccount(
+        user_id=current_user['user_id'],
+        username=account_data.username.lower().replace("@", ""),
+        risk_disclaimer_accepted=account_data.risk_disclaimer_accepted,
+        disclaimer_accepted_at=datetime.now(timezone.utc) if account_data.risk_disclaimer_accepted else None
+    )
+    
+    # Save to database
+    account_dict = account.model_dump()
+    for key in ['connected_at', 'created_at', 'updated_at', 'disclaimer_accepted_at', 'last_sync']:
+        if account_dict.get(key):
+            account_dict[key] = account_dict[key].isoformat()
+    
+    await db.instagram_accounts.insert_one(account_dict)
+    
+    # Create default targeting settings
+    targeting = TargetingSettings(
+        user_id=current_user['user_id'],
+        instagram_account_id=account.id
+    )
+    targeting_dict = targeting.model_dump()
+    targeting_dict['created_at'] = targeting_dict['created_at'].isoformat()
+    targeting_dict['updated_at'] = targeting_dict['updated_at'].isoformat()
+    await db.targeting_settings.insert_one(targeting_dict)
+    
+    # Log the connection
+    log = GrowthLog(
+        user_id=current_user['user_id'],
+        instagram_account_id=account.id,
+        log_type=GrowthLogType.SYSTEM,
+        message=f"Instagram account @{account.username} connected"
+    )
+    log_dict = log.model_dump()
+    log_dict['created_at'] = log_dict['created_at'].isoformat()
+    await db.growth_logs.insert_one(log_dict)
+    
+    return account
+
+
+@router.get("/account", response_model=Optional[InstagramAccount])
+async def get_instagram_account(current_user: dict = Depends(get_current_user)):
+    """Get connected Instagram account."""
+    account_doc = await db.instagram_accounts.find_one({
+        "user_id": current_user['user_id'],
+        "status": {"$ne": AccountStatus.DISCONNECTED}
+    }, {"_id": 0})
+    
+    if not account_doc:
+        return None
+    
+    return InstagramAccount(**account_doc)
+
+
+@router.put("/account", response_model=InstagramAccount)
+async def update_instagram_account(update_data: InstagramAccountUpdate, current_user: dict = Depends(get_current_user)):
+    """Update Instagram account settings."""
+    account_doc = await db.instagram_accounts.find_one({
+        "user_id": current_user['user_id'],
+        "status": {"$ne": AccountStatus.DISCONNECTED}
+    })
+    
+    if not account_doc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No Instagram account connected"
+        )
+    
+    update_dict = {k: v for k, v in update_data.model_dump().items() if v is not None}
+    update_dict['updated_at'] = datetime.now(timezone.utc).isoformat()
+    
+    await db.instagram_accounts.update_one(
+        {"id": account_doc['id']},
+        {"$set": update_dict}
+    )
+    
+    # Log the change
+    if 'growth_paused' in update_dict:
+        action = "paused" if update_dict['growth_paused'] else "resumed"
+        log = GrowthLog(
+            user_id=current_user['user_id'],
+            instagram_account_id=account_doc['id'],
+            log_type=GrowthLogType.SYSTEM,
+            message=f"Growth {action} by user"
+        )
+        log_dict = log.model_dump()
+        log_dict['created_at'] = log_dict['created_at'].isoformat()
+        await db.growth_logs.insert_one(log_dict)
+    
+    updated_doc = await db.instagram_accounts.find_one({"id": account_doc['id']}, {"_id": 0})
+    return InstagramAccount(**updated_doc)
+
+
+@router.delete("/account")
+async def disconnect_instagram(current_user: dict = Depends(get_current_user)):
+    """Disconnect Instagram account."""
+    account_doc = await db.instagram_accounts.find_one({
+        "user_id": current_user['user_id'],
+        "status": {"$ne": AccountStatus.DISCONNECTED}
+    })
+    
+    if not account_doc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No Instagram account connected"
+        )
+    
+    await db.instagram_accounts.update_one(
+        {"id": account_doc['id']},
+        {"$set": {
+            "status": AccountStatus.DISCONNECTED,
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    
+    return {"message": "Instagram account disconnected successfully"}
+
+
+@router.get("/stats", response_model=InstagramStatsResponse)
+async def get_instagram_stats(current_user: dict = Depends(get_current_user)):
+    """Get Instagram account statistics."""
+    account_doc = await db.instagram_accounts.find_one({
+        "user_id": current_user['user_id'],
+        "status": {"$ne": AccountStatus.DISCONNECTED}
+    })
+    
+    if not account_doc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No Instagram account connected"
+        )
+    
+    initial = account_doc.get('initial_followers', 0) or 1
+    current = account_doc.get('followers_count', 0)
+    growth_percentage = ((current - initial) / initial) * 100 if initial > 0 else 0
+    
+    return InstagramStatsResponse(
+        followers_count=account_doc.get('followers_count', 0),
+        following_count=account_doc.get('following_count', 0),
+        posts_count=account_doc.get('posts_count', 0),
+        engagement_rate=account_doc.get('engagement_rate', 0.0),
+        total_followers_gained=account_doc.get('total_followers_gained', 0),
+        followers_this_month=account_doc.get('followers_this_month', 0),
+        growth_percentage=round(growth_percentage, 2)
+    )
+
+
+# Targeting endpoints
+@router.get("/targeting", response_model=Optional[TargetingSettings])
+async def get_targeting(current_user: dict = Depends(get_current_user)):
+    """Get targeting settings."""
+    targeting_doc = await db.targeting_settings.find_one(
+        {"user_id": current_user['user_id']},
+        {"_id": 0}
+    )
+    
+    if not targeting_doc:
+        return None
+    
+    return TargetingSettings(**targeting_doc)
+
+
+@router.put("/targeting", response_model=TargetingSettings)
+async def update_targeting(update_data: TargetingSettingsUpdate, current_user: dict = Depends(get_current_user)):
+    """Update targeting settings."""
+    targeting_doc = await db.targeting_settings.find_one({"user_id": current_user['user_id']})
+    
+    if not targeting_doc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No targeting settings found. Please connect an Instagram account first."
+        )
+    
+    update_dict = {k: v for k, v in update_data.model_dump().items() if v is not None}
+    update_dict['updated_at'] = datetime.now(timezone.utc).isoformat()
+    
+    await db.targeting_settings.update_one(
+        {"id": targeting_doc['id']},
+        {"$set": update_dict}
+    )
+    
+    updated_doc = await db.targeting_settings.find_one({"id": targeting_doc['id']}, {"_id": 0})
+    return TargetingSettings(**updated_doc)
+
+
+# Growth logs
+@router.get("/logs", response_model=List[GrowthLog])
+async def get_growth_logs(
+    limit: int = 50,
+    log_type: Optional[GrowthLogType] = None,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get growth activity logs."""
+    query = {"user_id": current_user['user_id']}
+    if log_type:
+        query["log_type"] = log_type
+    
+    logs = await db.growth_logs.find(query, {"_id": 0}).sort("created_at", -1).limit(limit).to_list(limit)
+    return [GrowthLog(**log) for log in logs]
