@@ -95,35 +95,35 @@ const DashboardPage = () => {
   // Use actual stats or mock data
   const displayStats = stats || dashboardStats;
 
-  const stats = [
+  const statsCards = [
     {
       label: 'Total Followers',
-      value: dashboardStats.followers.toLocaleString(),
-      change: `+${dashboardStats.followersGrowth} today`,
+      value: (displayStats.followers_count || displayStats.followers || 0).toLocaleString(),
+      change: `+${displayStats.followersGrowth || 234} today`,
       trend: 'up',
       icon: Users,
       color: 'from-pink-500 to-rose-500'
     },
     {
       label: 'Engagement Rate',
-      value: `${dashboardStats.engagement}%`,
-      change: `+${dashboardStats.engagementGrowth}%`,
+      value: `${displayStats.engagement_rate || displayStats.engagement || 0}%`,
+      change: `+${displayStats.engagementGrowth || 0.6}%`,
       trend: 'up',
       icon: Heart,
       color: 'from-orange-500 to-pink-500'
     },
     {
       label: 'Profile Reach',
-      value: `${(dashboardStats.reach / 1000).toFixed(1)}K`,
-      change: `+${dashboardStats.reachGrowth}%`,
+      value: `${((displayStats.reach || 45200) / 1000).toFixed(1)}K`,
+      change: `+${displayStats.reachGrowth || 12}%`,
       trend: 'up',
       icon: Eye,
       color: 'from-blue-500 to-cyan-500'
     },
     {
       label: 'Profile Visits',
-      value: dashboardStats.profileVisits.toLocaleString(),
-      change: `+${dashboardStats.profileVisitsGrowth}%`,
+      value: (displayStats.profileVisits || 892).toLocaleString(),
+      change: `+${displayStats.profileVisitsGrowth || 23}%`,
       trend: 'up',
       icon: TrendingUp,
       color: 'from-green-500 to-emerald-500'
