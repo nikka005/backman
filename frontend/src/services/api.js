@@ -208,6 +208,8 @@ export const adminAPI = {
   getUserAnalytics: (userId) => api.get(`/admin/analytics/users/${userId}`),
   getGrowthEngineAnalytics: () => api.get('/admin/analytics/growth-engine'),
   getFunnelAnalytics: (days = 30) => api.get('/admin/analytics/funnel', { params: { days } }),
+  getGeographyAnalytics: () => api.get('/admin/analytics/geography'),
+  getConversionFunnel: (days = 30) => api.get('/admin/analytics/conversion-funnel', { params: { days } }),
   trackEvent: (event) => api.post('/admin/analytics/events', event),
   
   // Promotions - Dashboard
