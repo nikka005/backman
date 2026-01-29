@@ -306,6 +306,48 @@ const BrandingSettings = ({ branding, onUpdate, onSave, saving }) => {
         }} />
       </div>
 
+      {/* Live Preview Card */}
+      <div className="bg-white rounded-xl p-6 shadow-sm">
+        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+          <Eye className="w-5 h-5 text-pink-500" />
+          Live Preview
+        </h3>
+        <div className="border rounded-xl p-6 bg-gray-50">
+          {/* Mini Hero Preview */}
+          <div className="text-center">
+            <p className="text-sm text-gray-500 mb-2" style={{ fontFamily: branding.font_family }}>
+              {branding.brand_name || 'Brand Name'}
+            </p>
+            <h2 
+              className="text-2xl font-bold mb-2"
+              style={{ 
+                fontFamily: branding.heading_font || branding.font_family,
+                background: `linear-gradient(to right, ${branding.gradient_start}, ${branding.gradient_middle}, ${branding.gradient_end})`,
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}
+            >
+              {branding.tagline || 'Your Tagline Here'}
+            </h2>
+            <button 
+              className="px-6 py-2 rounded-full text-white font-medium text-sm"
+              style={{ backgroundColor: branding.primary_color }}
+            >
+              Get Started
+            </button>
+          </div>
+          {/* Color Swatches */}
+          <div className="flex items-center justify-center gap-2 mt-4 pt-4 border-t">
+            <div className="w-8 h-8 rounded-full" style={{ backgroundColor: branding.primary_color }} title="Primary" />
+            <div className="w-8 h-8 rounded-full" style={{ backgroundColor: branding.secondary_color }} title="Secondary" />
+            <div className="w-8 h-8 rounded-full" style={{ backgroundColor: branding.accent_color }} title="Accent" />
+            <div className="w-8 h-8 rounded-full" style={{ backgroundColor: branding.success_color }} title="Success" />
+            <div className="w-8 h-8 rounded-full" style={{ backgroundColor: branding.warning_color }} title="Warning" />
+            <div className="w-8 h-8 rounded-full" style={{ backgroundColor: branding.error_color }} title="Error" />
+          </div>
+        </div>
+      </div>
+
       <div className="flex justify-end">
         <Button onClick={onSave} disabled={saving} data-testid="save-branding-btn" className="bg-gradient-to-r from-pink-500 to-purple-500 text-white">
           {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
