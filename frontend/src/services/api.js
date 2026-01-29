@@ -111,6 +111,12 @@ export const notificationsAPI = {
 
 // Public API (no auth required)
 export const publicAPI = {
+  getSettings: () => api.get('/public/settings'),
+  getBranding: () => api.get('/public/branding'),
+  getUI: () => api.get('/public/ui'),
+  getFeatures: () => api.get('/public/features'),
+  getHero: () => api.get('/public/hero'),
+  getPromoBanner: () => api.get('/public/promo-banner'),
   getStats: () => api.get('/public/stats'),
   getTestimonials: () => api.get('/public/testimonials'),
   getFaqs: () => api.get('/public/faqs'),
