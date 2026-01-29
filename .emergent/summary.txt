@@ -1,0 +1,159 @@
+<analysis>**original_problem_statement:**
+The user's goal is to build Adverlyx Digital, a production-ready SaaS platform cloning . The platform requires a modern frontend, a user analytics dashboard, subscription billing, and a comprehensive admin control panel giving dynamic control over branding, content, and features without code changes.
+
+Recent work has focused on implementing a sophisticated internal AI system, Adverlyx Intelligence, based on a Master System Prompt provided by the user. This AI is designed to assist admins with strategic growth planning, data analysis, and risk management. Subsequent requests included adding AI-powered user onboarding, a full affiliate and referral program, a help center, and social media links, all manageable from the admin panel.
+
+**User's preferred language**: English
+
+**what currently exists?**
+The project is a mature full-stack application (React/FastAPI/MongoDB) with a feature-rich admin portal at  and a complete user-facing dashboard.
+
+Key existing components include:
+-   **AI System (Adverlyx Intelligence):** A backend service using a hybrid model of OpenAI's GPT-5.2 (primary) and Anthropic's Claude Sonnet 4.5 (fallback). A dedicated admin page at  provides a UI for AI-driven chat, growth planning, analytics insights, and risk assessment.
+-   **AI-Powered Onboarding:** A Lite version provides AI-driven setup recommendations to new users after they connect their Instagram account.
+-   **Instagram Graph API:** The foundation for a real integration has been laid, replacing the previous mock data system.
+-   **Affiliate & Referral Programs:** Public-facing pages (, ), backend logic, and an initial admin management page () have been created.
+-   **Core SaaS Features:** JWT authentication, Stripe & Razorpay payment gateways, dynamic pricing, feature management, and a support ticket system are all functional.
+
+**Last working item**:
+-   **Last item agent was working:** The agent was implementing the admin panel management for the new Affiliate and Referral programs. This involved creating backend APIs and a new frontend page (). The agent was in the process of testing these new endpoints when the environment restarted due to high memory usage. An API endpoint for the affiliate program was found to be failing post-restart.
+-   **Status:** IN PROGRESS
+-   **Agent Testing Done:** N
+-   **Which testing method agent to use?** backend testing agent
+-   **User Testing Done:** N
+
+**All Pending/In progress Issue list**:
+-   **Issue 1:** (P0) The API endpoint to fetch affiliate program settings from the admin panel is broken.
+    -   **Attempted fixes:** None. The agent identified the failure after the environment restarted.
+    -   **Next debug checklist:**
+        1.  Check backend logs for a  traceback related to the  endpoint.
+        2.  Inspect the  function in .
+        3.  The function likely fails to handle cases where no settings document exists in the database.
+        4.  Modify the function to return a default JSON object (e.g., ) if the database query returns .
+        5.  Test the endpoint again with  to confirm it returns a valid JSON response.
+    -   **Why fix this issue and what will be achieved with the fix?** This is blocking the completion of the Affiliate & Referral management feature. Fixing it will allow admins to view and configure the affiliate program settings from the UI.
+    -   **Status:** IN PROGRESS
+    -   **Is recurring issue?** N
+    -   **Should Test frontend/backend/both after fix?** both
+    -   **Blocked on other issue:** None
+
+**In progress Task List**:
+-   **Task 1:** (P0) Complete Admin Management for Affiliate & Referral Programs.
+    -   **Where to resume:** After fixing the broken API (Issue 1), the agent must thoroughly test the  page. This includes verifying that an admin can view, update, and save settings for both the affiliate and referral programs.
+    -   **What will be achieved with this?** A fully functional admin UI to control commissions, rewards, and terms for both partner programs, completing a key user request.
+    -   **Status:** IN PROGRESS
+    -   **Should Test frontend/backend/both after fix?** both
+    -   **Blocked on something:** Blocked by Issue 1.
+
+**Upcoming and Future Tasks**
+- **Upcoming Tasks:**
+    - (P1) **Real Instagram Meta Graph API OAuth Flow:** Implement the user-facing Facebook Login UI to securely connect Instagram accounts and obtain the access tokens needed to power the AI with real data.
+    - (P1) **Verify Markdown on AI Tabs:** The user requested checking that markdown rendering works on the AI Analytics and Risk Assessment tabs, similar to the fix applied to the AI Chat.
+    - (P2) **Prepare for Private Beta:** Conduct final polishing and stabilization in preparation for a private beta launch with 10-30 real users.
+- **Future Tasks:**
+    - (P2) **Implement PayPal Integration:** Add PayPal as a third payment option.
+    - (P3) **Refactor :** The main admin layout component is still complex and could be simplified for better maintainability.
+    - (P3) **AI-Powered Weekly Growth Reports:** Develop a system to send automated weekly growth reports to users.
+
+**Completed work in this session**
+-   **Adverlyx Intelligence AI System:** Successfully implemented the core backend service (using GPT-5.2 & Claude Sonnet 4.5) and the complete frontend admin interface () for AI-assisted chat, analytics, risk assessment, and growth planning.
+-   **AI-Powered User Onboarding:** Implemented a Lite version that provides AI recommendations to new users.
+-   **Branding & Markdown Fixes:** Verified the removal of all Emergent branding and fixed an issue where markdown formatting (e.g., bold text) was not rendering in the AI's responses.
+-   **Instagram API Foundation:** Replaced the mocked Instagram data service with the initial backend structure for a real Meta Graph API integration.
+-   **AI Calibration & Governance:** Tuned the AI prompts for more realistic outputs, added safety guardrails, and created an SOP document () for admins.
+-   **New User-Facing Pages:** Created and integrated pages for Affiliate Programs, Referral Programs, and a Help Center, including adding links to the site footer.
+
+**Earlier issues found/mentioned but not fixed**
+-   None.
+
+**Known issue recurrence from previous fork**
+-   None.
+
+**Code Architecture**
+
+
+**Key Technical Concepts**
+-   **Frontend:** React, Tailwind CSS, shadcn/ui, React Router.
+-   **Backend:** FastAPI, MongoDB (Motor), Pydantic, JWT.
+-   **LLM Integration:** Using  to interface with OpenAI (GPT-5.2) and Anthropic (Claude Sonnet 4.5) in a hybrid model.
+-   **Prompt Engineering:** Designing and calibrating system prompts for AI tasks like growth planning and risk assessment.
+-   **Markdown Rendering:** Using  to display formatted AI-generated text.
+-   **Integrations:** Stripe, Razorpay, Resend, Meta Instagram Graph API (in progress).
+
+**key DB schema**
+-   **ai_settings, ai_requests_log, ai_growth_plans, ai_analytics_insights, ai_risk_assessments:** New collections to manage and log all aspects of the AI system.
+-   **affiliate_settings, referral_settings, affiliates, referrals:** New collections to manage the partner and referral programs.
+
+**changes in tech stack**
+-    (backend) for LLM access.
+-    (frontend) for rendering markdown content.
+
+**All files of reference**
+-   **/app/backend/routes/admin_programs.py**: Contains the failing API endpoint that needs to be fixed.
+-   **/app/frontend/src/pages/admin/AdminPrograms.jsx**: The frontend UI for the feature currently being implemented.
+-   **/app/backend/utils/ai_service.py**: The core utility containing the main LLM prompts.
+-   **/app/backend/routes/instagram_graph_api.py**: The new route for the real Instagram data integration.
+-   **/app/memory/AI_ADMIN_SOPs.md**: New documentation for admins on using the AI system.
+
+**Areas that need refactoring**:
+-   **/app/frontend/src/pages/admin/AdminDashboard.jsx**: This central admin layout component remains large and could be simplified to improve maintainability.
+
+**key api endpoints**
+-   : **(New, Failing)**
+-   : **(New, Working)**
+-   : **(New)**
+-   : **(New)**
+-   : **(New)**
+
+**Critical Info for New Agent**
+-   The environment was recently restarted due to exceeding memory limits. You should verify the current state of services before making changes.
+-   Your immediate priority is to fix the broken  endpoint. This is the main blocker for completing the current task.
+-   Once the API is fixed, you must finish implementing and testing the Partner Programs management page in the admin panel.
+-   The user has approved a roadmap for the AI system and is now focused on integrating real data via the Instagram Graph API, which is the next major feature to tackle after the current task is complete.
+
+**documents and test reports created in this job**
+-    (updated)
+-    (new)
+
+**Last 10 User Messages and any pending HUMAN messages**
+10. **User:** Asks for admin panel management for affiliate and referral programs, including setting rewards.
+9.  **User:** Requests adding social media links, a help center, and the affiliate/referral programs.
+8.  **User:** Asks for a full pre-launch readiness check of the entire website.
+7.  **User:** Requests integrating real Instagram/Facebook data (hashtags, bio, interest) to train the AI at a high level.
+6.  **User:** Reports a bug where bold markdown formatting isn't rendering and via openai text is visible in AI output.
+5.  **User:** Asks for verification that the newly created AI models are working correctly.
+4.  **User:** Provides detailed, founder-level approval and specifications for implementing Option A - Lite AI Onboarding.
+3.  **Agent:** Proposes an enhancement: AI-powered user onboarding recommendations.
+2.  **User:** Confirms the agent's understanding of the Master System Prompt and gives the final directive to proceed with AI implementation after branding cleanup.
+1.  **User:** Provides the Master System Prompt to define the Adverlyx Intelligence internal AI system.
+
+**Project Health Check:**
+-   **Broken:**
+    -   The  endpoint is throwing a .
+-   **Mocked:**
+    -   The user-facing Instagram OAuth connection flow is not yet built. The AI system will use mock data for new users until this is implemented.
+
+**3rd Party Integrations**
+-   **OpenAI GPT-5.2:** Primary LLM for AI Intelligence, using the Emergent LLM Key.
+-   **Anthropic Claude Sonnet 4.5:** Fallback LLM for AI Intelligence, using the Emergent LLM Key.
+-   **Meta Instagram Graph API:** (In Progress) For fetching real user data; requires user OAuth.
+-   **Stripe (Payments):** Fully integrated.
+-   **Razorpay (Payments):** Fully integrated.
+-   **Resend (Email):** Fully integrated.
+
+**Testing status**
+-   **Testing agent used after significant changes:** NO
+-   **Troubleshoot agent used after agent stuck in loop:** NO
+-   **Test files created:** None in this session.
+-   **Known regressions:** The affiliate settings API, which was newly created, is non-functional.
+
+**Credentials to test flow:**
+-   **Admin Login Page:** 
+-   **Admin Email:** 
+-   **Admin Password:** 
+-   **User Email:** 
+-   **User Password:** 
+
+**What agent forgot to execute**
+-   The agent was unable to complete the implementation and testing of the Affiliate & Referral admin management page due to an API error and a subsequent environment restart.
+-   The agent has not yet verified if markdown rendering is working on the AI Analytics and Risk assessment tabs, a task derived from the user's feedback on the AI chat.</analysis>
