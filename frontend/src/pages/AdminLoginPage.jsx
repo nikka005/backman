@@ -20,10 +20,10 @@ const AdminLoginPage = () => {
     setLoading(true);
 
     try {
-      const result = await login(email, password);
+      const userData = await login(email, password);
       
       // Check if user is admin
-      if (result.user?.role !== 'admin' && result.user?.role !== 'manager') {
+      if (userData?.role !== 'admin' && userData?.role !== 'manager') {
         setError('Access denied. Admin credentials required.');
         setLoading(false);
         return;
