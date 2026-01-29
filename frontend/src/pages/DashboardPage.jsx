@@ -3,15 +3,17 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Progress } from '../components/ui/progress';
+import { Input } from '../components/ui/input';
 import {
   Users, TrendingUp, Eye, Heart, Settings, LogOut, Bell,
   ChevronRight, ArrowUpRight, Instagram, Target,
   Pause, Play, BarChart3, Zap, Crown, MessageCircle, Loader2,
   CreditCard, Calendar, CheckCircle, XCircle, Clock, RefreshCw,
-  AlertTriangle, Receipt, ArrowUp
+  AlertTriangle, Receipt, ArrowUp, Save, Shield
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { instagramAPI, notificationsAPI, paymentAPI } from '../services/api';
+import { instagramAPI, notificationsAPI, paymentAPI, ticketsAPI, authAPI } from '../services/api';
+import TwoFactorSettings from '../components/TwoFactorSettings';
 
 const DashboardPage = () => {
   const navigate = useNavigate();
@@ -25,8 +27,29 @@ const DashboardPage = () => {
   const [paymentHistory, setPaymentHistory] = useState([]);
   const [activeTab, setActiveTab] = useState('overview');
   const [cancellingSubscription, setCancellingSubscription] = useState(false);
+  
+  // Targeting state
+  const [targeting, setTargeting] = useState({
+    niche: '',
+    locations: '',
+    competitors: '',
+    hashtags: ''
+  });
+  const [savingTargeting, setSavingTargeting] = useState(false);
+  const [targetingMessage, setTargetingMessage] = useState('');
+  
+  // Support ticket state
+  const [ticketSubject, setTicketSubject] = useState('');
+  const [ticketMessage, setTicketMessage] = useState('');
+  const [submittingTicket, setSubmittingTicket] = useState(false);
+  const [ticketSuccess, setTicketSuccess] = useState(false);
+  
+  // Settings state
+  const [userSettings, setUserSettings] = useState({ name: '' });
+  const [savingSettings, setSavingSettings] = useState(false);
 
   // Default stats when no real data
+  const defaultStats = {
   const defaultStats = {
     followers: 0,
     followersGrowth: 0,
