@@ -642,9 +642,9 @@ export default function AdminAIIntelligence() {
                             {new Date(insight.created_at).toLocaleDateString()}
                           </span>
                         </div>
-                        <p className="text-sm text-gray-600 mt-2 whitespace-pre-wrap">
-                          {insight.summary}
-                        </p>
+                        <div className="text-sm text-gray-600 mt-2 prose prose-sm max-w-none">
+                          <ReactMarkdown>{insight.summary}</ReactMarkdown>
+                        </div>
                       </div>
                     ))
                   )}
