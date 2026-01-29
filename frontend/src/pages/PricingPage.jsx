@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Switch } from '../components/ui/switch';
-import { Check, ChevronRight, Sparkles, HelpCircle, Loader2 } from 'lucide-react';
+import { Check, ChevronRight, Sparkles, HelpCircle, Loader2, Globe } from 'lucide-react';
 
 const PricingPage = () => {
   const navigate = useNavigate();
@@ -16,10 +16,35 @@ const PricingPage = () => {
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processingPlan, setProcessingPlan] = useState(null);
+  const [userCountry, setUserCountry] = useState(null);
+  const [paymentProvider, setPaymentProvider] = useState('stripe'); // 'stripe' or 'razorpay'
 
   useEffect(() => {
     loadPlans();
+    detectUserCountry();
   }, []);
+
+  // Detect user's country for payment provider selection
+  const detectUserCountry = async () => {
+    try {
+      // Use free IP geolocation API
+      const response = await fetch('https://ipapi.co/json/');
+      const data = await response.json();
+      const country = data.country_code || 'US';
+      setUserCountry(country);
+      
+      // Use Razorpay for India, Stripe for others
+      if (country === 'IN') {
+        setPaymentProvider('razorpay');
+      } else {
+        setPaymentProvider('stripe');
+      }
+    } catch (error) {
+      console.error('Failed to detect country:', error);
+      // Default to Stripe for international
+      setPaymentProvider('stripe');
+    }
+  };
 
   const loadPlans = async () => {
     try {
