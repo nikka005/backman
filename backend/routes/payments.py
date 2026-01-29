@@ -157,14 +157,15 @@ async def create_checkout_session(
 @router.get("/checkout/status/{session_id}")
 async def get_checkout_status(session_id: str, current_user: dict = Depends(get_current_user)):
     """Get the status of a checkout session and update subscription if paid."""
-    global stripe_checkout
+    # Get Stripe client
+    checkout_client = await get_stripe_checkout()
     
-    if not stripe_checkout:
-        raise HTTPException(status_code=500, detail="Payment system not configured")
+    if not checkout_client:
+        raise HTTPException(status_code=500, detail="Stripe not configured")
     
     try:
         # Get status from Stripe
-        status: CheckoutStatusResponse = await stripe_checkout.get_checkout_status(session_id)
+        status: CheckoutStatusResponse = await checkout_client.get_checkout_status(session_id)
         
         # Find the transaction
         transaction = await db.payment_transactions.find_one({"session_id": session_id})
