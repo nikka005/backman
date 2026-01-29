@@ -218,6 +218,37 @@ async def get_reviews():
     ]
 
 
+@router.get("/social-links")
+async def get_public_social_links():
+    """Get social media links for footer/public pages."""
+    settings = await db.site_settings.find_one({}, {"_id": 0}) if db is not None else None
+    
+    if not settings:
+        return {
+            "instagram": "https://instagram.com/adverlyx",
+            "twitter": "https://twitter.com/adverlyx",
+            "linkedin": "https://linkedin.com/company/adverlyx",
+            "youtube": "",
+            "facebook": "",
+            "tiktok": "",
+            "pinterest": "",
+            "discord": "",
+            "telegram": ""
+        }
+    
+    return {
+        "instagram": settings.get("social_instagram", ""),
+        "twitter": settings.get("social_twitter", ""),
+        "linkedin": settings.get("social_linkedin", ""),
+        "youtube": settings.get("social_youtube", ""),
+        "facebook": settings.get("social_facebook", ""),
+        "tiktok": settings.get("social_tiktok", ""),
+        "pinterest": settings.get("social_pinterest", ""),
+        "discord": settings.get("social_discord", ""),
+        "telegram": settings.get("social_telegram", "")
+    }
+
+
 @router.get("/feature-matrix")
 async def get_public_feature_matrix():
     """Get the feature comparison matrix for pricing page."""
