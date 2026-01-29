@@ -99,6 +99,25 @@ export const subscriptionAPI = {
   getPaymentHistory: (limit = 20) => api.get('/subscriptions/payments', { params: { limit } }),
 };
 
+// Payment API
+export const paymentAPI = {
+  // Stripe
+  createStripeCheckout: (packageId, originUrl) => 
+    api.post(`/payments/checkout/session?package_id=${packageId}&origin_url=${encodeURIComponent(originUrl)}`),
+  
+  // Razorpay
+  createRazorpayOrder: (packageId) => 
+    api.post(`/payments/razorpay/create-order?package_id=${packageId}`),
+  verifyRazorpayPayment: (data) => 
+    api.post('/payments/razorpay/verify-payment', data),
+  getRazorpayPackages: () => 
+    api.get('/payments/razorpay/packages'),
+  
+  // Localized pricing
+  getLocalizedPricing: () => 
+    api.get('/public/localized-pricing'),
+};
+
 // Tickets API
 export const ticketsAPI = {
   create: (data) => api.post('/tickets/', data),
