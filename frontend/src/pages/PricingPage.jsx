@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
-import { publicAPI } from '../services/api';
+import { publicAPI, paymentAPI } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Switch } from '../components/ui/switch';
 import { Check, ChevronRight, Sparkles, HelpCircle, Loader2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
 const PricingPage = () => {
+  const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
   const [isYearly, setIsYearly] = useState(true);
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [processingPlan, setProcessingPlan] = useState(null);
 
   useEffect(() => {
     loadPlans();
@@ -23,6 +27,7 @@ const PricingPage = () => {
       // Transform API response to match expected format
       const transformedPlans = response.data.map(plan => ({
         id: plan.id || plan.slug,
+        slug: plan.slug,
         name: plan.name,
         description: plan.description,
         monthlyPrice: plan.monthly_price,
