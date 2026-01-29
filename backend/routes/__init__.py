@@ -45,6 +45,7 @@ def init_all_routes(database):
     init_rate_limits(database)
     init_export(database)
     init_ai_intelligence(database)
+    init_ai_onboarding(database)
 
 
 all_routers = [
