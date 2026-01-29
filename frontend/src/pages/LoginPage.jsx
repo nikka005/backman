@@ -118,9 +118,18 @@ const LoginPage = () => {
             </div>
 
             {/* Submit */}
-            <Button type="submit" className="w-full bg-gray-900 hover:bg-gray-800 text-white rounded-full py-6 group">
-              Sign In
-              <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+            <Button type="submit" disabled={loading} className="w-full bg-gray-900 hover:bg-gray-800 text-white rounded-full py-6 group">
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Signing In...
+                </>
+              ) : (
+                <>
+                  Sign In
+                  <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                </>
+              )}
             </Button>
           </form>
 
