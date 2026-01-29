@@ -272,6 +272,9 @@ const UsersManagement = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [userDetails, setUserDetails] = useState(null);
+  const [loadingDetails, setLoadingDetails] = useState(false);
 
   useEffect(() => {
     loadUsers();
@@ -304,6 +307,20 @@ const UsersManagement = () => {
       loadUsers();
     } catch (error) {
       console.error('Error activating user:', error);
+    }
+  };
+
+  const viewUserDetails = async (user) => {
+    setSelectedUser(user);
+    setLoadingDetails(true);
+    try {
+      const response = await adminAPI.getUser(user.id);
+      setUserDetails(response.data);
+    } catch (error) {
+      console.error('Error loading user details:', error);
+      setUserDetails(user);
+    } finally {
+      setLoadingDetails(false);
     }
   };
 
@@ -383,6 +400,9 @@ const UsersManagement = () => {
                   </td>
                   <td className="py-4 px-6">
                     <div className="flex items-center gap-2">
+                      <Button size="sm" variant="outline" onClick={() => viewUserDetails(user)}>
+                        <Eye className="w-4 h-4 mr-1" /> View
+                      </Button>
                       {user.status === 'suspended' ? (
                         <Button size="sm" variant="outline" onClick={() => handleActivate(user.id)} className="text-green-600">
                           <Play className="w-4 h-4 mr-1" /> Activate
@@ -398,6 +418,88 @@ const UsersManagement = () => {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* User Details Modal */}
+      {selectedUser && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setSelectedUser(null)}>
+          <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[80vh] overflow-y-auto m-4" onClick={e => e.stopPropagation()}>
+            <div className="p-6 border-b sticky top-0 bg-white flex items-center justify-between">
+              <h2 className="text-xl font-bold">User Details</h2>
+              <Button variant="ghost" size="sm" onClick={() => setSelectedUser(null)}>✕</Button>
+            </div>
+            {loadingDetails ? (
+              <div className="p-12 flex items-center justify-center">
+                <Loader2 className="w-8 h-8 animate-spin text-pink-500" />
+              </div>
+            ) : userDetails && (
+              <div className="p-6 space-y-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center text-white text-2xl font-bold">
+                    {userDetails.name?.charAt(0) || 'U'}
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold">{userDetails.name}</h3>
+                    <p className="text-gray-500">{userDetails.email}</p>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <p className="text-sm text-gray-500">Status</p>
+                    <Badge className={userDetails.status === 'active' ? 'bg-green-100 text-green-700 mt-1' : 'bg-red-100 text-red-700 mt-1'}>
+                      {userDetails.status}
+                    </Badge>
+                  </div>
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <p className="text-sm text-gray-500">Role</p>
+                    <p className="font-medium mt-1 capitalize">{userDetails.role}</p>
+                  </div>
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <p className="text-sm text-gray-500">Current Plan</p>
+                    <p className="font-medium mt-1 capitalize">{userDetails.current_plan || 'None'}</p>
+                  </div>
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <p className="text-sm text-gray-500">Instagram</p>
+                    <p className="font-medium mt-1">{userDetails.instagram_username ? `@${userDetails.instagram_username}` : 'Not connected'}</p>
+                  </div>
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <p className="text-sm text-gray-500">Joined</p>
+                    <p className="font-medium mt-1">{userDetails.created_at ? new Date(userDetails.created_at).toLocaleDateString() : 'N/A'}</p>
+                  </div>
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <p className="text-sm text-gray-500">2FA Enabled</p>
+                    <p className="font-medium mt-1">{userDetails.two_factor_enabled ? 'Yes' : 'No'}</p>
+                  </div>
+                </div>
+
+                {userDetails.subscription && (
+                  <div className="bg-purple-50 rounded-xl p-4">
+                    <h4 className="font-semibold text-purple-800 mb-2">Subscription Details</h4>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <p><span className="text-gray-500">Plan:</span> {userDetails.subscription.plan}</p>
+                      <p><span className="text-gray-500">Billing:</span> {userDetails.subscription.billing_cycle}</p>
+                      <p><span className="text-gray-500">Status:</span> {userDetails.subscription.status}</p>
+                      <p><span className="text-gray-500">Amount:</span> ${userDetails.subscription.amount}</p>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex gap-3 pt-4">
+                  {userDetails.status === 'suspended' ? (
+                    <Button onClick={() => { handleActivate(userDetails.id); setSelectedUser(null); }} className="bg-green-600 hover:bg-green-700">
+                      <Play className="w-4 h-4 mr-2" /> Activate User
+                    </Button>
+                  ) : (
+                    <Button onClick={() => { handleSuspend(userDetails.id); setSelectedUser(null); }} variant="destructive">
+                      <Pause className="w-4 h-4 mr-2" /> Suspend User
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
