@@ -49,6 +49,10 @@ async def create_checkout_session(
     current_user: dict = Depends(get_current_user)
 ):
     """Create a Stripe checkout session for subscription."""
+    # Rate limiting for payment endpoints
+    client_ip = get_client_ip(request)
+    check_rate_limit(client_ip, "payment")
+    
     global stripe_checkout
     
     if not stripe_checkout:
