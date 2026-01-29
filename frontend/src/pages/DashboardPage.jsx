@@ -635,11 +635,11 @@ const DashboardPage = () => {
                 <div className="space-y-3">
                   <div className="p-4 bg-gray-50 rounded-lg">
                     <p className="font-medium">How long does it take to see results?</p>
-                    <p className="text-sm text-gray-500 mt-1">You'll start seeing new followers within 24-48 hours of activating your account.</p>
+                    <p className="text-sm text-gray-500 mt-1">You&apos;ll start seeing new followers within 24-48 hours of activating your account.</p>
                   </div>
                   <div className="p-4 bg-gray-50 rounded-lg">
                     <p className="font-medium">Is my account safe?</p>
-                    <p className="text-sm text-gray-500 mt-1">Yes! We use 100% organic methods that comply with Instagram's terms of service.</p>
+                    <p className="text-sm text-gray-500 mt-1">Yes! We use 100% organic methods that comply with Instagram&apos;s terms of service.</p>
                   </div>
                   <div className="p-4 bg-gray-50 rounded-lg">
                     <p className="font-medium">Can I cancel anytime?</p>
