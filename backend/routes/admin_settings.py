@@ -364,3 +364,71 @@ async def delete_faq(faq_id: str, current_user: dict = Depends(admin_required)):
     """Delete FAQ."""
     await db.faqs.delete_one({"id": faq_id})
     return {"message": "FAQ deleted"}
+
+
+# ==================== SOCIAL LINKS ====================
+
+@router.get("/social-links")
+async def get_social_links(current_user: dict = Depends(admin_required)):
+    """Get all social media links."""
+    settings = await db.site_settings.find_one({}, {"_id": 0})
+    if not settings:
+        return {
+            "instagram": "https://instagram.com/adverlyx",
+            "twitter": "https://twitter.com/adverlyx",
+            "linkedin": "https://linkedin.com/company/adverlyx",
+            "youtube": "",
+            "facebook": "",
+            "tiktok": "",
+            "pinterest": "",
+            "discord": "",
+            "telegram": ""
+        }
+    
+    return {
+        "instagram": settings.get("social_instagram", ""),
+        "twitter": settings.get("social_twitter", ""),
+        "linkedin": settings.get("social_linkedin", ""),
+        "youtube": settings.get("social_youtube", ""),
+        "facebook": settings.get("social_facebook", ""),
+        "tiktok": settings.get("social_tiktok", ""),
+        "pinterest": settings.get("social_pinterest", ""),
+        "discord": settings.get("social_discord", ""),
+        "telegram": settings.get("social_telegram", "")
+    }
+
+
+@router.put("/social-links")
+async def update_social_links(links: dict, current_user: dict = Depends(admin_required)):
+    """Update social media links."""
+    update_data = {
+        "social_instagram": links.get("instagram", ""),
+        "social_twitter": links.get("twitter", ""),
+        "social_linkedin": links.get("linkedin", ""),
+        "social_youtube": links.get("youtube", ""),
+        "social_facebook": links.get("facebook", ""),
+        "social_tiktok": links.get("tiktok", ""),
+        "social_pinterest": links.get("pinterest", ""),
+        "social_discord": links.get("discord", ""),
+        "social_telegram": links.get("telegram", ""),
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.site_settings.update_one(
+        {},
+        {"$set": update_data},
+        upsert=True
+    )
+    
+    log = AdminLog(
+        admin_id=current_user['user_id'],
+        admin_email=current_user['email'],
+        action=AdminAction.SETTINGS_UPDATE,
+        target_type="social_links",
+        description="Updated social media links"
+    )
+    log_dict = log.model_dump()
+    log_dict['created_at'] = log_dict['created_at'].isoformat()
+    await db.admin_logs.insert_one(log_dict)
+    
+    return {"message": "Social links updated successfully"}
