@@ -79,29 +79,36 @@ const FAQPage = () => {
         {/* FAQ Categories */}
         <section className="py-16">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="space-y-12">
-              {faqCategories.map((category, catIdx) => (
-                <div key={catIdx}>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">{category.title}</h2>
-                  <Accordion type="single" collapsible className="space-y-4">
-                    {category.questions.map((faq, index) => (
-                      <AccordionItem
-                        key={index}
-                        value={`${catIdx}-item-${index}`}
-                        className="bg-white rounded-xl border border-gray-200 px-6 overflow-hidden hover:border-pink-200 transition-colors"
-                      >
-                        <AccordionTrigger className="text-left font-semibold text-gray-900 hover:text-pink-600 py-5 hover:no-underline">
-                          {faq.question}
-                        </AccordionTrigger>
-                        <AccordionContent className="text-gray-600 pb-5 leading-relaxed">
-                          {faq.answer}
-                        </AccordionContent>
-                      </AccordionItem>
-                    ))}
-                  </Accordion>
-                </div>
-              ))}
-            </div>
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-8 h-8 animate-spin text-pink-500" />
+              </div>
+            ) : (
+              <div className="space-y-12" data-testid="faq-list">
+                {faqCategories.map((category, catIdx) => (
+                  <div key={catIdx}>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-6">{category.title}</h2>
+                    <Accordion type="single" collapsible className="space-y-4">
+                      {category.questions.map((faq, index) => (
+                        <AccordionItem
+                          key={index}
+                          value={`${catIdx}-item-${index}`}
+                          className="bg-white rounded-xl border border-gray-200 px-6 overflow-hidden hover:border-pink-200 transition-colors"
+                          data-testid={`faq-item-${catIdx}-${index}`}
+                        >
+                          <AccordionTrigger className="text-left font-semibold text-gray-900 hover:text-pink-600 py-5 hover:no-underline">
+                            {faq.question}
+                          </AccordionTrigger>
+                          <AccordionContent className="text-gray-600 pb-5 leading-relaxed">
+                            {faq.answer}
+                          </AccordionContent>
+                        </AccordionItem>
+                      ))}
+                    </Accordion>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </section>
 
