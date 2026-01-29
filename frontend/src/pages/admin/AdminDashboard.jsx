@@ -54,6 +54,7 @@ const AdminDashboard = () => {
 
   const navItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
+    { icon: BarChart3, label: 'Analytics', path: '/admin/analytics' },
     { icon: Users, label: 'Users', path: '/admin/users' },
     { icon: Package, label: 'Plans', path: '/admin/plans' },
     { icon: Grid3X3, label: 'Feature Matrix', path: '/admin/features' },
