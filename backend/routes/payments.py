@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Request, Depends
 from datetime import datetime, timezone
 from typing import Optional
 import os
+import logging
 
 from emergentintegrations.payments.stripe.checkout import (
     StripeCheckout, 
@@ -14,20 +15,49 @@ from models.user import UserRole
 from utils.email import send_payment_confirmation_email
 from utils.security import check_rate_limit, get_client_ip
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/payments", tags=["Payments"])
 
 db = None
 stripe_checkout = None
 
+
+async def get_stripe_checkout():
+    """Get Stripe checkout client, checking database for keys first, then env vars."""
+    global db
+    
+    # Try to get keys from database first (admin panel settings)
+    if db is not None:
+        try:
+            payment_config = await db.feature_payments.find_one({"key": "feature_stripe"})
+            if payment_config and payment_config.get("api_key"):
+                api_key = payment_config.get("api_key")
+                if api_key and not api_key.startswith("YOUR_") and not api_key.startswith("sk_live_YOUR"):
+                    logger.info("Using Stripe credentials from database")
+                    return StripeCheckout(api_key=api_key, webhook_url="")
+        except Exception as e:
+            logger.warning(f"Failed to get Stripe keys from database: {e}")
+    
+    # Fallback to environment variables
+    api_key = os.environ.get("STRIPE_API_KEY")
+    if api_key and not api_key.startswith("YOUR_") and not api_key.startswith("sk_live_YOUR"):
+        return StripeCheckout(api_key=api_key, webhook_url="")
+    
+    return None
+
+
 def init_router(database):
     global db, stripe_checkout
     db = database
     
-    # Initialize Stripe
+    # Initialize Stripe from env (will also check DB at runtime)
     api_key = os.environ.get("STRIPE_API_KEY")
-    if api_key:
-        # Webhook URL will be set dynamically per request
+    if api_key and not api_key.startswith("YOUR_") and not api_key.startswith("sk_live_YOUR"):
         stripe_checkout = StripeCheckout(api_key=api_key, webhook_url="")
+        logger.info("Stripe client initialized from environment")
+    else:
+        logger.info("Stripe will check database for credentials at runtime")
 
 
 # Define fixed packages - NEVER accept amounts from frontend
