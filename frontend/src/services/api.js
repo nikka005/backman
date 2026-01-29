@@ -69,6 +69,13 @@ export const authAPI = {
   resetPassword: (token, password) => api.post('/auth/reset-password', { token, password }),
   getMe: () => api.get('/auth/me'),
   updateMe: (data) => api.put('/auth/me', data),
+  // 2FA
+  get2faStatus: () => api.get('/auth/2fa/status'),
+  setup2fa: () => api.post('/auth/2fa/setup'),
+  verify2fa: (code) => api.post('/auth/2fa/verify', { code }),
+  disable2fa: (code) => api.post('/auth/2fa/disable', { code }),
+  regenerateBackupCodes: (code) => api.post('/auth/2fa/regenerate-backup-codes', { code }),
+  validate2fa: (code) => api.post('/auth/2fa/validate', { code }),
 };
 
 // Instagram API
