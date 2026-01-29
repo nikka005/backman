@@ -137,6 +137,7 @@ const AdminDashboard = () => {
           <Route path="/" element={<DashboardOverview stats={stats} onRefresh={loadDashboard} />} />
           <Route path="/users" element={<UsersManagement />} />
           <Route path="/plans" element={<AdminPlans />} />
+          <Route path="/features" element={<AdminFeatureMatrix />} />
           <Route path="/subscriptions" element={<SubscriptionsManagement />} />
           <Route path="/payments" element={<PaymentsManagement />} />
           <Route path="/instagram" element={<InstagramManagement />} />
