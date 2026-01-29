@@ -40,7 +40,7 @@ const HeroSection = () => {
         <div className="text-center">
           {/* Main Headline */}
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 leading-tight mb-6">
-            Get Real Social Media
+            {hero?.headline_prefix || 'Get Real Social Media'}
             <br />
             <span className="relative inline-block">
               <span
@@ -55,23 +55,23 @@ const HeroSection = () => {
 
           {/* Subheadline */}
           <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-gray-800 mb-6">
-            Using Organic AI-Growth
+            {hero?.subheadline || 'Using Organic AI-Growth'}
           </h2>
 
           {/* Description */}
           <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
-            No bots, no spam, no passwords. See real growth automatically using AI,
-            social media experts and our patent-pending* technology.
+            {hero?.description || 'No bots, no spam, no passwords. See real growth automatically using AI, social media experts and our patent-pending* technology.'}
           </p>
 
           {/* CTA Button */}
           <div className="flex flex-col items-center gap-4 mb-8">
-            <Link to="/signup">
+            <Link to={hero?.cta_link || '/signup'}>
               <Button
                 size="lg"
                 className="bg-gray-900 hover:bg-gray-800 text-white rounded-full px-10 py-6 text-lg font-semibold group shadow-xl hover:shadow-2xl transition-all"
+                data-testid="hero-cta-btn"
               >
-                Start Growing
+                {hero?.cta_text || 'Start Growing'}
                 <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
