@@ -12,6 +12,7 @@ from .admin_promotions import router as admin_promotions_router, init_router as 
 from .payments import router as payments_router, init_router as init_payments
 from .webhooks import router as webhooks_router, init_router as init_webhooks
 from .two_factor import router as two_factor_router, init_router as init_two_factor
+from .feature_management import router as feature_management_router, init_router as init_feature_management
 
 
 def init_all_routes(database):
@@ -30,6 +31,7 @@ def init_all_routes(database):
     init_payments(database)
     init_webhooks(database)
     init_two_factor(database)
+    init_feature_management(database)
 
 
 all_routers = [
@@ -46,5 +48,6 @@ all_routers = [
     admin_promotions_router,
     payments_router,
     webhooks_router,
-    two_factor_router
+    two_factor_router,
+    feature_management_router
 ]
