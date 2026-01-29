@@ -313,9 +313,6 @@ Adverlyx Digital is a full-stack SaaS platform for Instagram growth services (pl
 
 ## Future Enhancements (Backlog)
 - Real Instagram API integration (Meta Graph API)
-- Webhook handlers for Stripe events
-- Email template customization in admin panel
-- Push notifications system
-- API rate limit dashboard in admin
-- Export analytics data to CSV/PDF
+- Razorpay payment integration (model exists, routes not implemented)
+
 
