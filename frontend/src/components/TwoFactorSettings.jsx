@@ -163,7 +163,7 @@ const TwoFactorSettings = () => {
           <div className="flex items-center gap-4 mb-6 p-4 bg-blue-50 rounded-lg">
             <Smartphone className="w-8 h-8 text-blue-500" />
             <div>
-              <p className="font-medium text-blue-900">You'll need an authenticator app</p>
+              <p className="font-medium text-blue-900">You&apos;ll need an authenticator app</p>
               <p className="text-sm text-blue-700">Google Authenticator, Authy, or any TOTP-compatible app</p>
             </div>
           </div>
