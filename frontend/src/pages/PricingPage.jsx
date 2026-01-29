@@ -1,15 +1,76 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
-import { pricingPlans } from '../data/mockData';
+import { publicAPI } from '../services/api';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Switch } from '../components/ui/switch';
-import { Check, ChevronRight, Sparkles, HelpCircle } from 'lucide-react';
+import { Check, ChevronRight, Sparkles, HelpCircle, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const PricingPage = () => {
   const [isYearly, setIsYearly] = useState(true);
+  const [plans, setPlans] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadPlans();
+  }, []);
+
+  const loadPlans = async () => {
+    try {
+      const response = await publicAPI.getPlans();
+      // Transform API response to match expected format
+      const transformedPlans = response.data.map(plan => ({
+        id: plan.id || plan.slug,
+        name: plan.name,
+        description: plan.description,
+        monthlyPrice: plan.monthly_price,
+        yearlyPrice: plan.yearly_price,
+        followers: `${(plan.followers_min / 1000).toFixed(0)}K - ${(plan.followers_max / 1000).toFixed(0)}K`,
+        features: plan.feature_list || plan.features || [],
+        popular: plan.is_popular || plan.popular
+      }));
+      setPlans(transformedPlans);
+    } catch (error) {
+      console.error('Error loading plans:', error);
+      // Fallback to default plans
+      setPlans([
+        {
+          id: 'basic',
+          name: 'Basic',
+          description: 'A great way to start growing your account organically.',
+          monthlyPrice: 49,
+          yearlyPrice: 29,
+          followers: '1K - 1.5K',
+          features: ['Guaranteed follower increase', 'Targeted, Organic Followers', 'Real-Time Analytics'],
+          popular: false
+        },
+        {
+          id: 'pro',
+          name: 'Pro',
+          description: 'The best way to grow quickly with advanced targeting.',
+          monthlyPrice: 69,
+          yearlyPrice: 41,
+          followers: '2.5K - 3.5K',
+          features: ['Everything in Basic', 'AI-Powered Growth Engine', 'Priority Support'],
+          popular: true
+        },
+        {
+          id: 'enterprise',
+          name: 'Enterprise',
+          description: 'Custom solutions for agencies and large brands.',
+          monthlyPrice: 149,
+          yearlyPrice: 99,
+          followers: '5K+',
+          features: ['Everything in Pro', 'Dedicated Account Manager', 'Custom Growth Strategy'],
+          popular: false
+        }
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const comparisonFeatures = [
     { name: 'Guaranteed Followers/Month', basic: '1,000 - 1,500', pro: '2,500 - 3,500+', enterprise: '5,000+' },
