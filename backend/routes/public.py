@@ -6,6 +6,7 @@ import random
 
 from models.cms import PlatformStats, Testimonial, FAQ
 from models.subscription import PLAN_CONFIG, PlanType
+from models.settings import SiteSettings, BrandingSettings, UISettings, FeatureToggle, HeroContent, StatsContent, PromoBanner
 
 router = APIRouter(prefix="/public", tags=["Public"])
 
@@ -14,6 +15,64 @@ db = None
 def init_router(database):
     global db
     db = database
+
+
+@router.get("/settings")
+async def get_public_settings():
+    """Get public site settings (branding, UI, features, content)."""
+    settings = await db.site_settings.find_one({}, {"_id": 0}) if db is not None else None
+    
+    if not settings:
+        # Return defaults
+        default = SiteSettings()
+        return default.model_dump()
+    
+    return settings
+
+
+@router.get("/branding")
+async def get_public_branding():
+    """Get branding settings for frontend."""
+    settings = await db.site_settings.find_one({}, {"branding": 1, "_id": 0}) if db is not None else None
+    if settings and settings.get('branding'):
+        return settings['branding']
+    return BrandingSettings().model_dump()
+
+
+@router.get("/ui")
+async def get_public_ui():
+    """Get UI settings for frontend."""
+    settings = await db.site_settings.find_one({}, {"ui": 1, "_id": 0}) if db is not None else None
+    if settings and settings.get('ui'):
+        return settings['ui']
+    return UISettings().model_dump()
+
+
+@router.get("/features")
+async def get_public_features():
+    """Get feature toggles for frontend."""
+    settings = await db.site_settings.find_one({}, {"features": 1, "_id": 0}) if db is not None else None
+    if settings and settings.get('features'):
+        return settings['features']
+    return FeatureToggle().model_dump()
+
+
+@router.get("/hero")
+async def get_public_hero():
+    """Get hero section content."""
+    settings = await db.site_settings.find_one({}, {"hero": 1, "_id": 0}) if db is not None else None
+    if settings and settings.get('hero'):
+        return settings['hero']
+    return HeroContent().model_dump()
+
+
+@router.get("/promo-banner")
+async def get_public_promo_banner():
+    """Get promo banner settings."""
+    settings = await db.site_settings.find_one({}, {"promo_banner": 1, "_id": 0}) if db is not None else None
+    if settings and settings.get('promo_banner'):
+        return settings['promo_banner']
+    return PromoBanner().model_dump()
 
 
 @router.get("/stats")
