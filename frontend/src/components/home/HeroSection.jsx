@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../ui/button';
 import { Check, ChevronRight, Star, Play } from 'lucide-react';
+import { useSiteSettings } from '../../context/SiteSettingsContext';
 
 const HeroSection = () => {
-  const words = ['Audiences', 'Growth', 'Fans', 'Presence', 'Success'];
+  const { hero, branding, loading } = useSiteSettings();
+  
+  const words = hero?.headline_animated_words || ['Audiences', 'Growth', 'Fans', 'Presence', 'Success'];
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -17,9 +20,9 @@ const HeroSection = () => {
       }, 300);
     }, 2500);
     return () => clearInterval(interval);
-  }, []);
+  }, [words.length]);
 
-  const trustBadges = [
+  const trustBadges = hero?.trust_badges || [
     '2-Minute Setup',
     '100% Growth Guaranteed',
     'Rated 4.91/5'
