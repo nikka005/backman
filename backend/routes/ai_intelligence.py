@@ -99,7 +99,8 @@ async def get_current_admin(authorization: str = Header(...)) -> dict:
     if not payload:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
     
-    user = await db.users.find_one({"id": payload.get("user_id")}, {"_id": 0})
+    user_id = payload.get("sub")  # JWT uses 'sub' for user_id
+    user = await db.users.find_one({"id": user_id}, {"_id": 0})
     if not user or user.get("role") != "admin":
         raise HTTPException(status_code=403, detail="Admin access required")
     
