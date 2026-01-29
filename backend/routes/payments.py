@@ -126,7 +126,7 @@ async def create_checkout_session(
             }
         )
         
-        session: CheckoutSessionResponse = await stripe_checkout.create_checkout_session(checkout_request)
+        session: CheckoutSessionResponse = await checkout_client.create_checkout_session(checkout_request)
         
         # Create payment transaction record BEFORE redirect
         transaction = {
