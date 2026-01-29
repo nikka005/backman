@@ -112,6 +112,9 @@ Adverlyx Digital is a full-stack SaaS platform for Instagram growth services (pl
 - `subscriptions` - User subscriptions
 - `instagram_accounts` - Connected IG accounts
 - `tickets` - Support tickets
+- `payments` - Payment records
+- `funnel_events` - Analytics events
+- `growth_logs` - Growth tracking logs
 
 ---
 
@@ -124,15 +127,26 @@ Adverlyx Digital is a full-stack SaaS platform for Instagram growth services (pl
 - `GET /api/public/faqs` - FAQ list
 - `GET /api/public/testimonials` - Testimonials
 
-### Admin
+### Admin Settings
 - `GET/PUT /api/admin/settings/` - All settings
 - `GET/PUT /api/admin/settings/branding` - Branding only
 - `GET/PUT /api/admin/settings/ui` - UI settings
 - `GET/PUT /api/admin/settings/features` - Feature toggles
 - `GET/PUT /api/admin/settings/hero` - Hero content
 - `GET/PUT /api/admin/settings/stats` - Statistics
+
+### Admin Plans
 - `GET/POST/PUT/DELETE /api/admin/plans/` - Plan CRUD
 - `GET/PUT /api/admin/plans/feature-matrix` - Feature matrix
+
+### Admin Analytics
+- `GET /api/admin/analytics/platform` - Platform metrics
+- `GET /api/admin/analytics/platform/trends` - Daily trends
+- `GET /api/admin/analytics/users` - All users analytics
+- `GET /api/admin/analytics/users/{id}` - Single user analytics
+- `GET /api/admin/analytics/growth-engine` - Growth performance
+- `GET /api/admin/analytics/funnel` - Funnel analytics
+- `POST /api/admin/analytics/events` - Track events
 
 ---
 
