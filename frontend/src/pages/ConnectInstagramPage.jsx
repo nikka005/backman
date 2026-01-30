@@ -169,6 +169,45 @@ const ConnectInstagramPage = () => {
             </div>
           )}
 
+          {/* OAuth Connect Button - Recommended */}
+          <div className="mb-6">
+            <Button
+              type="button"
+              onClick={handleOAuthConnect}
+              disabled={oauthLoading || !agreedToTerms}
+              className="w-full h-14 bg-gradient-to-r from-[#833AB4] via-[#FD1D1D] to-[#F77737] hover:opacity-90 text-white font-semibold rounded-xl flex items-center justify-center gap-3"
+              data-testid="oauth-connect-btn"
+            >
+              {oauthLoading ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <>
+                  <Instagram className="w-5 h-5" />
+                  Connect with Instagram
+                  <ExternalLink className="w-4 h-4" />
+                </>
+              )}
+            </Button>
+            <div className="flex items-center justify-center gap-2 mt-2">
+              <Badge className="bg-green-100 text-green-700 text-xs">
+                <CheckCircle className="w-3 h-3 mr-1" />
+                Recommended
+              </Badge>
+              <span className="text-xs text-gray-500">Real Instagram data access</span>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-3 bg-white text-gray-500">or connect manually</span>
+            </div>
+          </div>
+
+          {/* Manual Connection Form */}
           <form onSubmit={handleConnect}>
             <div className="mb-4 md:mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -186,7 +225,7 @@ const ConnectInstagramPage = () => {
                 />
               </div>
               <p className="text-xs text-gray-500 mt-2">
-                We&apos;ll never ask for your password
+                Manual mode uses simulated data for demo purposes
               </p>
             </div>
 
