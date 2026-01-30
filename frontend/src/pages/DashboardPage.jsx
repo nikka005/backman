@@ -152,14 +152,14 @@ const DashboardPage = () => {
       
       // Set user settings
       if (user) {
-        setUserSettings({ name: user.name || '' });
+        setUserSettings({ name: user?.name || '' });
       }
     } catch (error) {
       console.error('Error loading dashboard:', error);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     if (isAuthenticated) {
