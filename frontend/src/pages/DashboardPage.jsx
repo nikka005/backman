@@ -9,7 +9,7 @@ import {
   ChevronRight, ArrowUpRight, Instagram, Target,
   Pause, Play, BarChart3, Zap, Crown, MessageCircle, Loader2,
   CreditCard, Calendar, CheckCircle, XCircle, Clock, RefreshCw,
-  AlertTriangle, Receipt, ArrowUp, Save, Shield
+  AlertTriangle, Receipt, ArrowUp, Save, Shield, Sparkles
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { instagramAPI, notificationsAPI, paymentAPI, ticketsAPI, authAPI } from '../services/api';
