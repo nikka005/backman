@@ -74,6 +74,7 @@ const AdminDashboard = () => {
     { icon: Sliders, label: 'Feature Manager', path: '/admin/features' },
     { icon: CreditCard, label: 'Subscriptions', path: '/admin/subscriptions' },
     { icon: DollarSign, label: 'Payments', path: '/admin/payments' },
+    { icon: DollarSign, label: 'Coupons', path: '/admin/coupons' },
     { icon: Instagram, label: 'Instagram Accounts', path: '/admin/instagram' },
     { icon: MessageSquare, label: 'Support Tickets', path: '/admin/tickets' },
     { icon: Bell, label: 'Notifications', path: '/admin/notifications' },
