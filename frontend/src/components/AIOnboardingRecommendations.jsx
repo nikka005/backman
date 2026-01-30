@@ -60,14 +60,22 @@ export default function AIOnboardingRecommendations({ onComplete, onSkip }) {
     setApplying(true);
     setError('');
     try {
+      // Save the recommendations to the backend
       await aiOnboardingAPI.applyRecommendations(recommendation.id);
-      toast.success('AI recommendations applied successfully!');
-      onComplete?.(recommendation);
+      toast.success('AI recommendations applied! Redirecting to plans...');
+      
+      // Redirect to pricing page with recommended plan pre-selected
+      const recommendedPlan = recommendation.suggested_plan || 'basic';
+      
+      // Small delay for toast to show
+      setTimeout(() => {
+        navigate(`/pricing?recommended=${recommendedPlan}&from=ai`);
+      }, 1000);
+      
     } catch (error) {
       console.error('Failed to apply recommendations:', error);
       setError(error.response?.data?.detail || 'Failed to apply recommendations');
       toast.error('Failed to apply recommendations. Please try again.');
-    } finally {
       setApplying(false);
     }
   };
