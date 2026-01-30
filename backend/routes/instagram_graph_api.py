@@ -937,7 +937,7 @@ async def refresh_instagram_data(
             try:
                 expires_at = datetime.fromisoformat(token_expires.replace('Z', '+00:00'))
                 token_valid = expires_at > datetime.now(timezone.utc)
-            except:
+            except (ValueError, AttributeError):
                 pass
         
         if token_valid:
