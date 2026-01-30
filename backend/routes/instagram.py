@@ -257,6 +257,125 @@ async def get_instagram_stats(current_user: dict = Depends(get_current_user)):
     )
 
 
+@router.post("/sync")
+async def sync_instagram_data(current_user: dict = Depends(get_current_user)):
+    """
+    Simulate syncing Instagram data and show growth progress.
+    In production, this would fetch real data from Instagram API.
+    For now, it simulates organic growth based on time elapsed.
+    """
+    import random
+    from datetime import timedelta
+    
+    account_doc = await db.instagram_accounts.find_one({
+        "user_id": current_user['user_id'],
+        "status": {"$ne": AccountStatus.DISCONNECTED}
+    })
+    
+    if not account_doc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No Instagram account connected"
+        )
+    
+    # Check if growth is paused
+    if account_doc.get('growth_paused', False):
+        return {
+            "message": "Growth is paused. Resume to see updates.",
+            "growth_paused": True,
+            "synced": False
+        }
+    
+    # Calculate time since last sync
+    last_sync_str = account_doc.get('last_sync')
+    if last_sync_str:
+        try:
+            last_sync = datetime.fromisoformat(last_sync_str.replace('Z', '+00:00'))
+        except (ValueError, AttributeError):
+            last_sync = datetime.now(timezone.utc) - timedelta(hours=1)
+    else:
+        last_sync = datetime.now(timezone.utc) - timedelta(hours=1)
+    
+    now = datetime.now(timezone.utc)
+    hours_elapsed = (now - last_sync).total_seconds() / 3600
+    
+    # Only simulate growth if at least 1 hour has passed
+    if hours_elapsed < 0.1:  # ~6 minutes minimum
+        return {
+            "message": "Data is already up to date",
+            "synced": False,
+            "next_sync_available": (last_sync + timedelta(minutes=6)).isoformat()
+        }
+    
+    # Simulate growth based on targeting quality and time
+    targeting = await db.targeting_settings.find_one({"user_id": current_user['user_id']})
+    
+    # Base growth rate (followers per hour)
+    base_rate = 2.5  # ~60 followers per day baseline
+    
+    # Targeting multiplier
+    targeting_multiplier = 1.0
+    if targeting:
+        if targeting.get('niche'):
+            targeting_multiplier += 0.3
+        if targeting.get('hashtags') and len(targeting.get('hashtags', [])) >= 3:
+            targeting_multiplier += 0.2
+        if targeting.get('competitors') and len(targeting.get('competitors', [])) >= 2:
+            targeting_multiplier += 0.2
+        if targeting.get('locations') and len(targeting.get('locations', [])) >= 1:
+            targeting_multiplier += 0.1
+    
+    # Calculate new followers
+    effective_hours = min(hours_elapsed, 24)  # Cap at 24 hours to prevent huge jumps
+    new_followers = int(base_rate * effective_hours * targeting_multiplier * random.uniform(0.7, 1.3))
+    new_followers = max(0, new_followers)
+    
+    # Update account stats
+    current_followers = account_doc.get('followers_count', 0)
+    initial_followers = account_doc.get('initial_followers') or current_followers
+    
+    update_data = {
+        "followers_count": current_followers + new_followers,
+        "followers_gained_today": account_doc.get('followers_gained_today', 0) + new_followers,
+        "followers_gained_this_week": account_doc.get('followers_gained_this_week', 0) + new_followers,
+        "followers_gained_this_month": account_doc.get('followers_gained_this_month', 0) + new_followers,
+        "total_followers_gained": account_doc.get('total_followers_gained', 0) + new_followers,
+        "last_sync": now.isoformat(),
+        "updated_at": now.isoformat()
+    }
+    
+    # Set initial followers if not set
+    if not account_doc.get('initial_followers'):
+        update_data['initial_followers'] = current_followers
+    
+    await db.instagram_accounts.update_one(
+        {"id": account_doc['id']},
+        {"$set": update_data}
+    )
+    
+    # Log the growth
+    if new_followers > 0:
+        log = GrowthLog(
+            user_id=current_user['user_id'],
+            instagram_account_id=account_doc['id'],
+            log_type=GrowthLogType.FOLLOW_GAINED,
+            message=f"Gained {new_followers} new followers",
+            details={"followers_gained": new_followers, "targeting_multiplier": targeting_multiplier}
+        )
+        log_dict = log.model_dump()
+        log_dict['created_at'] = log_dict['created_at'].isoformat()
+        await db.growth_logs.insert_one(log_dict)
+    
+    return {
+        "message": f"Synced! +{new_followers} new followers",
+        "synced": True,
+        "new_followers": new_followers,
+        "total_followers": current_followers + new_followers,
+        "growth_rate": f"{base_rate * targeting_multiplier:.1f} followers/hour",
+        "targeting_quality": f"{targeting_multiplier * 100:.0f}%"
+    }
+
+
 # Targeting endpoints
 @router.get("/targeting", response_model=Optional[TargetingSettings])
 async def get_targeting(current_user: dict = Depends(get_current_user)):
