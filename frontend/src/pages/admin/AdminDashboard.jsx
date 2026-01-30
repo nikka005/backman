@@ -85,6 +85,7 @@ const AdminDashboard = () => {
     { icon: Download, label: 'Data Export', path: '/admin/export' },
     { icon: Share2, label: 'Social Links', path: '/admin/social-links' },
     { icon: Settings, label: 'Settings', path: '/admin/settings' },
+    { icon: Book, label: 'Documentation', path: '/admin/docs' },
   ];
 
   if (authLoading || loading) {
