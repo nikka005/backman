@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '../ui/button';
-import { Menu, X, ChevronRight, Sparkles } from 'lucide-react';
+import { Menu, X, ChevronRight, Sparkles, User, LogOut, LayoutDashboard, CreditCard, Settings } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, isAuthenticated, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -16,11 +20,35 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Close menus when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setIsUserMenuOpen(false);
+    };
+    if (isUserMenuOpen) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [isUserMenuOpen]);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+    setIsMobileMenuOpen(false);
+    setIsUserMenuOpen(false);
+  };
+
   const navLinks = [
     { name: 'How It Works', path: '/how-it-works' },
     { name: 'Pricing', path: '/pricing' },
     { name: 'Case Studies', path: '/case-studies' },
     { name: 'FAQ', path: '/faq' },
+  ];
+
+  const userMenuLinks = [
+    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+    { name: 'Billing', path: '/dashboard?tab=billing', icon: CreditCard },
+    { name: 'Settings', path: '/dashboard?tab=settings', icon: Settings },
   ];
 
   return (
