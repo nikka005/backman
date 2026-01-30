@@ -331,7 +331,7 @@ async def sync_instagram_data(current_user: dict = Depends(get_current_user)):
     
     # Update account stats
     current_followers = account_doc.get('followers_count', 0)
-    initial_followers = account_doc.get('initial_followers') or current_followers
+    stored_initial = account_doc.get('initial_followers') or current_followers
     
     update_data = {
         "followers_count": current_followers + new_followers,
@@ -345,7 +345,7 @@ async def sync_instagram_data(current_user: dict = Depends(get_current_user)):
     
     # Set initial followers if not set
     if not account_doc.get('initial_followers'):
-        update_data['initial_followers'] = current_followers
+        update_data['initial_followers'] = stored_initial
     
     await db.instagram_accounts.update_one(
         {"id": account_doc['id']},
