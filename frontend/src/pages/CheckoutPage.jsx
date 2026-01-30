@@ -47,8 +47,8 @@ const CheckoutPage = () => {
       return;
     }
     
-    // Wait for auth to be determined
-    if (isAuthenticated === undefined) {
+    // Wait for auth check to complete
+    if (authLoading) {
       return;
     }
     
@@ -60,7 +60,7 @@ const CheckoutPage = () => {
     
     loadPlanDetails();
     detectUserCountry();
-  }, [planSlug, isAuthenticated, navigate]);
+  }, [planSlug, isAuthenticated, authLoading, navigate]);
   
   const loadPlanDetails = async () => {
     try {
