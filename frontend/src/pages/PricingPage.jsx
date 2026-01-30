@@ -340,6 +340,27 @@ const PricingPage = () => {
           </div>
         </section>
 
+        {/* AI Recommendation Banner */}
+        {fromAI && recommendedPlan && (
+          <section className="pb-6">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="bg-gradient-to-r from-purple-100 via-pink-100 to-orange-100 rounded-2xl p-4 md:p-6 border border-pink-200">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 text-sm md:text-base">AI Recommended Plan</h3>
+                    <p className="text-xs md:text-sm text-gray-600">
+                      Based on your profile analysis, we recommend the <span className="font-semibold capitalize text-pink-600">{recommendedPlan}</span> plan for optimal growth.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* Pricing Cards */}
         <section className="pb-20">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -349,17 +370,34 @@ const PricingPage = () => {
               </div>
             ) : (
               <div className="grid md:grid-cols-3 gap-6">
-                {plans.map((plan) => (
+                {plans.map((plan) => {
+                  const isAIRecommended = recommendedPlan && plan.slug?.toLowerCase() === recommendedPlan;
+                  const isHighlighted = plan.popular || isAIRecommended;
+                  
+                  return (
                   <div
                     key={plan.id}
                     className={`relative bg-white rounded-2xl border-2 transition-all duration-300 ${
-                      plan.popular
-                        ? 'border-pink-500 shadow-xl shadow-pink-100 scale-105 z-10'
-                        : 'border-gray-200 hover:border-gray-300 hover:shadow-lg'
+                      isAIRecommended
+                        ? 'border-purple-500 shadow-xl shadow-purple-100 scale-105 z-10 ring-2 ring-purple-300'
+                        : plan.popular
+                          ? 'border-pink-500 shadow-xl shadow-pink-100 scale-105 z-10'
+                          : 'border-gray-200 hover:border-gray-300 hover:shadow-lg'
                     }`}
                     data-testid={`pricing-card-${plan.id}`}
                   >
-                    {plan.popular && (
+                    {/* AI Recommended Badge */}
+                    {isAIRecommended && (
+                      <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-20">
+                        <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-1 flex items-center gap-1 shadow-lg">
+                          <Star className="w-3 h-3 fill-white" />
+                          AI Recommended
+                        </Badge>
+                      </div>
+                    )}
+                    
+                    {/* Popular Badge (only show if not AI recommended) */}
+                    {plan.popular && !isAIRecommended && (
                       <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                         <Badge className="bg-gradient-to-r from-orange-500 to-pink-500 text-white px-4 py-1">
                           Most Popular
@@ -367,13 +405,13 @@ const PricingPage = () => {
                       </div>
                     )}
 
-                    <div className="p-8">
-                      <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
-                      <p className="text-gray-500 mb-6 h-12">{plan.description}</p>
+                    <div className="p-6 md:p-8">
+                      <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
+                      <p className="text-gray-500 mb-4 md:mb-6 h-10 md:h-12 text-sm md:text-base">{plan.description}</p>
 
-                      <div className="mb-6">
+                      <div className="mb-4 md:mb-6">
                         <div className="flex items-baseline gap-1">
-                          <span className="text-5xl font-bold text-gray-900">
+                          <span className="text-4xl md:text-5xl font-bold text-gray-900">
                             ${isYearly ? plan.yearlyPrice : plan.monthlyPrice}
                           </span>
                           <span className="text-gray-500">/mo</span>
@@ -385,9 +423,13 @@ const PricingPage = () => {
                         )}
                       </div>
 
-                      <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 mb-6">
-                        <p className="text-sm text-gray-600">Guaranteed</p>
-                        <p className="text-xl font-bold text-green-700">
+                      <div className={`rounded-xl p-3 md:p-4 mb-4 md:mb-6 ${
+                        isAIRecommended 
+                          ? 'bg-gradient-to-r from-purple-50 to-pink-50' 
+                          : 'bg-gradient-to-r from-green-50 to-emerald-50'
+                      }`}>
+                        <p className="text-xs md:text-sm text-gray-600">Guaranteed</p>
+                        <p className="text-lg md:text-xl font-bold text-green-700">
                           {plan.followers} Followers/mo
                         </p>
                       </div>
@@ -395,9 +437,11 @@ const PricingPage = () => {
                       <Button
                         onClick={() => handleSelectPlan(plan)}
                         disabled={processingPlan === plan.slug}
-                        className={`w-full rounded-full py-6 mb-6 group ${
-                          plan.popular
-                            ? 'bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white'
+                        className={`w-full rounded-full py-5 md:py-6 mb-4 md:mb-6 group text-sm md:text-base ${
+                          isAIRecommended
+                            ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white'
+                            : plan.popular
+                              ? 'bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white'
                             : 'bg-gray-900 hover:bg-gray-800 text-white'
                         }`}
                         data-testid={`get-started-${plan.id}`}
