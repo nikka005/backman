@@ -59,13 +59,6 @@ const MobileNav = () => {
           );
         })}
       </div>
-      
-      {/* Safe area for iOS */}
-      <style jsx="true">{`
-        .safe-area-bottom {
-          padding-bottom: env(safe-area-inset-bottom);
-        }
-      `}</style>
     </nav>
   );
 };
