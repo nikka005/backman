@@ -261,6 +261,50 @@ const DashboardPage = () => {
     }
   };
 
+  // Refresh Instagram data from API
+  const handleRefreshData = async () => {
+    if (!instagramAccount) return;
+    
+    setRefreshingData(true);
+    try {
+      const response = await instagramAPI.refreshData();
+      if (response.data.success) {
+        // Update stats with fresh data
+        setStats(prev => ({
+          ...prev,
+          followers_count: response.data.followers_count,
+          following_count: response.data.following_count,
+          posts_count: response.data.posts_count,
+          engagement_rate: response.data.engagement_rate
+        }));
+        
+        // Update instagram account data
+        setInstagramAccount(prev => ({
+          ...prev,
+          followers_count: response.data.followers_count,
+          following_count: response.data.following_count,
+          posts_count: response.data.posts_count,
+          engagement_rate: response.data.engagement_rate
+        }));
+        
+        setLastRefreshed(new Date().toISOString());
+        
+        if (response.data.data_source === 'instagram_api') {
+          toast.success('Data refreshed from Instagram!');
+        } else if (response.data.token_expired) {
+          toast.warning('Token expired. Please reconnect Instagram for live data.');
+        } else {
+          toast.info(response.data.message || 'Using cached data');
+        }
+      }
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+      toast.error('Failed to refresh data');
+    } finally {
+      setRefreshingData(false);
+    }
+  };
+
   const handleCancelSubscription = async () => {
     if (!window.confirm('Are you sure you want to cancel your subscription? You will lose access to premium features at the end of your billing period.')) {
       return;
