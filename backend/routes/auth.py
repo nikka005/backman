@@ -2,6 +2,10 @@ from fastapi import APIRouter, HTTPException, status, Depends, Request
 from datetime import datetime, timedelta, timezone
 from pydantic import BaseModel, EmailStr
 from typing import Optional
+import uuid
+import json
+import os
+import logging
 
 from models.user import (
     User, UserCreate, UserUpdate, UserLogin, UserResponse, 
@@ -14,6 +18,8 @@ from utils.auth import (
 )
 from utils.email import send_verification_email, send_password_reset_email, send_welcome_email
 from utils.security import check_rate_limit, get_client_ip, validate_password, validate_email
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
