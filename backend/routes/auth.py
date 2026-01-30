@@ -150,7 +150,8 @@ async def login(credentials: UserLogin, request: Request):
         current_plan=user_doc.get('current_plan'),
         email_verified=user_doc.get('email_verified', False),
         created_at=datetime.fromisoformat(user_doc['created_at']) if isinstance(user_doc['created_at'], str) else user_doc['created_at'],
-        last_login=datetime.now(timezone.utc)
+        last_login=datetime.now(timezone.utc),
+        ai_analysis=user_doc.get('ai_analysis')
     )
     
     return TokenResponse(
