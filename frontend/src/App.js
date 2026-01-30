@@ -28,6 +28,7 @@ import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsOfServicePage from './pages/TermsOfServicePage';
 import RefundPolicyPage from './pages/RefundPolicyPage';
 import CookiePolicyPage from './pages/CookiePolicyPage';
+import DataDeletionPage from './pages/DataDeletionPage';
 
 function App() {
   return (
