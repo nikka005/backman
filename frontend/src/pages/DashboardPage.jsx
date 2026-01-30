@@ -315,11 +315,12 @@ const DashboardPage = () => {
     }
   ];
 
-  const targetSettings = instagramAccount?.targeting || [
-    { label: 'Niche', value: 'Not configured' },
-    { label: 'Location', value: 'Not configured' },
-    { label: 'Interests', value: 'Not configured' },
-    { label: 'Competitors', value: 'Not configured' }
+  // Build target settings from the loaded targeting state
+  const targetSettings = [
+    { label: 'Niche', value: targeting.niche || 'Not configured' },
+    { label: 'Location', value: targeting.locations || 'Not configured' },
+    { label: 'Hashtags', value: targeting.hashtags || 'Not configured' },
+    { label: 'Competitors', value: targeting.competitors || 'Not configured' }
   ];
 
   // Format date helper
