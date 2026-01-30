@@ -1,70 +1,84 @@
 <analysis>**original_problem_statement:**
 The user's goal is to build Adverlyx Digital, a production-ready SaaS platform cloning . The platform requires a modern frontend, a user analytics dashboard, subscription billing, and a comprehensive admin control panel giving dynamic control over branding, content, and features without code changes.
 
-Recent work has focused on implementing a sophisticated internal AI system, Adverlyx Intelligence, based on a Master System Prompt provided by the user. This AI is designed to assist admins with strategic growth planning, data analysis, and risk management. Subsequent requests included adding AI-powered user onboarding, a full affiliate and referral program, a help center, and social media links, all manageable from the admin panel.
+Recent work has focused on implementing a sophisticated internal AI system, Adverlyx Intelligence, based on a Master System Prompt provided by the user. Subsequent requests included adding AI-powered user onboarding, a full affiliate and referral program, and social media links, all manageable from the admin panel. The project has since been deployed to the user's own AWS server, and the agent is now assisting with live debugging and feature implementation on this deployed environment.
 
 **User's preferred language**: English
 
 **what currently exists?**
-The project is a mature full-stack application (React/FastAPI/MongoDB) with a feature-rich admin portal at  and a complete user-facing dashboard.
+The project is a full-stack application (React/FastAPI/MongoDB) deployed on the user's AWS infrastructure. It features a user-facing dashboard and an admin portal at .
 
-Key existing components include:
--   **AI System (Adverlyx Intelligence):** A backend service using a hybrid model of OpenAI's GPT-5.2 (primary) and Anthropic's Claude Sonnet 4.5 (fallback). A dedicated admin page at  provides a UI for AI-driven chat, growth planning, analytics insights, and risk assessment.
--   **AI-Powered Onboarding:** A Lite version provides AI-driven setup recommendations to new users after they connect their Instagram account.
--   **Instagram Graph API:** The foundation for a real integration has been laid, replacing the previous mock data system.
--   **Affiliate & Referral Programs:** Public-facing pages (, ), backend logic, and an initial admin management page () have been created.
--   **Core SaaS Features:** JWT authentication, Stripe & Razorpay payment gateways, dynamic pricing, feature management, and a support ticket system are all functional.
+Key components include:
+-   **Core SaaS Features:** JWT authentication, dynamic feature management, and a support ticket system.
+-   **AI System (Adverlyx Intelligence):** A backend service using OpenAI's GPT-5.2 and Anthropic's Claude Sonnet 4.5, powered by an . It includes an admin UI, AI-driven chat, and AI-powered user onboarding which recommends a subscription plan based on the user's Instagram profile.
+-   **Hybrid Payment System:** Integrates both Stripe (for international users) and Razorpay (for Indian users), with automatic provider selection based on geo-location. API keys for both are dynamically loaded from the database, managed via the admin panel.
+-   **Admin Panel Features:** Management for affiliate/referral programs and dynamic social media links in the site footer.
+-   **Mobile-First UI:** A modern, Figma-inspired floating glassmorphism bottom navigation bar for mobile users, along with responsive dashboard and onboarding pages.
 
 **Last working item**:
--   **Last item agent was working:** The agent was implementing the admin panel management for the new Affiliate and Referral programs. This involved creating backend APIs and a new frontend page (). The agent was in the process of testing these new endpoints when the environment restarted due to high memory usage. An API endpoint for the affiliate program was found to be failing post-restart.
+-   **Last item agent was working:** The agent was fixing two bugs reported by the user on the live mobile website:
+    1.  The mobile bottom navigation menu was not working correctly for routing between pages.
+    2.  The user dashboard was not updating after the user saved their Targeting details.
 -   **Status:** IN PROGRESS
 -   **Agent Testing Done:** N
--   **Which testing method agent to use?** backend testing agent
+-   **Which testing method agent to use?** both
 -   **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
--   **Issue 1:** (P0) The API endpoint to fetch affiliate program settings from the admin panel is broken.
-    -   **Attempted fixes:** None. The agent identified the failure after the environment restarted.
+-   **Issue 1:** (P0) Mobile bottom navigation does not navigate correctly.
+    -   **Attempted fixes:** The agent began modifying  to use React Router's  function instead of  to ensure smooth client-side routing.
     -   **Next debug checklist:**
-        1.  Check backend logs for a  traceback related to the  endpoint.
-        2.  Inspect the  function in .
-        3.  The function likely fails to handle cases where no settings document exists in the database.
-        4.  Modify the function to return a default JSON object (e.g., ) if the database query returns .
-        5.  Test the endpoint again with  to confirm it returns a valid JSON response.
-    -   **Why fix this issue and what will be achieved with the fix?** This is blocking the completion of the Affiliate & Referral management feature. Fixing it will allow admins to view and configure the affiliate program settings from the UI.
+        1.  Complete the replacement of all -based navigation with the  function in .
+        2.  Ensure the  correctly reads the  from URL search parameters to display the active view.
+        3.  Deploy the changes to the user's AWS server.
+        4.  Test navigation by clicking all icons on the mobile bottom navigation bar.
+    -   **Why fix this issue and what will be achieved with the fix?** This is critical for mobile usability, as users cannot navigate the app properly.
     -   **Status:** IN PROGRESS
-    -   **Is recurring issue?** N
-    -   **Should Test frontend/backend/both after fix?** both
+    -   **Is recurring issue?** Y
+    -   **Should Test frontend/backend/both after fix?** frontend
+    -   **Blocked on other issue:** None
+
+-   **Issue 2:** (P0) User dashboard does not reflect updates after saving Targeting information.
+    -   **Attempted fixes:** The agent started refactoring  to improve state management upon saving targeting data. The plan was to add a toast notification for user feedback and ensure the UI re-renders with the new data.
+    -   **Next debug checklist:**
+        1.  Complete the  function in .
+        2.  Implement a  toast notification to confirm Targeting saved successfully.
+        3.  Ensure the  hook that fetches targeting data is either re-triggered after a successful save or the local state is updated manually.
+        4.  Deploy and test by updating targeting details and verifying the changes persist on page reload.
+    -   **Why fix this issue and what will be achieved with the fix?** Users are confused because their changes don't appear to be saved, breaking a core feature of the dashboard.
+    -   **Status:** IN PROGRESS
+    -   **Is recurring issue?** Y
+    -   **Should Test frontend/backend/both after fix?** frontend
     -   **Blocked on other issue:** None
 
 **In progress Task List**:
--   **Task 1:** (P0) Complete Admin Management for Affiliate & Referral Programs.
-    -   **Where to resume:** After fixing the broken API (Issue 1), the agent must thoroughly test the  page. This includes verifying that an admin can view, update, and save settings for both the affiliate and referral programs.
-    -   **What will be achieved with this?** A fully functional admin UI to control commissions, rewards, and terms for both partner programs, completing a key user request.
+-   **Task 1:** (P0) Resolve all user-reported mobile UI bugs.
+    -   **Where to resume:** Continue editing  and  as per the checklists in the All Pending/In progress Issue list.
+    -   **What will be achieved with this?** A stable and usable mobile experience for logged-in users.
     -   **Status:** IN PROGRESS
-    -   **Should Test frontend/backend/both after fix?** both
-    -   **Blocked on something:** Blocked by Issue 1.
+    -   **Should Test frontend/backend/both after fix?** frontend
+    -   **Blocked on something:** Blocked by completion of Issue 1 and Issue 2.
 
 **Upcoming and Future Tasks**
 - **Upcoming Tasks:**
     - (P1) **Real Instagram Meta Graph API OAuth Flow:** Implement the user-facing Facebook Login UI to securely connect Instagram accounts and obtain the access tokens needed to power the AI with real data.
-    - (P1) **Verify Markdown on AI Tabs:** The user requested checking that markdown rendering works on the AI Analytics and Risk Assessment tabs, similar to the fix applied to the AI Chat.
-    - (P2) **Prepare for Private Beta:** Conduct final polishing and stabilization in preparation for a private beta launch with 10-30 real users.
+    - (P1) **Verify Markdown on AI Tabs:** Check that markdown rendering works on the AI Analytics and Risk Assessment tabs, similar to the fix applied to the AI Chat.
+    - (P2) **Prepare for Private Beta:** Conduct final polishing and stabilization for a beta launch.
 - **Future Tasks:**
     - (P2) **Implement PayPal Integration:** Add PayPal as a third payment option.
-    - (P3) **Refactor :** The main admin layout component is still complex and could be simplified for better maintainability.
+    - (P3) **Refactor :** Simplify the main admin layout component.
     - (P3) **AI-Powered Weekly Growth Reports:** Develop a system to send automated weekly growth reports to users.
 
 **Completed work in this session**
--   **Adverlyx Intelligence AI System:** Successfully implemented the core backend service (using GPT-5.2 & Claude Sonnet 4.5) and the complete frontend admin interface () for AI-assisted chat, analytics, risk assessment, and growth planning.
--   **AI-Powered User Onboarding:** Implemented a Lite version that provides AI recommendations to new users.
--   **Branding & Markdown Fixes:** Verified the removal of all Emergent branding and fixed an issue where markdown formatting (e.g., bold text) was not rendering in the AI's responses.
--   **Instagram API Foundation:** Replaced the mocked Instagram data service with the initial backend structure for a real Meta Graph API integration.
--   **AI Calibration & Governance:** Tuned the AI prompts for more realistic outputs, added safety guardrails, and created an SOP document () for admins.
--   **New User-Facing Pages:** Created and integrated pages for Affiliate Programs, Referral Programs, and a Help Center, including adding links to the site footer.
+-   **Deployed to AWS & Live Debugging:** Guided the user through deploying the application to their own AWS server and subsequently diagnosed and fixed numerous live issues, including Python module errors, database schema mismatches ( vs. ), incorrect environment variables, and Nginx proxy misconfigurations.
+-   **Implemented Hybrid Payment System (Stripe & Razorpay):** The backend now dynamically loads API keys from the database (managed via the Admin Panel). The frontend auto-detects the user's country to offer Razorpay (for India) or Stripe (for international).
+-   **Implemented AI Plan Recommendation Flow:** After connecting Instagram, the AI analyzes the user's profile and redirects them to the pricing page with a recommended plan pre-selected and highlighted.
+-   **Implemented Admin Social Media Link Management:** Created a full-stack feature allowing the admin to manage social media links that appear dynamically in the site footer.
+-   **Fixed Mobile UI/UX:** Implemented a modern, Figma-style floating bottom navigation bar and made the Connect Instagram and AI Onboarding pages fully responsive.
+-   **Enabled AI Services on Live Server:** Guided the user to add the  to their production environment variables, fixing the AI service.
 
 **Earlier issues found/mentioned but not fixed**
--   None.
+-   None. All reported issues in this session were either fixed or are currently in progress.
 
 **Known issue recurrence from previous fork**
 -   None.
@@ -73,87 +87,83 @@ Key existing components include:
 
 
 **Key Technical Concepts**
--   **Frontend:** React, Tailwind CSS, shadcn/ui, React Router.
--   **Backend:** FastAPI, MongoDB (Motor), Pydantic, JWT.
--   **LLM Integration:** Using  to interface with OpenAI (GPT-5.2) and Anthropic (Claude Sonnet 4.5) in a hybrid model.
--   **Prompt Engineering:** Designing and calibrating system prompts for AI tasks like growth planning and risk assessment.
--   **Markdown Rendering:** Using  to display formatted AI-generated text.
--   **Integrations:** Stripe, Razorpay, Resend, Meta Instagram Graph API (in progress).
+-   **Live Debugging on AWS:** The primary mode of operation has shifted to fixing bugs on the user's live AWS deployment, with the agent providing instructions and commands for the user to execute.
+-   **Dynamic Configuration:** Payment gateway API keys are no longer hardcoded or solely reliant on  files; they are fetched from a MongoDB collection managed by the admin panel.
+-   **Hybrid Payment Gateway:** The frontend uses a mock geo-IP check to decide whether to initiate a Stripe or Razorpay payment flow.
+-   **Mobile-First UI/UX:** Implementation of responsive layouts and a modern, floating glassmorphism bottom navigation bar for mobile devices.
+-   **React State & Navigation:** Using React Router (, ) for client-side routing and state management in response to user interaction and URL changes.
 
 **key DB schema**
--   **ai_settings, ai_requests_log, ai_growth_plans, ai_analytics_insights, ai_risk_assessments:** New collections to manage and log all aspects of the AI system.
--   **affiliate_settings, referral_settings, affiliates, referrals:** New collections to manage the partner and referral programs.
+-   **feature_payments:** This collection is now used to store API keys for payment gateways (, ), which are configured in the admin panel.
 
 **changes in tech stack**
--    (backend) for LLM access.
--    (frontend) for rendering markdown content.
+-   No new technologies, but the implementation pattern for handling credentials and multi-provider payments has become significantly more dynamic.
 
 **All files of reference**
--   **/app/backend/routes/admin_programs.py**: Contains the failing API endpoint that needs to be fixed.
--   **/app/frontend/src/pages/admin/AdminPrograms.jsx**: The frontend UI for the feature currently being implemented.
--   **/app/backend/utils/ai_service.py**: The core utility containing the main LLM prompts.
--   **/app/backend/routes/instagram_graph_api.py**: The new route for the real Instagram data integration.
--   **/app/memory/AI_ADMIN_SOPs.md**: New documentation for admins on using the AI system.
+-   **/app/frontend/src/pages/DashboardPage.jsx**: Core file for the user dashboard. Currently being fixed for state updates and mobile navigation.
+-   **/app/frontend/src/components/layout/MobileNav.jsx**: The mobile bottom navigation component. Currently being fixed for routing issues.
+-   **/app/frontend/src/pages/PricingPage.jsx**: Contains the logic for the hybrid Stripe/Razorpay payment flow.
+-   **/app/backend/routes/razorpay_payments.py**: Contains the backend logic for Razorpay, now reading keys from the database.
+-   **/app/backend/routes/payments.py**: Contains the backend logic for Stripe, now reading keys from the database.
 
 **Areas that need refactoring**:
--   **/app/frontend/src/pages/admin/AdminDashboard.jsx**: This central admin layout component remains large and could be simplified to improve maintainability.
+-   The geo-location logic on the frontend () is currently a placeholder (). It should be replaced with a real IP-based geolocation service.
 
 **key api endpoints**
--   : **(New, Failing)**
--   : **(New, Working)**
--   : **(New)**
--   : **(New)**
--   : **(New)**
+-   : (New) Creates a Razorpay order.
+-   : (Updated) Creates a Stripe checkout session.
+-   : Saves user's targeting preferences.
+-   , : (New) Manage social media links.
+-   : (New) Publicly fetches social media links for the footer.
 
 **Critical Info for New Agent**
--   The environment was recently restarted due to exceeding memory limits. You should verify the current state of services before making changes.
--   Your immediate priority is to fix the broken  endpoint. This is the main blocker for completing the current task.
--   Once the API is fixed, you must finish implementing and testing the Partner Programs management page in the admin panel.
--   The user has approved a roadmap for the AI system and is now focused on integrating real data via the Instagram Graph API, which is the next major feature to tackle after the current task is complete.
+-   **The workflow is now live co-debugging.** You are not working in an isolated preview environment. Your primary role is to provide code changes and  commands for the user to execute on their live AWS server. The user will Save to GitHub, then  and rebuild on their server.
+-   Your immediate task is to fix the user-reported mobile bugs: faulty bottom navigation and the dashboard not updating on Targeting save.
+-   Assume all configurations (API keys, etc.) should be managed from the Admin Panel and fetched from the database, not just from  files.
 
 **documents and test reports created in this job**
--    (updated)
--    (new)
+-   : Test report for Partner Programs & Social Links feature.
+-   : Updated with completed tasks.
 
 **Last 10 User Messages and any pending HUMAN messages**
-10. **User:** Asks for admin panel management for affiliate and referral programs, including setting rewards.
-9.  **User:** Requests adding social media links, a help center, and the affiliate/referral programs.
-8.  **User:** Asks for a full pre-launch readiness check of the entire website.
-7.  **User:** Requests integrating real Instagram/Facebook data (hashtags, bio, interest) to train the AI at a high level.
-6.  **User:** Reports a bug where bold markdown formatting isn't rendering and via openai text is visible in AI output.
-5.  **User:** Asks for verification that the newly created AI models are working correctly.
-4.  **User:** Provides detailed, founder-level approval and specifications for implementing Option A - Lite AI Onboarding.
-3.  **Agent:** Proposes an enhancement: AI-powered user onboarding recommendations.
-2.  **User:** Confirms the agent's understanding of the Master System Prompt and gives the final directive to proceed with AI implementation after branding cleanup.
-1.  **User:** Provides the Master System Prompt to define the Adverlyx Intelligence internal AI system.
+10. **User:** Asks to test the new AI plan recommendation flow. (Completed)
+9.  **User:** Requests to start the AI recommendation flow after connecting Instagram. (Completed)
+8.  **User:** Reports the AI service is failing due to a missing . (Completed)
+7.  **User:** Reports the mobile UI for Connect Instagram is not responsive and the AI onboarding button has no response. (Completed)
+6.  **User:** Asks for a modern, Figma-style bottom navigation bar instead of the old design. (Completed)
+5.  **User:** Reports mobile issues: user menu not showing, plans not visible, and requests a mobile bottom navigation bar. (Completed)
+4.  **User:** Confirms they want to add Stripe for international customers in addition to Razorpay. (Completed)
+3.  **User:** Asks if adding Stripe keys will cause issues, revealing they only want to use Razorpay at that moment. (Agent then implemented Razorpay-only logic before re-adding Stripe).
+2.  **User:** Reports that the Razorpay keys are added in the admin panel, not the  file, revealing a mismatch in how the backend loaded credentials. (Agent fixed backend to read from DB).
+1.  **User:** I see more issue many time bottom menu cannot work properly I am adding our targets details but user dashboard not updating I thing user dashboard not working proper place all of check it and after update this all off - **This is the current task.**
 
 **Project Health Check:**
 -   **Broken:**
-    -   The  endpoint is throwing a .
+    -   Mobile bottom navigation routing is unreliable.
+    -   User dashboard UI does not update after saving targeting settings.
 -   **Mocked:**
-    -   The user-facing Instagram OAuth connection flow is not yet built. The AI system will use mock data for new users until this is implemented.
+    -   The Instagram connection is not a real OAuth flow yet.
+    -   The country detection for payment gateway selection is a hardcoded placeholder.
 
 **3rd Party Integrations**
--   **OpenAI GPT-5.2:** Primary LLM for AI Intelligence, using the Emergent LLM Key.
--   **Anthropic Claude Sonnet 4.5:** Fallback LLM for AI Intelligence, using the Emergent LLM Key.
--   **Meta Instagram Graph API:** (In Progress) For fetching real user data; requires user OAuth.
--   **Stripe (Payments):** Fully integrated.
--   **Razorpay (Payments):** Fully integrated.
--   **Resend (Email):** Fully integrated.
+-   **OpenAI GPT-5.2:** Primary LLM, uses Emergent LLM Key.
+-   **Anthropic Claude Sonnet 4.5:** Fallback LLM, uses Emergent LLM Key.
+-   **Stripe (Payments):** Integrated for international payments. Keys are managed in the admin panel.
+-   **Razorpay (Payments):** Integrated for Indian payments. Keys are managed in the admin panel.
+-   **Resend (Email):** Integrated, but keys may not be configured on the user's server.
+-   **Meta Instagram Graph API:** (In Progress) Foundation exists, but OAuth flow is not built.
 
 **Testing status**
--   **Testing agent used after significant changes:** NO
+-   **Testing agent used after significant changes:** YES, for the Admin Programs and Social Links features. Not used for the recent payment and mobile UI fixes.
 -   **Troubleshoot agent used after agent stuck in loop:** NO
--   **Test files created:** None in this session.
--   **Known regressions:** The affiliate settings API, which was newly created, is non-functional.
+-   **Test files created:** None.
+-   **Known regressions:** Mobile navigation and dashboard updates, which were previously working, are now reported as broken by the user on the live site.
 
 **Credentials to test flow:**
--   **Admin Login Page:** 
 -   **Admin Email:** 
 -   **Admin Password:** 
 -   **User Email:** 
 -   **User Password:** 
 
 **What agent forgot to execute**
--   The agent was unable to complete the implementation and testing of the Affiliate & Referral admin management page due to an API error and a subsequent environment restart.
--   The agent has not yet verified if markdown rendering is working on the AI Analytics and Risk assessment tabs, a task derived from the user's feedback on the AI chat.</analysis>
+-   The agent did not complete the fixes for the mobile navigation and dashboard targeting updates before the session ended. The implementation is mid-way through.</analysis>
