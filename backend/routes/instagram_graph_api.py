@@ -233,11 +233,12 @@ async def oauth_callback(
                 access_token = long_lived_data.get("access_token")
                 expires_in = long_lived_data.get("expires_in", 5184000)  # 60 days default
             
-            # Fetch user profile
+            # Fetch user profile using Basic Display API fields
+            # Basic Display API supports: id, username, account_type, media_count
             profile_response = await client.get(
                 f"{GRAPH_API_BASE}/me",
                 params={
-                    "fields": "id,username,name,account_type,media_count,followers_count,follows_count,biography,profile_picture_url",
+                    "fields": "id,username,account_type,media_count",
                     "access_token": access_token
                 }
             )
@@ -252,12 +253,12 @@ async def oauth_callback(
         account_data = {
             "instagram_id": str(instagram_user_id),
             "username": profile_data.get("username", ""),
-            "name": profile_data.get("name", ""),
-            "biography": profile_data.get("biography", ""),
-            "profile_picture_url": profile_data.get("profile_picture_url", ""),
-            "account_type": profile_data.get("account_type", "business"),
-            "followers_count": profile_data.get("followers_count", 0),
-            "following_count": profile_data.get("follows_count", 0),
+            "name": profile_data.get("username", ""),  # Basic Display doesn't provide name
+            "biography": "",  # Not available in Basic Display
+            "profile_picture_url": "",  # Not available in Basic Display
+            "account_type": profile_data.get("account_type", "personal"),
+            "followers_count": 0,  # Not available in Basic Display
+            "following_count": 0,  # Not available in Basic Display
             "posts_count": profile_data.get("media_count", 0),
             "access_token": access_token,
             "token_expires_at": (datetime.now(timezone.utc) + timedelta(seconds=expires_in)).isoformat(),
