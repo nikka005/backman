@@ -1016,7 +1016,14 @@ const DashboardPage = () => {
                     </div>
                     <div>
                       <h2 className="text-white font-semibold">@{instagramAccount?.username || 'Connect Account'}</h2>
-                      <p className="text-gray-400 text-sm">{instagramAccount ? 'Connected Account' : 'No account connected'}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-gray-400 text-sm">{instagramAccount ? 'Connected Account' : 'No account connected'}</p>
+                        {instagramAccount && !instagramAccount.oauth_connected && (
+                          <span className="px-2 py-0.5 bg-yellow-500/20 text-yellow-300 text-xs rounded-full">
+                            Demo Mode
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
