@@ -1078,6 +1078,23 @@ const DashboardPage = () => {
                 </div>
               )}
 
+              {/* Demo Mode Info Banner */}
+              {instagramAccount && !instagramAccount.oauth_connected && (
+                <div className="bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200 rounded-xl p-4 mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center flex-shrink-0">
+                      <AlertTriangle className="w-4 h-4 text-yellow-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-900">Demo Mode - Simulated Data</p>
+                      <p className="text-xs text-gray-600">
+                        Stats shown are simulated for demonstration. To get real Instagram data, Meta API approval is required (takes 2-4 weeks).
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Stats Grid */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 {statsCards.map((stat) => {
