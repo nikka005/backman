@@ -254,25 +254,10 @@ const ConnectInstagramPage = () => {
               ))}
             </div>
 
-            {/* Terms Checkbox */}
-            <div className="flex items-start gap-2 md:gap-3 mb-4 md:mb-6">
-              <Checkbox
-                id="terms"
-                checked={agreedToTerms}
-                onCheckedChange={setAgreedToTerms}
-                data-testid="agree-terms-checkbox"
-                className="mt-0.5"
-              />
-              <label htmlFor="terms" className="text-xs md:text-sm text-gray-600 leading-tight cursor-pointer">
-                I understand that Adverlyx uses organic growth methods and accept the{' '}
-                <Link to="/terms" className="text-pink-600 hover:underline">Terms of Service</Link>
-              </label>
-            </div>
-
             <Button
               type="submit"
               disabled={loading || !agreedToTerms}
-              className="w-full h-11 md:h-12 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-xl font-semibold gap-2"
+              className="w-full h-11 md:h-12 bg-gray-800 hover:bg-gray-900 text-white rounded-xl font-semibold gap-2"
               data-testid="connect-instagram-btn"
             >
               {loading ? (
@@ -282,11 +267,14 @@ const ConnectInstagramPage = () => {
                 </>
               ) : (
                 <>
-                  Connect Instagram
+                  Connect Manually
                   <ArrowRight className="w-5 h-5" />
                 </>
               )}
             </Button>
+            <p className="text-xs text-center text-gray-500 mt-2">
+              Uses simulated data for testing
+            </p>
             
             {/* AI Setup Hint */}
             <div className="flex items-center justify-center gap-2 mt-3 text-[10px] md:text-xs text-gray-500">
