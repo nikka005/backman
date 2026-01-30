@@ -459,19 +459,20 @@ const PricingPage = () => {
                         )}
                       </Button>
 
-                      <ul className="space-y-3">
+                      <ul className="space-y-2 md:space-y-3">
                         {plan.features.map((feature, index) => (
-                          <li key={index} className="flex items-start gap-3">
-                            <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                              <Check className="w-3 h-3 text-green-600" />
+                          <li key={index} className="flex items-start gap-2 md:gap-3">
+                            <div className="w-4 h-4 md:w-5 md:h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <Check className="w-2.5 h-2.5 md:w-3 md:h-3 text-green-600" />
                             </div>
-                            <span className="text-gray-600">{feature}</span>
+                            <span className="text-gray-600 text-sm md:text-base">{feature}</span>
                           </li>
                         ))}
                       </ul>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
