@@ -47,6 +47,11 @@ const CheckoutPage = () => {
       return;
     }
     
+    // Wait for auth to be determined
+    if (isAuthenticated === undefined) {
+      return;
+    }
+    
     if (!isAuthenticated) {
       toast.error('Please login to continue');
       navigate('/login');
@@ -55,7 +60,7 @@ const CheckoutPage = () => {
     
     loadPlanDetails();
     detectUserCountry();
-  }, [planSlug, isAuthenticated]);
+  }, [planSlug, isAuthenticated, navigate]);
   
   const loadPlanDetails = async () => {
     try {
