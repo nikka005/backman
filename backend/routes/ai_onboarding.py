@@ -171,9 +171,6 @@ async def get_onboarding_recommendations(
     if not account:
         raise HTTPException(status_code=404, detail="No Instagram account connected")
     
-    # Get user profile
-    user = await db.users.find_one({"id": user_id}, {"_id": 0, "password_hash": 0})
-    
     # Get user's plan tier for recommendation depth
     plan_tier = await get_user_plan_tier(user_id)
     
