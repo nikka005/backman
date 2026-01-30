@@ -55,7 +55,7 @@ const ConnectInstagramPage = () => {
     setError('');
     
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('accessToken');
       const response = await fetch(`${API_URL}/api/instagram-api/oauth/authorize`, {
         headers: {
           'Authorization': `Bearer ${token}`
