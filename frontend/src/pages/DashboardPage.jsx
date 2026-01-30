@@ -414,11 +414,11 @@ const DashboardPage = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="lg:ml-64">
+      <main className="lg:ml-64 pb-20 lg:pb-0">
         {/* Header */}
         <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
-          <div className="flex items-center justify-between px-6 py-4">
-            <div className="flex items-center gap-4">
+          <div className="flex items-center justify-between px-4 lg:px-6 py-4">
+            <div className="flex items-center gap-3 lg:gap-4">
               <div className="lg:hidden">
                 <Link to="/" className="flex items-center gap-2">
                   <div className="w-9 h-9 bg-gradient-to-br from-orange-400 to-pink-500 rounded-xl flex items-center justify-center">
@@ -427,22 +427,55 @@ const DashboardPage = () => {
                 </Link>
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">Welcome back, {user?.name || 'User'}!</h1>
-                <p className="text-sm text-gray-500">
+                <h1 className="text-lg lg:text-xl font-bold text-gray-900">
+                  <span className="hidden sm:inline">Welcome back, </span>
+                  {user?.name || 'User'}!
+                </h1>
+                <p className="text-xs lg:text-sm text-gray-500 hidden sm:block">
                   {activeTab === 'billing' ? 'Manage your subscription & billing' : "Here's your growth overview"}
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 lg:gap-3">
               <button className="p-2 rounded-full hover:bg-gray-100 transition-colors relative">
                 <Bell className="w-5 h-5 text-gray-600" />
                 {unreadCount > 0 && (
                   <span className="absolute top-1 right-1 w-2 h-2 bg-pink-500 rounded-full"></span>
                 )}
               </button>
-              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center text-white font-semibold">
+              <div className="w-9 h-9 lg:w-10 lg:h-10 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center text-white font-semibold text-sm lg:text-base">
                 {(user?.name || 'U').charAt(0).toUpperCase()}
               </div>
+            </div>
+          </div>
+          
+          {/* Mobile Tab Navigation */}
+          <div className="lg:hidden overflow-x-auto border-t border-gray-100">
+            <div className="flex px-2 py-2 gap-1 min-w-max">
+              {[
+                { id: 'overview', label: 'Overview', icon: BarChart3 },
+                { id: 'billing', label: 'Billing', icon: CreditCard },
+                { id: 'targeting', label: 'Targeting', icon: Target },
+                { id: 'analytics', label: 'Analytics', icon: TrendingUp },
+                { id: 'support', label: 'Support', icon: MessageCircle },
+                { id: 'settings', label: 'Settings', icon: Settings },
+              ].map((tab) => {
+                const Icon = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
+                      activeTab === tab.id
+                        ? 'bg-pink-100 text-pink-600'
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    {tab.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </header>
