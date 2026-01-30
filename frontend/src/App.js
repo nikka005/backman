@@ -23,6 +23,11 @@ import ConnectInstagramPage from './pages/ConnectInstagramPage';
 import AffiliatePage from './pages/AffiliatePage';
 import ReferralPage from './pages/ReferralPage';
 import HelpPage from './pages/HelpPage';
+// Legal Pages
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import TermsOfServicePage from './pages/TermsOfServicePage';
+import RefundPolicyPage from './pages/RefundPolicyPage';
+import CookiePolicyPage from './pages/CookiePolicyPage';
 
 function App() {
   return (
@@ -47,6 +52,11 @@ function App() {
               <Route path="/affiliate" element={<AffiliatePage />} />
               <Route path="/referral" element={<ReferralPage />} />
               <Route path="/help" element={<HelpPage />} />
+              {/* Legal Pages */}
+              <Route path="/privacy" element={<PrivacyPolicyPage />} />
+              <Route path="/terms" element={<TermsOfServicePage />} />
+              <Route path="/refund" element={<RefundPolicyPage />} />
+              <Route path="/cookies" element={<CookiePolicyPage />} />
               {/* Admin Routes */}
               <Route path="/backman" element={<AdminLoginPage />} />
               <Route path="/admin/*" element={<AdminDashboard />} />
