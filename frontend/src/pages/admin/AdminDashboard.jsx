@@ -26,6 +26,7 @@ import AdminAIIntelligence from './AdminAIIntelligence';
 import AdminPrograms from './AdminPrograms';
 import AdminSocialLinks from './AdminSocialLinks';
 import AdminCoupons from './AdminCoupons';
+import AdminDocumentation from './AdminDocumentation';
 
 const AdminDashboard = () => {
   const { user, logout, isAuthenticated, loading: authLoading } = useAuth();
