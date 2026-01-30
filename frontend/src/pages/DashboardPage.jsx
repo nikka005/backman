@@ -293,13 +293,53 @@ const DashboardPage = () => {
           toast.success('Data refreshed from Instagram!');
         } else if (response.data.token_expired) {
           toast.warning('Token expired. Please reconnect Instagram for live data.');
+        } else if (response.data.data_source === 'manual') {
+          // For manual connections, try the sync endpoint instead
+          try {
+            const syncResponse = await instagramAPI.syncData();
+            if (syncResponse.data.synced) {
+              setStats(prev => ({
+                ...prev,
+                followers_count: syncResponse.data.total_followers,
+                followersGrowth: syncResponse.data.new_followers
+              }));
+              setInstagramAccount(prev => ({
+                ...prev,
+                followers_count: syncResponse.data.total_followers
+              }));
+              toast.success(syncResponse.data.message);
+            } else {
+              toast.info(syncResponse.data.message || 'Data is up to date');
+            }
+          } catch (syncError) {
+            toast.info('Sync in progress...');
+          }
         } else {
           toast.info(response.data.message || 'Using cached data');
         }
       }
     } catch (error) {
-      console.error('Error refreshing data:', error);
-      toast.error('Failed to refresh data');
+      // Fallback to sync endpoint for manual connections
+      try {
+        const syncResponse = await instagramAPI.syncData();
+        if (syncResponse.data.synced) {
+          setStats(prev => ({
+            ...prev,
+            followers_count: syncResponse.data.total_followers,
+            followersGrowth: syncResponse.data.new_followers
+          }));
+          setInstagramAccount(prev => ({
+            ...prev,
+            followers_count: syncResponse.data.total_followers
+          }));
+          toast.success(syncResponse.data.message);
+        } else {
+          toast.info(syncResponse.data.message || 'Data is up to date');
+        }
+      } catch (syncError) {
+        console.error('Error syncing data:', syncError);
+        toast.error('Failed to refresh data');
+      }
     } finally {
       setRefreshingData(false);
     }
