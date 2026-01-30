@@ -193,7 +193,7 @@ async def oauth_callback(
     user_id = stored_state['user_id']
     
     try:
-        # Exchange code for short-lived access token
+        # Exchange code for access token using Instagram Business API
         async with httpx.AsyncClient(timeout=30.0) as client:
             token_response = await client.post(
                 "https://api.instagram.com/oauth/access_token",
@@ -211,53 +211,61 @@ async def oauth_callback(
                 raise HTTPException(status_code=400, detail="Failed to exchange authorization code")
             
             token_data = token_response.json()
-            short_lived_token = token_data.get("access_token")
+            access_token = token_data.get("access_token")
             instagram_user_id = token_data.get("user_id")
             
-            # Exchange for long-lived token (60 days)
+            # For Business API, try to get long-lived token
             long_lived_response = await client.get(
-                f"{GRAPH_API_BASE}/access_token",
+                f"https://graph.instagram.com/access_token",
                 params={
                     "grant_type": "ig_exchange_token",
                     "client_secret": INSTAGRAM_APP_SECRET,
-                    "access_token": short_lived_token
+                    "access_token": access_token
                 }
             )
             
-            if long_lived_response.status_code != 200:
-                logger.warning("Failed to get long-lived token, using short-lived")
-                access_token = short_lived_token
-                expires_in = 3600  # 1 hour
-            else:
+            if long_lived_response.status_code == 200:
                 long_lived_data = long_lived_response.json()
-                access_token = long_lived_data.get("access_token")
+                access_token = long_lived_data.get("access_token", access_token)
                 expires_in = long_lived_data.get("expires_in", 5184000)  # 60 days default
+            else:
+                logger.warning("Failed to get long-lived token, using short-lived")
+                expires_in = 3600  # 1 hour
             
-            # Fetch user profile using Basic Display API fields
-            # Basic Display API supports: id, username, account_type, media_count
+            # Fetch user profile using Instagram Business API
+            # Business API supports: id, username, name, biography, followers_count, etc.
             profile_response = await client.get(
-                f"{GRAPH_API_BASE}/me",
+                f"https://graph.instagram.com/v18.0/me",
                 params={
-                    "fields": "id,username,account_type,media_count",
+                    "fields": "id,username,name,biography,followers_count,follows_count,media_count,profile_picture_url,account_type",
                     "access_token": access_token
                 }
             )
             
             if profile_response.status_code != 200:
                 logger.error(f"Failed to fetch profile: {profile_response.text}")
-                raise HTTPException(status_code=400, detail="Failed to fetch Instagram profile")
+                # Try simpler fields
+                profile_response = await client.get(
+                    f"https://graph.instagram.com/v18.0/me",
+                    params={
+                        "fields": "id,username,account_type,media_count",
+                        "access_token": access_token
+                    }
+                )
+                if profile_response.status_code != 200:
+                    raise HTTPException(status_code=400, detail="Failed to fetch Instagram profile")
             
             profile_data = profile_response.json()
         
-        # Update or create Instagram account
+        # Update or create Instagram account with REAL data
         account_data = {
             "instagram_id": str(instagram_user_id),
             "username": profile_data.get("username", ""),
-            "name": profile_data.get("username", ""),  # Basic Display doesn't provide name
-            "biography": "",  # Not available in Basic Display
-            "profile_picture_url": "",  # Not available in Basic Display
-            "account_type": profile_data.get("account_type", "personal"),
-            "followers_count": 0,  # Not available in Basic Display
+            "name": profile_data.get("name", profile_data.get("username", "")),
+            "biography": profile_data.get("biography", ""),
+            "profile_picture_url": profile_data.get("profile_picture_url", ""),
+            "account_type": profile_data.get("account_type", "business"),
+            "followers_count": profile_data.get("followers_count", 0),
             "following_count": 0,  # Not available in Basic Display
             "posts_count": profile_data.get("media_count", 0),
             "access_token": access_token,
