@@ -151,9 +151,13 @@ const DashboardPage = () => {
         // No targeting
       }
       
-      // Set user settings
+      // Set user settings and AI analysis
       if (user) {
         setUserSettings({ name: user?.name || '' });
+        // Load AI analysis from user profile
+        if (user.ai_analysis) {
+          setAiAnalysis(user.ai_analysis);
+        }
       }
     } catch (error) {
       console.error('Error loading dashboard:', error);
