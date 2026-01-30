@@ -181,6 +181,7 @@ const AdminDashboard = () => {
           <Route path="/export" element={<AdminExport />} />
           <Route path="/social-links" element={<AdminSocialLinks />} />
           <Route path="/settings" element={<AdminSettings />} />
+          <Route path="/docs" element={<AdminDocumentation />} />
         </Routes>
       </main>
     </div>
