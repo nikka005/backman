@@ -33,17 +33,24 @@ const MobileNav = () => {
     if (item.path === '/pricing') {
       return location.pathname === '/pricing';
     }
-    if (item.tab) {
-      const params = new URLSearchParams(location.search);
-      const currentTab = params.get('tab') || 'overview';
-      return location.pathname === '/dashboard' && currentTab === item.tab;
+    if (location.pathname !== '/dashboard') {
+      return false;
     }
-    return location.pathname === '/dashboard' && !location.search;
+    const params = new URLSearchParams(location.search);
+    const currentTab = params.get('tab') || 'overview';
+    return currentTab === item.tab;
   };
 
   const handleNavClick = (item) => {
-    if (item.tab) {
-      navigate(`${item.path}?tab=${item.tab}`);
+    // Prevent navigation if already on the same tab
+    if (isActive(item)) {
+      return;
+    }
+    
+    if (item.path === '/pricing') {
+      navigate('/pricing');
+    } else if (item.tab) {
+      navigate(`/dashboard?tab=${item.tab}`, { replace: false });
     } else {
       navigate(item.path);
     }
