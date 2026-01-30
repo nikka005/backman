@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { aiOnboardingAPI } from '../services/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '../components/ui/card';
 import { Button } from '../components/ui/button';
@@ -14,6 +15,7 @@ import {
 } from 'lucide-react';
 
 export default function AIOnboardingRecommendations({ onComplete, onSkip }) {
+  const navigate = useNavigate();
   const [step, setStep] = useState(1); // 1: Input, 2: Loading, 3: Results
   const [loading, setLoading] = useState(false);
   const [applying, setApplying] = useState(false);
