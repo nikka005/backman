@@ -1067,6 +1067,69 @@ const DashboardPage = () => {
                 </div>
               </div>
 
+              {/* AI Insights Card */}
+              {aiAnalysis && (
+                <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-100 p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                        <Sparkles className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">AI Analysis Insights</h3>
+                        <p className="text-sm text-gray-500">Powered by Adverlyx Intelligence</p>
+                      </div>
+                    </div>
+                    <Badge className="bg-purple-100 text-purple-700">
+                      {aiAnalysis.confidence_level || 'Medium'} Confidence
+                    </Badge>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    {/* Analysis Summary */}
+                    <div className="p-4 bg-white/70 rounded-lg">
+                      <p className="text-sm text-gray-700">{aiAnalysis.analysis_summary || 'AI has analyzed your profile and optimized your targeting settings.'}</p>
+                    </div>
+                    
+                    {/* Key Insights Grid */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      <div className="p-3 bg-white/70 rounded-lg">
+                        <p className="text-xs text-gray-500 mb-1">Detected Niche</p>
+                        <p className="font-medium text-gray-900 capitalize">{aiAnalysis.niche || 'General'}</p>
+                      </div>
+                      <div className="p-3 bg-white/70 rounded-lg">
+                        <p className="text-xs text-gray-500 mb-1">Suggested Plan</p>
+                        <p className="font-medium text-gray-900 capitalize">{aiAnalysis.suggested_plan || 'Growth'}</p>
+                      </div>
+                      <div className="p-3 bg-white/70 rounded-lg">
+                        <p className="text-xs text-gray-500 mb-1">Growth Intensity</p>
+                        <p className="font-medium text-gray-900 capitalize">{aiAnalysis.growth_intensity || 'Moderate'}</p>
+                      </div>
+                      <div className="p-3 bg-white/70 rounded-lg">
+                        <p className="text-xs text-gray-500 mb-1">Analyzed</p>
+                        <p className="font-medium text-gray-900">{aiAnalysis.analyzed_at ? new Date(aiAnalysis.analyzed_at).toLocaleDateString() : 'Recently'}</p>
+                      </div>
+                    </div>
+                    
+                    {/* Growth Expectation */}
+                    {aiAnalysis.growth_expectation && (
+                      <div className="flex items-start gap-3 p-3 bg-green-50/70 rounded-lg border border-green-100">
+                        <TrendingUp className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                        <p className="text-sm text-green-700">{aiAnalysis.growth_expectation}</p>
+                      </div>
+                    )}
+                    
+                    {/* Plan Reason */}
+                    {aiAnalysis.plan_reason && (
+                      <div className="flex items-start gap-3 p-3 bg-blue-50/70 rounded-lg border border-blue-100">
+                        <Shield className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                        <p className="text-sm text-blue-700">{aiAnalysis.plan_reason}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Monthly Progress */}
               <div className="mt-6 bg-white rounded-xl border border-gray-100 p-6">
                 <div className="flex items-center justify-between mb-4">
