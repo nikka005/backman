@@ -404,9 +404,18 @@ const PricingPage = () => {
                           </span>
                           <span className="text-gray-500">/mo</span>
                         </div>
-                        {isYearly && (
-                          <p className="text-sm text-gray-400 line-through mt-1">
-                            ${plan.monthlyPrice}/mo
+                        {isYearly ? (
+                          <div className="mt-1">
+                            <p className="text-sm text-pink-600 font-medium">
+                              ${plan.yearlyPrice * 12}/year
+                            </p>
+                            <p className="text-xs text-gray-400 line-through">
+                              ${plan.monthlyPrice * 12}/year
+                            </p>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-gray-400 mt-1">
+                            Billed monthly
                           </p>
                         )}
                       </div>
