@@ -67,6 +67,8 @@ const DashboardPage = () => {
   // Settings state
   const [userSettings, setUserSettings] = useState({ name: '' });
   const [savingSettings, setSavingSettings] = useState(false);
+  const [refreshingData, setRefreshingData] = useState(false);
+  const [lastRefreshed, setLastRefreshed] = useState(null);
 
   // Default stats when no real data
   const defaultStats = {
