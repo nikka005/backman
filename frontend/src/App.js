@@ -11,6 +11,7 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import HowItWorksPage from './pages/HowItWorksPage';
 import PricingPage from './pages/PricingPage';
+import CheckoutPage from './pages/CheckoutPage';
 import CaseStudiesPage from './pages/CaseStudiesPage';
 import FAQPage from './pages/FAQPage';
 import DashboardPage from './pages/DashboardPage';
