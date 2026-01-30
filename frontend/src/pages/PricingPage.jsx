@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 import { publicAPI, paymentAPI } from '../services/api';
@@ -7,10 +7,12 @@ import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Switch } from '../components/ui/switch';
-import { Check, ChevronRight, Sparkles, HelpCircle, Loader2, Globe } from 'lucide-react';
+import { Check, ChevronRight, Sparkles, HelpCircle, Loader2, Globe, Star } from 'lucide-react';
+import { toast } from 'sonner';
 
 const PricingPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, isAuthenticated } = useAuth();
   const [isYearly, setIsYearly] = useState(true);
   const [plans, setPlans] = useState([]);
@@ -18,11 +20,27 @@ const PricingPage = () => {
   const [processingPlan, setProcessingPlan] = useState(null);
   const [userCountry, setUserCountry] = useState(null);
   const [paymentProvider, setPaymentProvider] = useState('stripe'); // 'stripe' or 'razorpay'
+  const [recommendedPlan, setRecommendedPlan] = useState(null);
+  const [fromAI, setFromAI] = useState(false);
 
   useEffect(() => {
     loadPlans();
     detectUserCountry();
-  }, []);
+    
+    // Check if coming from AI recommendation
+    const recommended = searchParams.get('recommended');
+    const from = searchParams.get('from');
+    if (recommended) {
+      setRecommendedPlan(recommended.toLowerCase());
+      if (from === 'ai') {
+        setFromAI(true);
+        toast.success('AI has recommended the best plan for your profile!', {
+          duration: 5000,
+          icon: '🎯'
+        });
+      }
+    }
+  }, [searchParams]);
 
   // Detect user's country for payment provider selection
   const detectUserCountry = async () => {
