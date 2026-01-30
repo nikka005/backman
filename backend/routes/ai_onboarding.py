@@ -361,7 +361,7 @@ async def apply_recommendations(
     update_data = {
         "niche": rec_settings.get('niche'),
         "hashtags": rec_settings.get('hashtags', []),
-        "similar_accounts": rec_settings.get('similar_accounts', []),
+        "competitor_accounts": rec_settings.get('similar_accounts', []),  # Map similar_accounts to competitor_accounts
         "locations": rec_settings.get('locations', []),
         "updated_at": datetime.now(timezone.utc).isoformat(),
         "ai_configured": True,
