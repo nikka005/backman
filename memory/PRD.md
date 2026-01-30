@@ -782,6 +782,45 @@ Adverlyx Digital is a full-stack SaaS platform for Instagram growth services (pl
   - UserResponse model now includes `ai_analysis` field
   - `/api/auth/me`, login, and refresh endpoints return AI analysis data
 
+---
+
+### Markdown Rendering Verification ✅ COMPLETE
+**Completed: January 30, 2026**
+
+- [x] Verified markdown rendering on AI Chat tab - **bold**, *italic*, lists working
+- [x] Verified markdown rendering on AI Analytics tab - insights display with proper formatting
+- [x] Verified markdown rendering on AI Risk Assessment tab - assessments formatted correctly
+- [x] All tabs use `ReactMarkdown` with `prose` styling for proper typography
+
+---
+
+### Instagram OAuth Flow Implementation ✅ COMPLETE
+**Completed: January 30, 2026**
+
+- [x] **Backend OAuth Endpoints** (`/app/backend/routes/instagram_graph_api.py`)
+  - `GET /api/instagram-api/oauth/authorize` - Generate Instagram OAuth URL with CSRF state
+  - `GET /api/instagram-api/oauth/callback` - Handle OAuth callback, exchange code for tokens
+  - `POST /api/instagram-api/oauth/refresh-token` - Refresh long-lived access tokens
+  - `GET /api/instagram-api/oauth/status` - Check OAuth connection status
+
+- [x] **Token Management**
+  - Short-lived token exchange for long-lived (60-day) tokens
+  - Token refresh endpoint for extending validity
+  - Secure storage in database with expiration tracking
+
+- [x] **Frontend OAuth UI** (`/app/frontend/src/pages/ConnectInstagramPage.jsx`)
+  - "Connect with Instagram" button with Instagram gradient colors
+  - "Recommended" badge indicating real data access
+  - Manual connection option as fallback
+  - OAuth callback handling with success/error messages
+
+- [x] **Admin Configuration Required**
+  - Set `INSTAGRAM_APP_ID`, `INSTAGRAM_APP_SECRET`, `INSTAGRAM_REDIRECT_URI` in environment
+  - Configure Facebook App at developers.facebook.com
+  - Add redirect URI to Facebook App OAuth settings
+
+**Note:** OAuth will show "not configured" error until admin sets up Facebook App credentials. Manual connection works as fallback.
+
 
 ## Test Credentials
 - **Admin:** `admin@adverlyx.com` / `Admin123!`
