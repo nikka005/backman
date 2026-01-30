@@ -1045,31 +1045,12 @@ const DashboardPage = () => {
                     </Button>
                   </div>
                   <div className="space-y-4">
-                    {Array.isArray(targetSettings) ? targetSettings.map((setting) => (
+                    {targetSettings.map((setting) => (
                       <div key={setting.label} className="flex items-start justify-between py-3 border-b border-gray-100 last:border-0">
                         <span className="text-sm text-gray-500">{setting.label}</span>
-                        <span className="text-sm font-medium text-gray-900 text-right max-w-[150px]">{setting.value}</span>
+                        <span className="text-sm font-medium text-gray-900 text-right max-w-[150px] truncate">{setting.value}</span>
                       </div>
-                    )) : (
-                      <>
-                        <div className="flex items-start justify-between py-3 border-b border-gray-100">
-                          <span className="text-sm text-gray-500">Niche</span>
-                          <span className="text-sm font-medium text-gray-900">Not configured</span>
-                        </div>
-                        <div className="flex items-start justify-between py-3 border-b border-gray-100">
-                          <span className="text-sm text-gray-500">Location</span>
-                          <span className="text-sm font-medium text-gray-900">Not configured</span>
-                        </div>
-                        <div className="flex items-start justify-between py-3 border-b border-gray-100">
-                          <span className="text-sm text-gray-500">Interests</span>
-                          <span className="text-sm font-medium text-gray-900">Not configured</span>
-                        </div>
-                        <div className="flex items-start justify-between py-3">
-                          <span className="text-sm text-gray-500">Competitors</span>
-                          <span className="text-sm font-medium text-gray-900">Not configured</span>
-                        </div>
-                      </>
-                    )}
+                    ))}
                   </div>
                   <div className="mt-6 p-4 bg-gradient-to-r from-orange-50 to-pink-50 rounded-xl">
                     <div className="flex items-center gap-2 mb-2">
