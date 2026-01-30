@@ -364,3 +364,122 @@ async def update_current_user(user_update: UserUpdate, current_user: dict = Depe
         created_at=datetime.fromisoformat(user_doc['created_at']) if isinstance(user_doc['created_at'], str) else user_doc['created_at'],
         last_login=datetime.fromisoformat(user_doc['last_login']) if user_doc.get('last_login') else None
     )
+
+
+
+# ============== Data Deletion ==============
+
+class DeletionRequest(BaseModel):
+    email: EmailStr
+
+
+@router.post("/request-deletion")
+async def request_data_deletion(request: DeletionRequest):
+    """
+    Request deletion of user data (GDPR/CCPA compliance).
+    This endpoint creates a deletion request that will be processed.
+    """
+    email = request.email.lower()
+    
+    # Check if user exists
+    user = await db.users.find_one({"email": email}, {"_id": 0, "password_hash": 0})
+    
+    # Create deletion request (even if user not found, for privacy)
+    deletion_request = {
+        "id": str(uuid.uuid4()),
+        "email": email,
+        "user_id": user.get("id") if user else None,
+        "status": "pending",
+        "requested_at": datetime.now(timezone.utc).isoformat(),
+        "processed_at": None,
+        "source": "web_form"
+    }
+    
+    await db.deletion_requests.insert_one(deletion_request)
+    
+    # Log the request
+    logger.info(f"Data deletion request received for email: {email}")
+    
+    return {
+        "message": "Deletion request submitted successfully",
+        "confirmation_id": deletion_request["id"],
+        "estimated_completion": "30 days"
+    }
+
+
+@router.post("/facebook/deletion-callback")
+async def facebook_deletion_callback(
+    signed_request: str = None
+):
+    """
+    Facebook Data Deletion Callback.
+    This endpoint is called by Facebook when a user requests data deletion.
+    Returns a confirmation code and URL for status checking.
+    """
+    import base64
+    import hmac
+    import hashlib
+    
+    if not signed_request:
+        raise HTTPException(status_code=400, detail="Missing signed_request")
+    
+    try:
+        # Parse the signed request from Facebook
+        encoded_sig, payload = signed_request.split('.', 2)
+        
+        # Decode payload
+        payload += '=' * (4 - len(payload) % 4)  # Add padding
+        data = json.loads(base64.urlsafe_b64decode(payload))
+        
+        user_id = data.get('user_id')
+        
+        if user_id:
+            # Create deletion request
+            confirmation_code = str(uuid.uuid4())[:8].upper()
+            
+            deletion_request = {
+                "id": str(uuid.uuid4()),
+                "facebook_user_id": user_id,
+                "confirmation_code": confirmation_code,
+                "status": "pending",
+                "requested_at": datetime.now(timezone.utc).isoformat(),
+                "source": "facebook_callback"
+            }
+            
+            await db.deletion_requests.insert_one(deletion_request)
+            
+            # Return the required Facebook response format
+            frontend_url = os.environ.get("FRONTEND_URL", "https://adverlyx.com")
+            return {
+                "url": f"{frontend_url}/data-deletion?code={confirmation_code}",
+                "confirmation_code": confirmation_code
+            }
+    except Exception as e:
+        logger.error(f"Facebook deletion callback error: {str(e)}")
+    
+    # Fallback response
+    return {
+        "url": os.environ.get("FRONTEND_URL", "https://adverlyx.com") + "/data-deletion",
+        "confirmation_code": "PENDING"
+    }
+
+
+@router.get("/deletion-status/{confirmation_code}")
+async def check_deletion_status(confirmation_code: str):
+    """
+    Check the status of a data deletion request.
+    """
+    request = await db.deletion_requests.find_one(
+        {"confirmation_code": confirmation_code.upper()},
+        {"_id": 0}
+    )
+    
+    if not request:
+        raise HTTPException(status_code=404, detail="Deletion request not found")
+    
+    return {
+        "status": request.get("status", "pending"),
+        "requested_at": request.get("requested_at"),
+        "processed_at": request.get("processed_at"),
+        "message": "Your data deletion request is being processed" if request.get("status") == "pending" else "Your data has been deleted"
+    }
