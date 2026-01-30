@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Progress } from '../components/ui/progress';
@@ -14,9 +14,11 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { instagramAPI, notificationsAPI, paymentAPI, ticketsAPI, authAPI } from '../services/api';
 import TwoFactorSettings from '../components/TwoFactorSettings';
+import { toast } from 'sonner';
 
 const DashboardPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout, isAuthenticated, loading: authLoading } = useAuth();
   const [isGrowthActive, setIsGrowthActive] = useState(true);
   const [instagramAccount, setInstagramAccount] = useState(null);
@@ -30,12 +32,14 @@ const DashboardPage = () => {
   
   // Handle tab from URL params (for mobile nav)
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(location.search);
     const tab = params.get('tab');
     if (tab && ['overview', 'billing', 'targeting', 'analytics', 'support', 'settings'].includes(tab)) {
       setActiveTab(tab);
+    } else if (!location.search && location.pathname === '/dashboard') {
+      setActiveTab('overview');
     }
-  }, []);
+  }, [location.search, location.pathname]);
   
   // Targeting state
   const [targeting, setTargeting] = useState({
@@ -76,13 +80,7 @@ const DashboardPage = () => {
     }
   }, [authLoading, isAuthenticated, navigate]);
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      loadDashboardData();
-    }
-  }, [isAuthenticated]);
-
-  const loadDashboardData = async () => {
+  const loadDashboardData = useCallback(async () => {
     try {
       setLoading(true);
       
