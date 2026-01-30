@@ -905,3 +905,174 @@ async def get_mock_growth_data(user_id: str, ig_account: dict) -> GrowthData:
             "detected_niche": detected_niche
         }
     )
+
+
+# ============== Real Data Refresh Endpoint ==============
+
+@router.post("/refresh-data")
+async def refresh_instagram_data(
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Refresh Instagram data from the API and update the database.
+    This fetches real data if OAuth is connected, otherwise returns current stored data.
+    """
+    user_id = current_user['user_id']
+    
+    # Get the Instagram account
+    account = await db.instagram_accounts.find_one(
+        {"user_id": user_id},
+        {"_id": 0}
+    )
+    
+    if not account:
+        raise HTTPException(status_code=404, detail="No Instagram account connected")
+    
+    # Check if OAuth connected with valid token
+    if account.get("oauth_connected") and account.get("access_token"):
+        token_expires = account.get("token_expires_at")
+        token_valid = False
+        
+        if token_expires:
+            try:
+                expires_at = datetime.fromisoformat(token_expires.replace('Z', '+00:00'))
+                token_valid = expires_at > datetime.now(timezone.utc)
+            except:
+                pass
+        
+        if token_valid:
+            try:
+                async with httpx.AsyncClient(timeout=30.0) as client:
+                    # Fetch fresh profile data
+                    profile_response = await client.get(
+                        f"{GRAPH_API_BASE}/me",
+                        params={
+                            "fields": "id,username,name,account_type,media_count,followers_count,follows_count,biography,profile_picture_url",
+                            "access_token": account["access_token"]
+                        }
+                    )
+                    
+                    if profile_response.status_code == 200:
+                        profile_data = profile_response.json()
+                        
+                        # Calculate engagement rate from recent posts
+                        engagement_rate = 0
+                        media_response = await client.get(
+                            f"{GRAPH_API_BASE}/me/media",
+                            params={
+                                "fields": "id,like_count,comments_count",
+                                "limit": 10,
+                                "access_token": account["access_token"]
+                            }
+                        )
+                        
+                        if media_response.status_code == 200:
+                            media_data = media_response.json()
+                            if media_data.get("data"):
+                                total_engagement = sum(
+                                    m.get("like_count", 0) + m.get("comments_count", 0) 
+                                    for m in media_data["data"]
+                                )
+                                followers = profile_data.get("followers_count", 1)
+                                if followers > 0 and len(media_data["data"]) > 0:
+                                    engagement_rate = (total_engagement / len(media_data["data"])) / followers * 100
+                        
+                        # Update database with fresh data
+                        update_data = {
+                            "username": profile_data.get("username", account.get("username")),
+                            "name": profile_data.get("name", ""),
+                            "biography": profile_data.get("biography", ""),
+                            "profile_picture_url": profile_data.get("profile_picture_url", ""),
+                            "followers_count": profile_data.get("followers_count", 0),
+                            "following_count": profile_data.get("follows_count", 0),
+                            "posts_count": profile_data.get("media_count", 0),
+                            "engagement_rate": round(engagement_rate, 2),
+                            "last_refreshed": datetime.now(timezone.utc).isoformat(),
+                            "updated_at": datetime.now(timezone.utc).isoformat()
+                        }
+                        
+                        await db.instagram_accounts.update_one(
+                            {"user_id": user_id},
+                            {"$set": update_data}
+                        )
+                        
+                        logger.info(f"Refreshed Instagram data for user {user_id}")
+                        
+                        return {
+                            "success": True,
+                            "data_source": "instagram_api",
+                            "username": update_data["username"],
+                            "followers_count": update_data["followers_count"],
+                            "following_count": update_data["following_count"],
+                            "posts_count": update_data["posts_count"],
+                            "engagement_rate": update_data["engagement_rate"],
+                            "last_refreshed": update_data["last_refreshed"],
+                            "message": "Data refreshed from Instagram API"
+                        }
+                    else:
+                        logger.warning(f"Failed to fetch profile: {profile_response.status_code}")
+                        
+            except Exception as e:
+                logger.error(f"Error refreshing Instagram data: {str(e)}")
+        
+        # Token expired or request failed - return stored data
+        return {
+            "success": True,
+            "data_source": "database",
+            "username": account.get("username"),
+            "followers_count": account.get("followers_count", 0),
+            "following_count": account.get("following_count", 0),
+            "posts_count": account.get("posts_count", 0),
+            "engagement_rate": account.get("engagement_rate", 0),
+            "last_refreshed": account.get("last_refreshed"),
+            "token_expired": not token_valid,
+            "message": "Token expired. Using cached data. Please reconnect Instagram."
+        }
+    
+    # Manual connection - return stored data
+    return {
+        "success": True,
+        "data_source": "manual",
+        "username": account.get("username"),
+        "followers_count": account.get("followers_count", 0),
+        "following_count": account.get("following_count", 0),
+        "posts_count": account.get("posts_count", 0),
+        "engagement_rate": account.get("engagement_rate", 0),
+        "message": "Manual connection. Connect via OAuth for real-time data."
+    }
+
+
+@router.get("/account-stats")
+async def get_account_stats(
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Get current Instagram account statistics.
+    Returns real data if OAuth connected, otherwise returns stored/simulated data.
+    """
+    user_id = current_user['user_id']
+    
+    account = await db.instagram_accounts.find_one(
+        {"user_id": user_id},
+        {"_id": 0, "access_token": 0}  # Don't return token
+    )
+    
+    if not account:
+        raise HTTPException(status_code=404, detail="No Instagram account connected")
+    
+    return {
+        "username": account.get("username"),
+        "name": account.get("name", ""),
+        "biography": account.get("biography", ""),
+        "profile_picture_url": account.get("profile_picture_url", ""),
+        "followers_count": account.get("followers_count", 0),
+        "following_count": account.get("following_count", 0),
+        "posts_count": account.get("posts_count", 0),
+        "engagement_rate": account.get("engagement_rate", 0),
+        "oauth_connected": account.get("oauth_connected", False),
+        "status": account.get("status", "active"),
+        "last_refreshed": account.get("last_refreshed"),
+        "created_at": account.get("created_at"),
+        "growth_paused": account.get("growth_paused", False)
+    }
+
