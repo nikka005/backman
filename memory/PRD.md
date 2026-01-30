@@ -697,6 +697,34 @@ Adverlyx Digital is a full-stack SaaS platform for Instagram growth services (pl
 
 ---
 
+### Mobile UI Bug Fixes ✅ COMPLETE
+**Completed: January 30, 2026**
+
+- [x] **Mobile Bottom Navigation Routing Fix**
+  - Fixed `MobileNav.jsx` navigation using React Router's `navigate()` function
+  - Improved `isActive` function to properly detect current tab from URL params
+  - Added prevention of redundant navigation when already on target tab
+  - All 5 nav items working: Home, Stats, Plans, Billing, Profile
+
+- [x] **Dashboard Tab URL Synchronization**
+  - Added `handleTabChange` helper function in `DashboardPage.jsx`
+  - Sidebar navigation now updates URL along with state
+  - Mobile horizontal tabs now update URL along with state
+  - URL format: `/dashboard?tab={tabname}` for proper deep linking
+
+- [x] **Targeting Save Functionality Fix**
+  - Verified targeting save API working correctly
+  - Success message "Targeting saved successfully!" displays on save
+  - Data persists after page reload
+  - Toast notification added via `sonner`
+  - Re-fetches targeting data after save to confirm changes
+
+- [x] **Testing & Quality Improvements**
+  - Added `data-testid` attributes to mobile horizontal tab buttons
+  - Testing agent verified all fixes at 100% pass rate
+  - Test report: `/app/test_reports/iteration_4.json`
+
+
 ## Test Credentials
 - **Admin:** `admin@adverlyx.com` / `Admin123!`
 - **User:** `demo@user.com` / `User123!`
