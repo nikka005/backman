@@ -18,6 +18,7 @@ export default function AIOnboardingRecommendations({ onComplete, onSkip }) {
   const [loading, setLoading] = useState(false);
   const [applying, setApplying] = useState(false);
   const [recommendation, setRecommendation] = useState(null);
+  const [error, setError] = useState('');
   
   // User inputs
   const [primaryGoal, setPrimaryGoal] = useState('creator_growth');
@@ -27,6 +28,7 @@ export default function AIOnboardingRecommendations({ onComplete, onSkip }) {
 
   const getRecommendations = async () => {
     setLoading(true);
+    setError('');
     setStep(2);
     
     try {
@@ -42,7 +44,8 @@ export default function AIOnboardingRecommendations({ onComplete, onSkip }) {
       setStep(3);
     } catch (error) {
       console.error('Failed to get recommendations:', error);
-      toast.error('Failed to get AI recommendations. Please try again.');
+      setError(error.response?.data?.detail || 'Failed to get AI recommendations. Please try again.');
+      toast.error('Failed to get AI recommendations');
       setStep(1);
     } finally {
       setLoading(false);
@@ -53,12 +56,14 @@ export default function AIOnboardingRecommendations({ onComplete, onSkip }) {
     if (!recommendation) return;
     
     setApplying(true);
+    setError('');
     try {
       await aiOnboardingAPI.applyRecommendations(recommendation.id);
       toast.success('AI recommendations applied successfully!');
       onComplete?.(recommendation);
     } catch (error) {
       console.error('Failed to apply recommendations:', error);
+      setError(error.response?.data?.detail || 'Failed to apply recommendations');
       toast.error('Failed to apply recommendations. Please try again.');
     } finally {
       setApplying(false);
@@ -68,105 +73,119 @@ export default function AIOnboardingRecommendations({ onComplete, onSkip }) {
   // Step 1: Input Form
   if (step === 1) {
     return (
-      <Card className="max-w-2xl mx-auto border-pink-200 shadow-lg">
-        <CardHeader className="text-center pb-2">
+      <Card className="w-full max-w-lg mx-auto border-pink-200 shadow-lg">
+        <CardHeader className="text-center pb-2 px-4 md:px-6">
           <div className="flex justify-center mb-3">
-            <div className="w-14 h-14 bg-gradient-to-br from-pink-500 to-purple-600 rounded-2xl flex items-center justify-center">
-              <Sparkles className="w-7 h-7 text-white" />
+            <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl md:rounded-2xl flex items-center justify-center">
+              <Sparkles className="w-6 h-6 md:w-7 md:h-7 text-white" />
             </div>
           </div>
-          <CardTitle className="text-xl">AI Growth Setup</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-lg md:text-xl">AI Growth Setup</CardTitle>
+          <CardDescription className="text-xs md:text-sm">
             Let our AI analyze your account and recommend optimal settings
           </CardDescription>
         </CardHeader>
         
-        <CardContent className="space-y-6 pt-4">
+        <CardContent className="space-y-4 md:space-y-6 pt-2 md:pt-4 px-4 md:px-6">
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
+              <p className="text-xs text-red-600">{error}</p>
+            </div>
+          )}
+          
           {/* Primary Goal */}
-          <div className="space-y-3">
-            <Label className="text-sm font-medium">What's your primary goal?</Label>
+          <div className="space-y-2 md:space-y-3">
+            <Label className="text-xs md:text-sm font-medium">What&apos;s your primary goal?</Label>
             <RadioGroup value={primaryGoal} onValueChange={setPrimaryGoal} className="grid grid-cols-1 gap-2">
-              <div className={`flex items-center space-x-3 p-3 rounded-lg border cursor-pointer transition-all ${primaryGoal === 'brand_awareness' ? 'border-pink-500 bg-pink-50' : 'hover:border-gray-300'}`}>
-                <RadioGroupItem value="brand_awareness" id="brand_awareness" />
-                <Label htmlFor="brand_awareness" className="flex-1 cursor-pointer">
-                  <span className="font-medium">Brand Awareness</span>
-                  <p className="text-xs text-gray-500">Increase visibility and reach</p>
-                </Label>
-              </div>
-              <div className={`flex items-center space-x-3 p-3 rounded-lg border cursor-pointer transition-all ${primaryGoal === 'leads_sales' ? 'border-pink-500 bg-pink-50' : 'hover:border-gray-300'}`}>
-                <RadioGroupItem value="leads_sales" id="leads_sales" />
-                <Label htmlFor="leads_sales" className="flex-1 cursor-pointer">
-                  <span className="font-medium">Leads & Sales</span>
-                  <p className="text-xs text-gray-500">Convert followers to customers</p>
-                </Label>
-              </div>
-              <div className={`flex items-center space-x-3 p-3 rounded-lg border cursor-pointer transition-all ${primaryGoal === 'creator_growth' ? 'border-pink-500 bg-pink-50' : 'hover:border-gray-300'}`}>
-                <RadioGroupItem value="creator_growth" id="creator_growth" />
-                <Label htmlFor="creator_growth" className="flex-1 cursor-pointer">
-                  <span className="font-medium">Creator Growth</span>
-                  <p className="text-xs text-gray-500">Build engaged audience</p>
-                </Label>
-              </div>
+              {[
+                { value: 'brand_awareness', label: 'Brand Awareness', desc: 'Increase visibility and reach' },
+                { value: 'leads_sales', label: 'Leads & Sales', desc: 'Convert followers to customers' },
+                { value: 'creator_growth', label: 'Creator Growth', desc: 'Build engaged audience' }
+              ].map((option) => (
+                <div 
+                  key={option.value}
+                  className={`flex items-center space-x-3 p-3 rounded-lg border cursor-pointer transition-all ${primaryGoal === option.value ? 'border-pink-500 bg-pink-50' : 'hover:border-gray-300'}`}
+                  onClick={() => setPrimaryGoal(option.value)}
+                >
+                  <RadioGroupItem value={option.value} id={option.value} />
+                  <Label htmlFor={option.value} className="flex-1 cursor-pointer">
+                    <span className="font-medium text-sm">{option.label}</span>
+                    <p className="text-[10px] md:text-xs text-gray-500">{option.desc}</p>
+                  </Label>
+                </div>
+              ))}
             </RadioGroup>
           </div>
 
           {/* Growth Urgency */}
-          <div className="space-y-3">
-            <Label className="text-sm font-medium">Growth approach preference</Label>
+          <div className="space-y-2 md:space-y-3">
+            <Label className="text-xs md:text-sm font-medium">Growth approach preference</Label>
             <RadioGroup value={growthUrgency} onValueChange={setGrowthUrgency} className="grid grid-cols-3 gap-2">
-              <div className={`flex flex-col items-center p-3 rounded-lg border cursor-pointer transition-all ${growthUrgency === 'slow_safe' ? 'border-pink-500 bg-pink-50' : 'hover:border-gray-300'}`}>
-                <RadioGroupItem value="slow_safe" id="slow_safe" className="sr-only" />
-                <Label htmlFor="slow_safe" className="cursor-pointer text-center">
-                  <Shield className="w-5 h-5 mx-auto mb-1 text-green-500" />
-                  <span className="text-sm font-medium">Slow & Safe</span>
-                </Label>
-              </div>
-              <div className={`flex flex-col items-center p-3 rounded-lg border cursor-pointer transition-all ${growthUrgency === 'balanced' ? 'border-pink-500 bg-pink-50' : 'hover:border-gray-300'}`}>
-                <RadioGroupItem value="balanced" id="balanced" className="sr-only" />
-                <Label htmlFor="balanced" className="cursor-pointer text-center">
-                  <Target className="w-5 h-5 mx-auto mb-1 text-blue-500" />
-                  <span className="text-sm font-medium">Balanced</span>
-                  <Badge className="mt-1 text-xs" variant="secondary">Recommended</Badge>
-                </Label>
-              </div>
-              <div className={`flex flex-col items-center p-3 rounded-lg border cursor-pointer transition-all ${growthUrgency === 'faster' ? 'border-pink-500 bg-pink-50' : 'hover:border-gray-300'}`}>
-                <RadioGroupItem value="faster" id="faster" className="sr-only" />
-                <Label htmlFor="faster" className="cursor-pointer text-center">
-                  <Zap className="w-5 h-5 mx-auto mb-1 text-orange-500" />
-                  <span className="text-sm font-medium">Faster</span>
-                </Label>
-              </div>
+              {[
+                { value: 'slow_safe', icon: Shield, label: 'Slow & Safe', color: 'text-green-500' },
+                { value: 'balanced', icon: Target, label: 'Balanced', color: 'text-blue-500', recommended: true },
+                { value: 'faster', icon: Zap, label: 'Faster', color: 'text-orange-500' }
+              ].map((option) => (
+                <div 
+                  key={option.value}
+                  className={`flex flex-col items-center p-2 md:p-3 rounded-lg border cursor-pointer transition-all ${growthUrgency === option.value ? 'border-pink-500 bg-pink-50' : 'hover:border-gray-300'}`}
+                  onClick={() => setGrowthUrgency(option.value)}
+                >
+                  <RadioGroupItem value={option.value} id={option.value} className="sr-only" />
+                  <option.icon className={`w-4 h-4 md:w-5 md:h-5 mb-1 ${option.color}`} />
+                  <span className="text-[10px] md:text-sm font-medium text-center">{option.label}</span>
+                  {option.recommended && (
+                    <Badge className="mt-1 text-[8px] md:text-xs px-1 py-0" variant="secondary">Best</Badge>
+                  )}
+                </div>
+              ))}
             </RadioGroup>
           </div>
 
           {/* Optional Fields */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Target Country (optional)</Label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+            <div className="space-y-1 md:space-y-2">
+              <Label className="text-xs md:text-sm font-medium">Target Country (optional)</Label>
               <Input 
                 placeholder="e.g., USA, UK" 
                 value={targetCountry}
                 onChange={(e) => setTargetCountry(e.target.value)}
+                className="h-10 text-sm"
               />
             </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Competitors (optional)</Label>
+            <div className="space-y-1 md:space-y-2">
+              <Label className="text-xs md:text-sm font-medium">Competitors (optional)</Label>
               <Input 
                 placeholder="@account1, @account2" 
                 value={competitors}
                 onChange={(e) => setCompetitors(e.target.value)}
+                className="h-10 text-sm"
               />
             </div>
           </div>
         </CardContent>
         
-        <CardFooter className="flex justify-between pt-4 border-t">
-          <Button variant="ghost" onClick={onSkip}>
+        <CardFooter className="flex flex-col sm:flex-row justify-between gap-2 pt-4 border-t px-4 md:px-6 pb-4">
+          <Button variant="ghost" onClick={onSkip} className="w-full sm:w-auto order-2 sm:order-1">
             Skip for now
           </Button>
-          <Button onClick={getRecommendations} className="bg-gradient-to-r from-pink-500 to-purple-600">
-            Get AI Recommendations
-            <ChevronRight className="w-4 h-4 ml-1" />
+          <Button 
+            onClick={getRecommendations} 
+            className="w-full sm:w-auto bg-gradient-to-r from-pink-500 to-purple-600 order-1 sm:order-2"
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin mr-1" />
+                Analyzing...
+              </>
+            ) : (
+              <>
+                Get AI Recommendations
+                <ChevronRight className="w-4 h-4 ml-1" />
+              </>
+            )}
           </Button>
         </CardFooter>
       </Card>
