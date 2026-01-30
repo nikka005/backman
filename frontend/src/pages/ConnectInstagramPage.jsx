@@ -239,9 +239,12 @@ const ConnectInstagramPage = () => {
                   data-testid="instagram-username-input"
                 />
               </div>
-              <p className="text-xs text-gray-500 mt-2">
-                Manual mode uses simulated data for demo purposes
-              </p>
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mt-3">
+                <p className="text-xs text-yellow-800">
+                  <strong>Note:</strong> Manual mode uses simulated follower counts for demo purposes. 
+                  Real Instagram data requires Meta API approval.
+                </p>
+              </div>
             </div>
 
             {/* Security Features */}
@@ -267,13 +270,13 @@ const ConnectInstagramPage = () => {
                 </>
               ) : (
                 <>
-                  Connect Manually
+                  Connect (Demo Mode)
                   <ArrowRight className="w-5 h-5" />
                 </>
               )}
             </Button>
             <p className="text-xs text-center text-gray-500 mt-2">
-              Uses simulated data for testing
+              Simulated data for demonstration
             </p>
             
             {/* AI Setup Hint */}
