@@ -86,6 +86,7 @@ class UserResponse(BaseModel):
     email_verified: bool
     created_at: datetime
     last_login: Optional[datetime] = None
+    ai_analysis: Optional[dict] = None
 
 
 class TokenResponse(BaseModel):
