@@ -139,10 +139,11 @@ async def get_oauth_authorization_url(
         "expires_at": (datetime.now(timezone.utc) + timedelta(minutes=10)).isoformat()
     })
     
-    # Build OAuth URL for Instagram Business Login
-    scopes = "instagram_business_basic,instagram_business_manage_messages,instagram_business_manage_comments,instagram_business_content_publish"
+    # Build OAuth URL for Instagram Basic Display API
+    # Scopes: user_profile (required), user_media (optional for media access)
+    scopes = "user_profile,user_media"
     auth_url = (
-        f"https://www.instagram.com/oauth/authorize"
+        f"https://api.instagram.com/oauth/authorize"
         f"?client_id={INSTAGRAM_APP_ID}"
         f"&redirect_uri={INSTAGRAM_REDIRECT_URI}"
         f"&scope={scopes}"
