@@ -3,12 +3,17 @@ Instagram Graph API Integration
 Real data fetching for AI-powered growth recommendations
 """
 from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
 from datetime import datetime, timezone, timedelta
 import httpx
 import logging
 import os
+import uuid
+
+# Import authentication dependency
+from .auth import get_current_user
 
 logger = logging.getLogger(__name__)
 
