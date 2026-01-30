@@ -266,7 +266,7 @@ async def oauth_callback(
             "profile_picture_url": profile_data.get("profile_picture_url", ""),
             "account_type": profile_data.get("account_type", "business"),
             "followers_count": profile_data.get("followers_count", 0),
-            "following_count": 0,  # Not available in Basic Display
+            "following_count": profile_data.get("follows_count", 0),
             "posts_count": profile_data.get("media_count", 0),
             "access_token": access_token,
             "token_expires_at": (datetime.now(timezone.utc) + timedelta(seconds=expires_in)).isoformat(),
