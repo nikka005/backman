@@ -29,6 +29,7 @@ const DashboardPage = () => {
   const [paymentHistory, setPaymentHistory] = useState([]);
   const [activeTab, setActiveTab] = useState('overview');
   const [cancellingSubscription, setCancellingSubscription] = useState(false);
+  const [aiAnalysis, setAiAnalysis] = useState(null);
   
   // Handle tab from URL params (for mobile nav)
   useEffect(() => {
