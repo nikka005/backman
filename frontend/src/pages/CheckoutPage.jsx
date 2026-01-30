@@ -242,7 +242,7 @@ const CheckoutPage = () => {
     }
   };
   
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-pink-500" />
