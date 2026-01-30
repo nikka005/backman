@@ -69,7 +69,7 @@ const ConnectInstagramPage = () => {
   // Show AI Onboarding if connection is complete
   if (showAIOnboarding) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-orange-700 flex items-center justify-center p-8">
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-orange-700 flex items-center justify-center p-4 md:p-8">
         <AIOnboardingRecommendations 
           onComplete={handleAIOnboardingComplete}
           onSkip={handleAIOnboardingSkip}
@@ -91,27 +91,27 @@ const ConnectInstagramPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-orange-700 flex">
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-orange-700 flex flex-col lg:flex-row">
       {/* Left Side - Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
-        <div className="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl">
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Instagram className="w-8 h-8 text-white" />
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-4 md:p-8 min-h-screen lg:min-h-0">
+        <div className="bg-white rounded-2xl md:rounded-3xl p-6 md:p-8 w-full max-w-md shadow-2xl">
+          <div className="text-center mb-6 md:mb-8">
+            <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl md:rounded-2xl flex items-center justify-center mx-auto mb-3 md:mb-4">
+              <Instagram className="w-7 h-7 md:w-8 md:h-8 text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Connect Instagram</h1>
-            <p className="text-gray-500">Link your account to start growing</p>
+            <h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-1 md:mb-2">Connect Instagram</h1>
+            <p className="text-gray-500 text-sm md:text-base">Link your account to start growing</p>
           </div>
 
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3">
+            <div className="mb-4 md:mb-6 p-3 md:p-4 bg-red-50 border border-red-200 rounded-lg md:rounded-xl flex items-center gap-2 md:gap-3">
               <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0" />
-              <p className="text-sm text-red-600">{error}</p>
+              <p className="text-xs md:text-sm text-red-600">{error}</p>
             </div>
           )}
 
           <form onSubmit={handleConnect}>
-            <div className="mb-6">
+            <div className="mb-4 md:mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Instagram Username
               </label>
@@ -132,24 +132,25 @@ const ConnectInstagramPage = () => {
             </div>
 
             {/* Security Features */}
-            <div className="grid grid-cols-3 gap-3 mb-6">
+            <div className="grid grid-cols-3 gap-2 md:gap-3 mb-4 md:mb-6">
               {features.map((feature) => (
-                <div key={feature.title} className="text-center p-3 bg-gray-50 rounded-xl">
-                  <feature.icon className="w-5 h-5 text-green-500 mx-auto mb-1" />
-                  <p className="text-xs font-medium text-gray-900">{feature.title}</p>
+                <div key={feature.title} className="text-center p-2 md:p-3 bg-gray-50 rounded-lg md:rounded-xl">
+                  <feature.icon className="w-4 h-4 md:w-5 md:h-5 text-green-500 mx-auto mb-1" />
+                  <p className="text-[10px] md:text-xs font-medium text-gray-900">{feature.title}</p>
                 </div>
               ))}
             </div>
 
             {/* Terms Checkbox */}
-            <div className="flex items-start gap-3 mb-6">
+            <div className="flex items-start gap-2 md:gap-3 mb-4 md:mb-6">
               <Checkbox
                 id="terms"
                 checked={agreedToTerms}
                 onCheckedChange={setAgreedToTerms}
                 data-testid="agree-terms-checkbox"
+                className="mt-0.5"
               />
-              <label htmlFor="terms" className="text-sm text-gray-600 leading-tight cursor-pointer">
+              <label htmlFor="terms" className="text-xs md:text-sm text-gray-600 leading-tight cursor-pointer">
                 I understand that Adverlyx uses organic growth methods and accept the{' '}
                 <Link to="/terms" className="text-pink-600 hover:underline">Terms of Service</Link>
               </label>
@@ -158,7 +159,7 @@ const ConnectInstagramPage = () => {
             <Button
               type="submit"
               disabled={loading || !agreedToTerms}
-              className="w-full h-12 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-xl font-semibold gap-2"
+              className="w-full h-11 md:h-12 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-xl font-semibold gap-2"
               data-testid="connect-instagram-btn"
             >
               {loading ? (
@@ -175,19 +176,19 @@ const ConnectInstagramPage = () => {
             </Button>
             
             {/* AI Setup Hint */}
-            <div className="flex items-center justify-center gap-2 mt-3 text-xs text-gray-500">
-              <Sparkles className="w-3.5 h-3.5 text-pink-500" />
+            <div className="flex items-center justify-center gap-2 mt-3 text-[10px] md:text-xs text-gray-500">
+              <Sparkles className="w-3 h-3 md:w-3.5 md:h-3.5 text-pink-500" />
               <span>AI will recommend optimal settings after connection</span>
             </div>
           </form>
 
-          <p className="text-center text-xs text-gray-400 mt-6">
+          <p className="text-center text-[10px] md:text-xs text-gray-400 mt-4 md:mt-6">
             By connecting, you agree to our privacy policy
           </p>
         </div>
       </div>
 
-      {/* Right Side - Benefits */}
+      {/* Right Side - Benefits (hidden on mobile) */}
       <div className="hidden lg:flex w-1/2 items-center justify-center p-8">
         <div className="max-w-lg">
           <h2 className="text-4xl font-bold text-white mb-4">
