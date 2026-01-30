@@ -41,6 +41,12 @@ const DashboardPage = () => {
     }
   }, [location.search, location.pathname]);
   
+  // Helper function to change tabs and update URL consistently
+  const handleTabChange = (newTab) => {
+    setActiveTab(newTab);
+    navigate(`/dashboard?tab=${newTab}`, { replace: true });
+  };
+  
   // Targeting state
   const [targeting, setTargeting] = useState({
     niche: '',
