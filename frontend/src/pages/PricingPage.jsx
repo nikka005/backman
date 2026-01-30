@@ -235,22 +235,10 @@ const PricingPage = () => {
       return;
     }
 
-    setProcessingPlan(plan.slug);
-
-    try {
-      const packageId = `${plan.slug}_${isYearly ? 'yearly' : 'monthly'}`;
-      
-      // Choose payment provider based on user's country
-      if (paymentProvider === 'razorpay') {
-        await handleRazorpayPayment(plan, packageId);
-      } else {
-        await handleStripePayment(plan, packageId);
-      }
-    } catch (error) {
-      console.error('Error creating checkout:', error);
-      alert('Failed to start checkout. Please try again.');
-      setProcessingPlan(null);
-    }
+    // Redirect to checkout page with plan details
+    const billingCycle = isYearly ? 'yearly' : 'monthly';
+    const fromParam = fromAI ? '&from=ai' : '';
+    navigate(`/checkout?plan=${plan.slug}&billing=${billingCycle}${fromParam}`);
   };
 
   // Transform feature matrix to comparison format
