@@ -740,7 +740,7 @@ Core platform configuration.
       {filteredSections.length === 0 && (
         <div className="text-center py-12 bg-white rounded-xl border">
           <Search className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500">No documentation found for "{searchTerm}"</p>
+          <p className="text-gray-500">No documentation found for &quot;{searchTerm}&quot;</p>
         </div>
       )}
     </div>
