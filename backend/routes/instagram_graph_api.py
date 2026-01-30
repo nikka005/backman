@@ -140,8 +140,8 @@ async def get_oauth_authorization_url(
     })
     
     # Build OAuth URL for Instagram Business Login API
-    # Scopes for Business/Creator accounts
-    scopes = "instagram_business_basic,instagram_business_manage_insights"
+    # Using only basic scope for initial connection
+    scopes = "instagram_business_basic"
     auth_url = (
         f"https://www.instagram.com/oauth/authorize"
         f"?client_id={INSTAGRAM_APP_ID}"
