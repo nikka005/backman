@@ -169,6 +169,21 @@ const ConnectInstagramPage = () => {
             </div>
           )}
 
+          {/* Terms Checkbox - Must accept before connecting */}
+          <div className="flex items-start gap-2 md:gap-3 mb-6 p-4 bg-gray-50 rounded-xl">
+            <Checkbox
+              id="terms"
+              checked={agreedToTerms}
+              onCheckedChange={setAgreedToTerms}
+              data-testid="agree-terms-checkbox"
+              className="mt-0.5"
+            />
+            <label htmlFor="terms" className="text-xs md:text-sm text-gray-600 leading-tight cursor-pointer">
+              I understand that Adverlyx uses organic growth methods and accept the{' '}
+              <Link to="/terms" className="text-pink-600 hover:underline">Terms of Service</Link>
+            </label>
+          </div>
+
           {/* OAuth Connect Button - Recommended */}
           <div className="mb-6">
             <Button
