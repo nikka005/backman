@@ -414,7 +414,7 @@ const DashboardPage = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="lg:ml-64 pb-20 lg:pb-0">
+      <main className="lg:ml-64 pb-4 lg:pb-0">
         {/* Header */}
         <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
           <div className="flex items-center justify-between px-4 lg:px-6 py-4">
