@@ -195,16 +195,16 @@ export default function AIOnboardingRecommendations({ onComplete, onSkip }) {
   // Step 2: Loading
   if (step === 2) {
     return (
-      <Card className="max-w-2xl mx-auto border-pink-200 shadow-lg">
-        <CardContent className="py-16 text-center">
-          <div className="flex justify-center mb-6">
-            <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-2xl flex items-center justify-center animate-pulse">
-              <Sparkles className="w-8 h-8 text-white" />
+      <Card className="w-full max-w-lg mx-auto border-pink-200 shadow-lg">
+        <CardContent className="py-12 md:py-16 text-center px-4">
+          <div className="flex justify-center mb-4 md:mb-6">
+            <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl md:rounded-2xl flex items-center justify-center animate-pulse">
+              <Sparkles className="w-7 h-7 md:w-8 md:h-8 text-white" />
             </div>
           </div>
-          <Loader2 className="w-8 h-8 animate-spin text-pink-500 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Analyzing Your Account</h3>
-          <p className="text-gray-500 text-sm">
+          <Loader2 className="w-6 h-6 md:w-8 md:h-8 animate-spin text-pink-500 mx-auto mb-3 md:mb-4" />
+          <h3 className="text-base md:text-lg font-semibold mb-2">Analyzing Your Account</h3>
+          <p className="text-gray-500 text-xs md:text-sm px-4">
             Our AI is reviewing your profile and creating personalized recommendations...
           </p>
         </CardContent>
@@ -217,41 +217,41 @@ export default function AIOnboardingRecommendations({ onComplete, onSkip }) {
     const { recommended_settings, suggested_plan, plan_reason, confidence_level, growth_expectation, safety_notes, ai_analysis_summary, can_edit } = recommendation;
     
     return (
-      <Card className="max-w-2xl mx-auto border-pink-200 shadow-lg">
-        <CardHeader className="pb-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
-                <Check className="w-6 h-6 text-white" />
+      <Card className="w-full max-w-lg mx-auto border-pink-200 shadow-lg max-h-[85vh] overflow-y-auto">
+        <CardHeader className="pb-2 px-4 md:px-6">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0">
+                <Check className="w-5 h-5 md:w-6 md:h-6 text-white" />
               </div>
               <div>
-                <CardTitle className="text-lg">Your AI Growth Setup is Ready</CardTitle>
+                <CardTitle className="text-base md:text-lg">AI Growth Setup Ready</CardTitle>
                 <div className="flex items-center gap-2 mt-1">
-                  <Badge variant={confidence_level === 'high' ? 'default' : 'secondary'}>
+                  <Badge variant={confidence_level === 'high' ? 'default' : 'secondary'} className="text-[10px] md:text-xs">
                     {confidence_level} confidence
                   </Badge>
                 </div>
               </div>
             </div>
-            <Button variant="ghost" size="sm" onClick={() => setStep(1)}>
-              <Edit3 className="w-4 h-4 mr-1" />
-              Redo
+            <Button variant="ghost" size="sm" onClick={() => setStep(1)} className="flex-shrink-0 h-8 px-2">
+              <Edit3 className="w-3 h-3 md:w-4 md:h-4" />
+              <span className="ml-1 text-xs hidden sm:inline">Redo</span>
             </Button>
           </div>
         </CardHeader>
         
-        <CardContent className="space-y-5 pt-4">
+        <CardContent className="space-y-3 md:space-y-4 pt-2 md:pt-4 px-4 md:px-6">
           {/* AI Summary */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <p className="text-sm text-gray-700">{ai_analysis_summary}</p>
+          <div className="bg-gray-50 rounded-lg p-3">
+            <p className="text-xs md:text-sm text-gray-700">{ai_analysis_summary}</p>
           </div>
 
           {/* Detected Niche */}
-          <div className="flex items-center gap-3 p-3 bg-pink-50 rounded-lg">
-            <Target className="w-5 h-5 text-pink-500" />
+          <div className="flex items-center gap-2 md:gap-3 p-2 md:p-3 bg-pink-50 rounded-lg">
+            <Target className="w-4 h-4 md:w-5 md:h-5 text-pink-500 flex-shrink-0" />
             <div>
-              <p className="text-xs text-gray-500">Detected Niche</p>
-              <p className="font-medium capitalize">{recommended_settings.niche}</p>
+              <p className="text-[10px] md:text-xs text-gray-500">Detected Niche</p>
+              <p className="font-medium text-sm capitalize">{recommended_settings.niche}</p>
             </div>
           </div>
 
@@ -259,12 +259,12 @@ export default function AIOnboardingRecommendations({ onComplete, onSkip }) {
           {recommended_settings.hashtags?.length > 0 && (
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Hash className="w-4 h-4 text-blue-500" />
-                <span className="text-sm font-medium">Recommended Hashtags</span>
+                <Hash className="w-3 h-3 md:w-4 md:h-4 text-blue-500" />
+                <span className="text-xs md:text-sm font-medium">Recommended Hashtags</span>
               </div>
-              <div className="flex flex-wrap gap-2">
-                {recommended_settings.hashtags.map((tag, i) => (
-                  <Badge key={i} variant="outline" className="text-xs">#{tag}</Badge>
+              <div className="flex flex-wrap gap-1 md:gap-2">
+                {recommended_settings.hashtags.slice(0, 8).map((tag, i) => (
+                  <Badge key={i} variant="outline" className="text-[10px] md:text-xs">#{tag}</Badge>
                 ))}
               </div>
             </div>
@@ -274,84 +274,69 @@ export default function AIOnboardingRecommendations({ onComplete, onSkip }) {
           {recommended_settings.similar_accounts?.length > 0 && (
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Users className="w-4 h-4 text-purple-500" />
-                <span className="text-sm font-medium">Similar Accounts to Target</span>
+                <Users className="w-3 h-3 md:w-4 md:h-4 text-purple-500" />
+                <span className="text-xs md:text-sm font-medium">Similar Accounts</span>
               </div>
-              <div className="flex flex-wrap gap-2">
-                {recommended_settings.similar_accounts.map((account, i) => (
-                  <Badge key={i} variant="secondary" className="text-xs">@{account}</Badge>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Locations */}
-          {recommended_settings.locations?.length > 0 && (
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <MapPin className="w-4 h-4 text-green-500" />
-                <span className="text-sm font-medium">Target Locations</span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {recommended_settings.locations.map((loc, i) => (
-                  <Badge key={i} variant="outline" className="text-xs">{loc}</Badge>
+              <div className="flex flex-wrap gap-1 md:gap-2">
+                {recommended_settings.similar_accounts.slice(0, 5).map((account, i) => (
+                  <Badge key={i} variant="secondary" className="text-[10px] md:text-xs">@{account}</Badge>
                 ))}
               </div>
             </div>
           )}
 
           {/* Growth Intensity */}
-          <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
-            <TrendingUp className="w-5 h-5 text-blue-500" />
+          <div className="flex items-center gap-2 md:gap-3 p-2 md:p-3 bg-blue-50 rounded-lg">
+            <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-blue-500 flex-shrink-0" />
             <div>
-              <p className="text-xs text-gray-500">Growth Intensity</p>
-              <p className="font-medium capitalize">{recommended_settings.growth_intensity}</p>
+              <p className="text-[10px] md:text-xs text-gray-500">Growth Intensity</p>
+              <p className="font-medium text-sm capitalize">{recommended_settings.growth_intensity}</p>
             </div>
           </div>
 
           {/* Plan Recommendation */}
-          <div className="border rounded-lg p-4 bg-gradient-to-r from-pink-50 to-purple-50">
-            <div className="flex items-start gap-3">
-              <Crown className="w-5 h-5 text-yellow-500 mt-0.5" />
-              <div className="flex-1">
-                <p className="text-xs text-gray-500">Recommended Plan</p>
-                <p className="font-semibold capitalize text-lg">{suggested_plan} Plan</p>
-                <p className="text-sm text-gray-600 mt-1">{plan_reason}</p>
+          <div className="border rounded-lg p-3 md:p-4 bg-gradient-to-r from-pink-50 to-purple-50">
+            <div className="flex items-start gap-2 md:gap-3">
+              <Crown className="w-4 h-4 md:w-5 md:h-5 text-yellow-500 mt-0.5 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] md:text-xs text-gray-500">Recommended Plan</p>
+                <p className="font-semibold capitalize text-base md:text-lg">{suggested_plan} Plan</p>
+                <p className="text-xs md:text-sm text-gray-600 mt-1">{plan_reason}</p>
               </div>
             </div>
           </div>
 
           {/* Growth Expectation */}
-          <div className="bg-gray-50 rounded-lg p-3">
+          <div className="bg-gray-50 rounded-lg p-2 md:p-3">
             <div className="flex items-start gap-2">
-              <AlertCircle className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
-              <p className="text-xs text-gray-600">{growth_expectation}</p>
+              <AlertCircle className="w-3 h-3 md:w-4 md:h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+              <p className="text-[10px] md:text-xs text-gray-600">{growth_expectation}</p>
             </div>
           </div>
 
           {/* Safety Note */}
-          <div className="flex items-center gap-2 text-xs text-gray-500">
-            <Shield className="w-4 h-4 text-green-500" />
+          <div className="flex items-center gap-2 text-[10px] md:text-xs text-gray-500">
+            <Shield className="w-3 h-3 md:w-4 md:h-4 text-green-500 flex-shrink-0" />
             <span>{safety_notes}</span>
           </div>
         </CardContent>
         
-        <CardFooter className="flex justify-between pt-4 border-t">
-          <Button variant="outline" onClick={onSkip}>
+        <CardFooter className="flex flex-col sm:flex-row justify-between gap-2 pt-4 border-t px-4 md:px-6 pb-4">
+          <Button variant="outline" onClick={onSkip} className="w-full sm:w-auto order-2 sm:order-1">
             <X className="w-4 h-4 mr-1" />
             Skip
           </Button>
-          <div className="flex gap-2">
+          <div className="flex gap-2 w-full sm:w-auto order-1 sm:order-2">
             {can_edit && (
-              <Button variant="outline" onClick={() => onComplete?.(recommendation)}>
+              <Button variant="outline" onClick={() => onComplete?.(recommendation)} className="flex-1 sm:flex-none">
                 <Edit3 className="w-4 h-4 mr-1" />
-                Customize
+                <span className="hidden sm:inline">Customize</span>
               </Button>
             )}
             <Button 
               onClick={applyRecommendations} 
               disabled={applying}
-              className="bg-gradient-to-r from-pink-500 to-purple-600"
+              className="flex-1 sm:flex-none bg-gradient-to-r from-pink-500 to-purple-600"
             >
               {applying ? (
                 <Loader2 className="w-4 h-4 animate-spin mr-1" />
