@@ -98,19 +98,77 @@ const Navbar = () => {
               ))}
             </div>
 
-            {/* CTA Buttons */}
+            {/* CTA Buttons / User Menu */}
             <div className="hidden md:flex items-center gap-3">
-              <Link to="/login">
-                <Button variant="ghost" className="text-gray-700 hover:text-gray-900">
-                  Log In
-                </Button>
-              </Link>
-              <Link to="/signup">
-                <Button className="bg-gray-900 hover:bg-gray-800 text-white rounded-full px-6 group">
-                  Get Started
-                  <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-0.5 transition-transform" />
-                </Button>
-              </Link>
+              {isAuthenticated ? (
+                <div className="relative">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsUserMenuOpen(!isUserMenuOpen);
+                    }}
+                    className="flex items-center gap-2 px-3 py-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+                    data-testid="user-menu-btn"
+                  >
+                    <div className="w-8 h-8 bg-gradient-to-br from-orange-400 via-pink-500 to-purple-600 rounded-full flex items-center justify-center">
+                      <span className="text-white font-medium text-sm">
+                        {user?.name?.charAt(0) || user?.email?.charAt(0) || 'U'}
+                      </span>
+                    </div>
+                    <span className="text-sm font-medium text-gray-700 max-w-24 truncate">
+                      {user?.name || 'User'}
+                    </span>
+                  </button>
+                  
+                  {/* User Dropdown Menu */}
+                  {isUserMenuOpen && (
+                    <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50" data-testid="user-dropdown">
+                      <div className="px-4 py-2 border-b border-gray-100">
+                        <p className="text-sm font-medium text-gray-900 truncate">{user?.name || 'User'}</p>
+                        <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                      </div>
+                      {userMenuLinks.map((link) => {
+                        const Icon = link.icon;
+                        return (
+                          <Link
+                            key={link.name}
+                            to={link.path}
+                            className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                            onClick={() => setIsUserMenuOpen(false)}
+                          >
+                            <Icon className="w-4 h-4 text-gray-400" />
+                            {link.name}
+                          </Link>
+                        );
+                      })}
+                      <div className="border-t border-gray-100 mt-1 pt-1">
+                        <button
+                          onClick={handleLogout}
+                          className="flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left"
+                          data-testid="logout-btn"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          Log Out
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <>
+                  <Link to="/login">
+                    <Button variant="ghost" className="text-gray-700 hover:text-gray-900">
+                      Log In
+                    </Button>
+                  </Link>
+                  <Link to="/signup">
+                    <Button className="bg-gray-900 hover:bg-gray-800 text-white rounded-full px-6 group">
+                      Get Started
+                      <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-0.5 transition-transform" />
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
 
             {/* Mobile Menu Button */}
