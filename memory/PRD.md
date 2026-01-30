@@ -724,6 +724,39 @@ Adverlyx Digital is a full-stack SaaS platform for Instagram growth services (pl
   - Testing agent verified all fixes at 100% pass rate
   - Test report: `/app/test_reports/iteration_4.json`
 
+---
+
+### Professional Checkout Page & Coupon System ✅ COMPLETE
+**Completed: January 30, 2026**
+
+- [x] **Professional Checkout Page** (`/app/frontend/src/pages/CheckoutPage.jsx`)
+  - New route: `/checkout?plan={slug}&billing={monthly|yearly}`
+  - Shows plan summary with features
+  - Coupon code input with Apply/Remove functionality
+  - Payment method selection (Stripe or Razorpay)
+  - Order summary with discount calculations
+  - 30-day money back guarantee badge
+  - Auto-detects user country for payment method recommendation
+  - Test report: `/app/test_reports/iteration_5.json`
+
+- [x] **Coupon System**
+  - Backend API: `POST /api/payments/coupon/validate`
+  - Test coupons: WELCOME20 (20%), ADVERLYX10 (10%), FIRST50 (50%), GROWTH25 (25%)
+  - Supports: expiration dates, max uses, plan restrictions
+  - Real-time discount calculation on checkout page
+
+- [x] **Admin Coupon Management** (`/app/frontend/src/pages/admin/AdminCoupons.jsx`)
+  - Full CRUD operations for coupons
+  - Stats dashboard: Total coupons, Active, Total Uses, Avg Discount
+  - Create/Edit form with: Code, Description, Discount %, Max Uses, Valid Plans, Expiry
+  - Table view with edit/delete actions
+  - Admin route: `/admin/coupons`
+
+- [x] **Dashboard Targeting Display Fix**
+  - Fixed Target Settings to show data from `targeting_settings` collection
+  - Now properly displays: Niche, Location, Hashtags, Competitors
+  - Edit button navigates to Targeting tab
+
 
 ## Test Credentials
 - **Admin:** `admin@adverlyx.com` / `Admin123!`
