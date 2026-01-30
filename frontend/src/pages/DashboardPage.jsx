@@ -28,6 +28,15 @@ const DashboardPage = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [cancellingSubscription, setCancellingSubscription] = useState(false);
   
+  // Handle tab from URL params (for mobile nav)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab');
+    if (tab && ['overview', 'billing', 'targeting', 'analytics', 'support', 'settings'].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, []);
+  
   // Targeting state
   const [targeting, setTargeting] = useState({
     niche: '',
