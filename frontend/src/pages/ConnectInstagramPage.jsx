@@ -1,23 +1,82 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Checkbox } from '../components/ui/checkbox';
+import { Badge } from '../components/ui/badge';
 import { instagramAPI } from '../services/api';
 import { 
   Instagram, Shield, Check, AlertTriangle, Loader2,
-  Lock, Eye, TrendingUp, Users, Zap, ArrowRight, Sparkles
+  Lock, Eye, TrendingUp, Users, Zap, ArrowRight, Sparkles,
+  ExternalLink, CheckCircle, XCircle
 } from 'lucide-react';
 import AIOnboardingRecommendations from '../components/AIOnboardingRecommendations';
+import { toast } from 'sonner';
+
+const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 const ConnectInstagramPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [username, setUsername] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [oauthLoading, setOauthLoading] = useState(false);
   const [error, setError] = useState('');
   const [showAIOnboarding, setShowAIOnboarding] = useState(false);
   const [connectionComplete, setConnectionComplete] = useState(false);
+  const [connectionMethod, setConnectionMethod] = useState('manual'); // 'manual' or 'oauth'
+  
+  // Handle OAuth callback
+  useEffect(() => {
+    const success = searchParams.get('success');
+    const oauthUsername = searchParams.get('username');
+    const oauthError = searchParams.get('error');
+    
+    if (success === 'true' && oauthUsername) {
+      setUsername(oauthUsername);
+      setConnectionComplete(true);
+      setConnectionMethod('oauth');
+      toast.success(`Successfully connected @${oauthUsername}!`);
+      setShowAIOnboarding(true);
+    } else if (oauthError) {
+      setError(`OAuth failed: ${oauthError}`);
+      toast.error(`Connection failed: ${oauthError}`);
+    }
+  }, [searchParams]);
+
+  const handleOAuthConnect = async () => {
+    if (!agreedToTerms) {
+      setError('Please accept the terms to continue');
+      return;
+    }
+    
+    setOauthLoading(true);
+    setError('');
+    
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/api/instagram-api/oauth/authorize`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        // Redirect to Instagram OAuth
+        window.location.href = data.authorization_url;
+      } else {
+        const errorData = await response.json();
+        setError(errorData.detail || 'Failed to start OAuth flow');
+        toast.error('OAuth not available. Please use manual connection.');
+      }
+    } catch (err) {
+      setError('OAuth not configured. Please use manual connection.');
+    } finally {
+      setOauthLoading(false);
+    }
+  };
 
   const handleConnect = async (e) => {
     e.preventDefault();
