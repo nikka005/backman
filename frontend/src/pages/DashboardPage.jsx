@@ -153,7 +153,13 @@ const DashboardPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadDashboardData();
+    }
+  }, [isAuthenticated, loadDashboardData]);
 
   const handleLogout = () => {
     logout();
@@ -161,19 +167,39 @@ const DashboardPage = () => {
   };
   
   const handleSaveTargeting = async () => {
+    if (!instagramAccount) {
+      toast.error('Please connect your Instagram account first');
+      return;
+    }
+    
     setSavingTargeting(true);
     setTargetingMessage('');
     try {
       await instagramAPI.updateTargeting({
         niche: targeting.niche,
         locations: targeting.locations.split(',').map(s => s.trim()).filter(Boolean),
-        competitor_accounts: targeting.competitors.split(',').map(s => s.trim()).filter(Boolean),
+        competitor_accounts: targeting.competitors.split(',').map(s => s.trim().replace('@', '')).filter(Boolean),
         hashtags: targeting.hashtags.split(',').map(s => s.trim().replace('#', '')).filter(Boolean)
       });
       setTargetingMessage('Targeting saved successfully!');
+      toast.success('Targeting settings saved!');
+      
+      // Reload targeting to confirm save
+      const targetingResponse = await instagramAPI.getTargeting();
+      if (targetingResponse.data) {
+        setTargeting({
+          niche: targetingResponse.data.niche || '',
+          locations: Array.isArray(targetingResponse.data.locations) ? targetingResponse.data.locations.join(', ') : '',
+          competitors: Array.isArray(targetingResponse.data.competitor_accounts) ? targetingResponse.data.competitor_accounts.join(', ') : '',
+          hashtags: Array.isArray(targetingResponse.data.hashtags) ? targetingResponse.data.hashtags.join(', ') : ''
+        });
+      }
+      
       setTimeout(() => setTargetingMessage(''), 3000);
     } catch (error) {
-      setTargetingMessage('Failed to save targeting. Connect Instagram first.');
+      console.error('Error saving targeting:', error);
+      setTargetingMessage('Failed to save targeting.');
+      toast.error('Failed to save targeting. Please try again.');
     } finally {
       setSavingTargeting(false);
     }
