@@ -149,10 +149,21 @@ Adverlyx Digital is a full-stack SaaS platform for Instagram growth services (pl
 - Searchable and expandable sections
 - Added to admin sidebar navigation
 
-### Token Fix ✅ (Jan 30, 2026)
-- Fixed `localStorage.getItem('token')` → `localStorage.getItem('accessToken')`
-- Applied to ConnectInstagramPage.jsx and AdminNotificationsManager.jsx
+### Manual Connection Flow Improvements ✅ (Jan 30, 2026)
+- Smarter stats generation based on username characteristics
+- Auto-generated profile pictures using UI Avatars
+- Display name auto-generated from username
+- New `/api/instagram/sync` endpoint for growth simulation
+- Growth rate: ~60 followers/day baseline with targeting multipliers
+- Dashboard "Refresh Data" now works with manual connections
 
+### Meta App Review Guide
+For real Instagram API access:
+1. Complete Meta Business Verification
+2. Request `instagram_basic`, `pages_show_list` permissions
+3. Submit app for review with screencast demo
+4. Wait 2-4 weeks for approval
+Note: Only works with Business/Creator Instagram accounts
 
 ## Test Credentials
 - **Admin:** admin@adverlyx.com / Admin123!
