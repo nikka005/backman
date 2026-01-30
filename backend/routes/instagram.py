@@ -70,7 +70,6 @@ async def connect_instagram(account_data: InstagramAccountCreate, current_user: 
     # Determine account tier based on username characteristics
     username_len = len(username_clean)
     has_numbers = any(c.isdigit() for c in username_clean)
-    has_underscore = '_' in username_clean
     
     # Account tier affects follower range
     if username_len <= 8 and not has_numbers:
