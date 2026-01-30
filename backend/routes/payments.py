@@ -391,3 +391,167 @@ async def process_refund(
     )
     
     return {"message": "Refund processed", "session_id": session_id}
+
+
+
+# ============== Coupon Management ==============
+
+from pydantic import BaseModel
+
+class CouponValidateRequest(BaseModel):
+    code: str
+    plan_slug: Optional[str] = None
+
+
+@router.post("/coupon/validate")
+async def validate_coupon(
+    request: CouponValidateRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """Validate a coupon code."""
+    code = request.code.upper().strip()
+    
+    # Check database for coupon
+    coupon = await db.coupons.find_one({
+        "code": code,
+        "is_active": True
+    }, {"_id": 0})
+    
+    if coupon:
+        # Check expiry
+        if coupon.get("expires_at"):
+            expiry = datetime.fromisoformat(coupon["expires_at"].replace('Z', '+00:00'))
+            if datetime.now(timezone.utc) > expiry:
+                return {"valid": False, "message": "Coupon has expired"}
+        
+        # Check usage limit
+        if coupon.get("max_uses") and coupon.get("current_uses", 0) >= coupon["max_uses"]:
+            return {"valid": False, "message": "Coupon usage limit reached"}
+        
+        # Check plan restriction
+        if coupon.get("valid_plans") and request.plan_slug:
+            if request.plan_slug.lower() not in [p.lower() for p in coupon["valid_plans"]]:
+                return {"valid": False, "message": "Coupon not valid for this plan"}
+        
+        return {
+            "valid": True,
+            "code": coupon["code"],
+            "discount_percent": coupon.get("discount_percent", 0),
+            "discount_amount": coupon.get("discount_amount", 0),
+            "message": coupon.get("description", "Coupon applied successfully")
+        }
+    
+    # Fallback to hardcoded test coupons for demo
+    test_coupons = {
+        "WELCOME20": {"discount_percent": 20, "description": "20% Welcome Discount"},
+        "ADVERLYX10": {"discount_percent": 10, "description": "10% Special Discount"},
+        "FIRST50": {"discount_percent": 50, "description": "50% First Time Discount"},
+        "GROWTH25": {"discount_percent": 25, "description": "25% Growth Special"}
+    }
+    
+    if code in test_coupons:
+        return {
+            "valid": True,
+            "code": code,
+            "discount_percent": test_coupons[code]["discount_percent"],
+            "discount_amount": 0,
+            "message": test_coupons[code]["description"]
+        }
+    
+    return {"valid": False, "message": "Invalid or expired coupon code"}
+
+
+# Admin coupon management
+@router.get("/admin/coupons")
+async def get_all_coupons(current_user: dict = Depends(get_current_user)):
+    """Get all coupons (admin only)."""
+    if current_user.get("role") not in [UserRole.ADMIN.value, "ADMIN"]:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    coupons = await db.coupons.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    return coupons
+
+
+class CouponCreate(BaseModel):
+    code: str
+    description: str = ""
+    discount_percent: int = 0
+    discount_amount: float = 0
+    max_uses: Optional[int] = None
+    valid_plans: Optional[list] = None
+    expires_at: Optional[str] = None
+
+
+@router.post("/admin/coupons")
+async def create_coupon(
+    coupon_data: CouponCreate,
+    current_user: dict = Depends(get_current_user)
+):
+    """Create a new coupon (admin only)."""
+    if current_user.get("role") not in [UserRole.ADMIN.value, "ADMIN"]:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    import uuid
+    coupon = {
+        "id": str(uuid.uuid4()),
+        "code": coupon_data.code.upper().strip(),
+        "description": coupon_data.description,
+        "discount_percent": coupon_data.discount_percent,
+        "discount_amount": coupon_data.discount_amount,
+        "max_uses": coupon_data.max_uses,
+        "current_uses": 0,
+        "valid_plans": coupon_data.valid_plans,
+        "expires_at": coupon_data.expires_at,
+        "is_active": True,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "created_by": current_user["user_id"]
+    }
+    
+    # Check for duplicate code
+    existing = await db.coupons.find_one({"code": coupon["code"]})
+    if existing:
+        raise HTTPException(status_code=400, detail="Coupon code already exists")
+    
+    await db.coupons.insert_one(coupon)
+    return {"message": "Coupon created", "coupon": coupon}
+
+
+@router.put("/admin/coupons/{coupon_id}")
+async def update_coupon(
+    coupon_id: str,
+    coupon_data: CouponCreate,
+    current_user: dict = Depends(get_current_user)
+):
+    """Update a coupon (admin only)."""
+    if current_user.get("role") not in [UserRole.ADMIN.value, "ADMIN"]:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    update_data = {
+        "code": coupon_data.code.upper().strip(),
+        "description": coupon_data.description,
+        "discount_percent": coupon_data.discount_percent,
+        "discount_amount": coupon_data.discount_amount,
+        "max_uses": coupon_data.max_uses,
+        "valid_plans": coupon_data.valid_plans,
+        "expires_at": coupon_data.expires_at,
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    result = await db.coupons.update_one({"id": coupon_id}, {"$set": update_data})
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Coupon not found")
+    
+    return {"message": "Coupon updated"}
+
+
+@router.delete("/admin/coupons/{coupon_id}")
+async def delete_coupon(coupon_id: str, current_user: dict = Depends(get_current_user)):
+    """Delete a coupon (admin only)."""
+    if current_user.get("role") not in [UserRole.ADMIN.value, "ADMIN"]:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    result = await db.coupons.delete_one({"id": coupon_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Coupon not found")
+    
+    return {"message": "Coupon deleted"}
