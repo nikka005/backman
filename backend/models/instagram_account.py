@@ -26,8 +26,11 @@ class InstagramAccount(BaseModel):
     
     # Account Info
     username: str
+    name: Optional[str] = None
+    biography: Optional[str] = None
     profile_url: Optional[str] = None
     profile_picture: Optional[str] = None
+    profile_picture_url: Optional[str] = None
     
     # Stats (updated periodically)
     followers_count: int = 0
@@ -39,11 +42,20 @@ class InstagramAccount(BaseModel):
     initial_followers: int = 0
     total_followers_gained: int = 0
     followers_this_month: int = 0
+    followers_gained_today: int = 0
+    followers_gained_this_week: int = 0
+    followers_gained_this_month: int = 0
     
     # Settings
     status: AccountStatus = AccountStatus.ACTIVE
     growth_intensity: GrowthIntensity = GrowthIntensity.MEDIUM
     growth_paused: bool = False
+    
+    # OAuth fields
+    oauth_connected: bool = False
+    access_token: Optional[str] = None
+    token_expires_at: Optional[str] = None
+    instagram_id: Optional[str] = None
     
     # Compliance
     risk_disclaimer_accepted: bool = False
