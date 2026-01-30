@@ -986,6 +986,17 @@ const DashboardPage = () => {
                         {!instagramAccount ? 'Connect to Start' : isGrowthActive ? 'AI Growth Engine Active' : 'Growth Paused'}
                       </span>
                     </div>
+                    {instagramAccount && (
+                      <Button
+                        onClick={handleRefreshData}
+                        variant="outline"
+                        className="border-white/20 text-white hover:bg-white/10 rounded-full"
+                        disabled={refreshingData}
+                      >
+                        <RefreshCw className={`w-4 h-4 mr-2 ${refreshingData ? 'animate-spin' : ''}`} />
+                        {refreshingData ? 'Refreshing...' : 'Refresh Data'}
+                      </Button>
+                    )}
                     <Button
                       onClick={toggleGrowth}
                       variant="outline"
