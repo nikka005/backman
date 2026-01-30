@@ -57,12 +57,28 @@ async def connect_instagram(account_data: InstagramAccountCreate, current_user: 
             detail="This Instagram username is already connected to another account."
         )
     
-    # Create account
+    # Generate mock Instagram stats based on username (for demo purposes)
+    # In production, this would come from real Instagram API
+    import hashlib
+    username_hash = int(hashlib.md5(account_data.username.encode()).hexdigest()[:8], 16)
+    
+    # Generate realistic-looking mock stats based on username hash
+    base_followers = (username_hash % 50000) + 500  # 500 to 50,500 followers
+    mock_followers = base_followers
+    mock_following = int(base_followers * 0.15) + (username_hash % 500)  # Following ratio
+    mock_posts = (username_hash % 200) + 20  # 20 to 220 posts
+    mock_engagement = round(2.0 + (username_hash % 500) / 100, 2)  # 2% to 7% engagement
+    
+    # Create account with generated stats
     account = InstagramAccount(
         user_id=current_user['user_id'],
         username=account_data.username.lower().replace("@", ""),
         risk_disclaimer_accepted=account_data.risk_disclaimer_accepted,
-        disclaimer_accepted_at=datetime.now(timezone.utc) if account_data.risk_disclaimer_accepted else None
+        disclaimer_accepted_at=datetime.now(timezone.utc) if account_data.risk_disclaimer_accepted else None,
+        followers_count=mock_followers,
+        following_count=mock_following,
+        posts_count=mock_posts,
+        engagement_rate=mock_engagement
     )
     
     # Save to database
