@@ -373,6 +373,25 @@ async def apply_recommendations(
         {"$set": update_data}
     )
     
+    # Save AI analysis summary to user profile
+    ai_profile_data = {
+        "ai_analysis": {
+            "niche": rec_settings.get('niche'),
+            "suggested_plan": recommendation.get('suggested_plan'),
+            "plan_reason": recommendation.get('plan_reason'),
+            "confidence_level": recommendation.get('confidence_level'),
+            "growth_expectation": recommendation.get('growth_expectation'),
+            "analysis_summary": recommendation.get('ai_analysis_summary'),
+            "growth_intensity": rec_settings.get('growth_intensity', 'moderate'),
+            "analyzed_at": datetime.now(timezone.utc).isoformat()
+        }
+    }
+    
+    await db.users.update_one(
+        {"id": user_id},
+        {"$set": ai_profile_data}
+    )
+    
     # Mark recommendation as applied
     await db.ai_onboarding_recommendations.update_one(
         {"id": recommendation_id},
@@ -381,7 +400,8 @@ async def apply_recommendations(
     
     return {
         "message": "Recommendations applied successfully",
-        "applied_settings": rec_settings
+        "applied_settings": rec_settings,
+        "ai_analysis": ai_profile_data["ai_analysis"]
     }
 
 
