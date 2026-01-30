@@ -104,16 +104,16 @@ export const paymentAPI = {
   // Stripe
   createStripeCheckout: (packageId, originUrl) => 
     api.post(`/payments/checkout/session?package_id=${packageId}&origin_url=${encodeURIComponent(originUrl)}`),
-  createCheckoutSession: (packageId, originUrl) => 
-    api.post('/payments/checkout/session', null, { params: { package_id: packageId, origin_url: originUrl } }),
+  createCheckoutSession: (packageId, originUrl, couponCode) => 
+    api.post('/payments/checkout/session', null, { params: { package_id: packageId, origin_url: originUrl, coupon_code: couponCode } }),
   getCheckoutStatus: (sessionId) => api.get(`/payments/checkout/status/${sessionId}`),
   getPaymentHistory: () => api.get('/payments/history'),
   getCurrentSubscription: () => api.get('/payments/subscription'),
   cancelSubscription: () => api.post('/payments/subscription/cancel'),
   
   // Razorpay
-  createRazorpayOrder: (packageId) => 
-    api.post(`/payments/razorpay/create-order?package_id=${packageId}`),
+  createRazorpayOrder: (packageId, couponCode) => 
+    api.post(`/payments/razorpay/create-order?package_id=${packageId}${couponCode ? `&coupon_code=${couponCode}` : ''}`),
   verifyRazorpayPayment: (data) => 
     api.post('/payments/razorpay/verify-payment', data),
   getRazorpayPackages: () => 
@@ -122,6 +122,10 @@ export const paymentAPI = {
   // Localized pricing
   getLocalizedPricing: () => 
     api.get('/public/localized-pricing'),
+  
+  // Coupons
+  validateCoupon: (code, planSlug) =>
+    api.post('/payments/coupon/validate', { code, plan_slug: planSlug }),
 };
 
 // Tickets API
