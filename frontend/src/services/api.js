@@ -88,7 +88,8 @@ export const instagramAPI = {
   getTargeting: () => api.get('/instagram/targeting'),
   updateTargeting: (data) => api.put('/instagram/targeting', data),
   getLogs: (params) => api.get('/instagram/logs', { params }),
-  // Real data endpoints
+  syncData: () => api.post('/instagram/sync'),
+  // Real data endpoints (OAuth)
   refreshData: () => api.post('/instagram-api/refresh-data'),
   getAccountStats: () => api.get('/instagram-api/account-stats'),
   getOAuthStatus: () => api.get('/instagram-api/oauth/status'),
