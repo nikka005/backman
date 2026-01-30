@@ -58,6 +58,7 @@ function App() {
               <Route path="/terms" element={<TermsOfServicePage />} />
               <Route path="/refund" element={<RefundPolicyPage />} />
               <Route path="/cookies" element={<CookiePolicyPage />} />
+              <Route path="/data-deletion" element={<DataDeletionPage />} />
               {/* Admin Routes */}
               <Route path="/backman" element={<AdminLoginPage />} />
               <Route path="/admin/*" element={<AdminDashboard />} />
