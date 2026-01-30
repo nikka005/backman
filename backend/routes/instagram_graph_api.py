@@ -100,6 +100,317 @@ class GrowthData(BaseModel):
     growth_trends: Dict[str, Any] = {}
 
 
+# ============== OAuth Flow ==============
+
+class OAuthState(BaseModel):
+    """OAuth state for CSRF protection."""
+    state: str
+    user_id: str
+    created_at: datetime
+    
+
+@router.get("/oauth/authorize")
+async def get_oauth_authorization_url(
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Generate Instagram OAuth authorization URL.
+    User clicks this to start the OAuth flow.
+    """
+    if not INSTAGRAM_APP_ID or not INSTAGRAM_REDIRECT_URI:
+        raise HTTPException(
+            status_code=500, 
+            detail="Instagram OAuth not configured. Please set INSTAGRAM_APP_ID and INSTAGRAM_REDIRECT_URI in environment."
+        )
+    
+    import secrets
+    state = secrets.token_urlsafe(32)
+    
+    # Store state in database for verification
+    await db.oauth_states.insert_one({
+        "state": state,
+        "user_id": current_user['user_id'],
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "expires_at": (datetime.now(timezone.utc) + timedelta(minutes=10)).isoformat()
+    })
+    
+    # Build OAuth URL for Instagram Business Login
+    scopes = "instagram_business_basic,instagram_business_manage_messages,instagram_business_manage_comments,instagram_business_content_publish"
+    auth_url = (
+        f"https://www.instagram.com/oauth/authorize"
+        f"?client_id={INSTAGRAM_APP_ID}"
+        f"&redirect_uri={INSTAGRAM_REDIRECT_URI}"
+        f"&scope={scopes}"
+        f"&response_type=code"
+        f"&state={state}"
+    )
+    
+    return {
+        "authorization_url": auth_url,
+        "state": state,
+        "message": "Redirect user to authorization_url to start OAuth flow"
+    }
+
+
+@router.get("/oauth/callback")
+async def oauth_callback(
+    code: str = None,
+    state: str = None,
+    error: str = None,
+    error_reason: str = None,
+    error_description: str = None
+):
+    """
+    Handle OAuth callback from Instagram.
+    This endpoint receives the authorization code after user grants permission.
+    """
+    from urllib.parse import quote
+    
+    # Handle errors
+    if error:
+        error_msg = error_description or error_reason or error
+        # Redirect to frontend with error
+        frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:3000")
+        return RedirectResponse(url=f"{frontend_url}/connect-instagram?error={quote(error_msg)}")
+    
+    if not code or not state:
+        raise HTTPException(status_code=400, detail="Missing code or state parameter")
+    
+    # Verify state
+    stored_state = await db.oauth_states.find_one({"state": state})
+    if not stored_state:
+        raise HTTPException(status_code=400, detail="Invalid or expired state parameter")
+    
+    # Delete used state
+    await db.oauth_states.delete_one({"state": state})
+    
+    user_id = stored_state['user_id']
+    
+    try:
+        # Exchange code for short-lived access token
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            token_response = await client.post(
+                "https://api.instagram.com/oauth/access_token",
+                data={
+                    "client_id": INSTAGRAM_APP_ID,
+                    "client_secret": INSTAGRAM_APP_SECRET,
+                    "grant_type": "authorization_code",
+                    "redirect_uri": INSTAGRAM_REDIRECT_URI,
+                    "code": code
+                }
+            )
+            
+            if token_response.status_code != 200:
+                logger.error(f"Token exchange failed: {token_response.text}")
+                raise HTTPException(status_code=400, detail="Failed to exchange authorization code")
+            
+            token_data = token_response.json()
+            short_lived_token = token_data.get("access_token")
+            instagram_user_id = token_data.get("user_id")
+            
+            # Exchange for long-lived token (60 days)
+            long_lived_response = await client.get(
+                f"{GRAPH_API_BASE}/access_token",
+                params={
+                    "grant_type": "ig_exchange_token",
+                    "client_secret": INSTAGRAM_APP_SECRET,
+                    "access_token": short_lived_token
+                }
+            )
+            
+            if long_lived_response.status_code != 200:
+                logger.warning("Failed to get long-lived token, using short-lived")
+                access_token = short_lived_token
+                expires_in = 3600  # 1 hour
+            else:
+                long_lived_data = long_lived_response.json()
+                access_token = long_lived_data.get("access_token")
+                expires_in = long_lived_data.get("expires_in", 5184000)  # 60 days default
+            
+            # Fetch user profile
+            profile_response = await client.get(
+                f"{GRAPH_API_BASE}/me",
+                params={
+                    "fields": "id,username,name,account_type,media_count,followers_count,follows_count,biography,profile_picture_url",
+                    "access_token": access_token
+                }
+            )
+            
+            if profile_response.status_code != 200:
+                logger.error(f"Failed to fetch profile: {profile_response.text}")
+                raise HTTPException(status_code=400, detail="Failed to fetch Instagram profile")
+            
+            profile_data = profile_response.json()
+        
+        # Update or create Instagram account
+        account_data = {
+            "instagram_id": str(instagram_user_id),
+            "username": profile_data.get("username", ""),
+            "name": profile_data.get("name", ""),
+            "biography": profile_data.get("biography", ""),
+            "profile_picture_url": profile_data.get("profile_picture_url", ""),
+            "account_type": profile_data.get("account_type", "business"),
+            "followers_count": profile_data.get("followers_count", 0),
+            "following_count": profile_data.get("follows_count", 0),
+            "posts_count": profile_data.get("media_count", 0),
+            "access_token": access_token,
+            "token_expires_at": (datetime.now(timezone.utc) + timedelta(seconds=expires_in)).isoformat(),
+            "oauth_connected": True,
+            "status": "active",
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }
+        
+        # Update the existing Instagram account for this user
+        result = await db.instagram_accounts.update_one(
+            {"user_id": user_id},
+            {"$set": account_data}
+        )
+        
+        if result.modified_count == 0:
+            # Create new if doesn't exist
+            account_data["user_id"] = user_id
+            account_data["id"] = str(uuid.uuid4())
+            account_data["created_at"] = datetime.now(timezone.utc).isoformat()
+            account_data["risk_disclaimer_accepted"] = True
+            account_data["disclaimer_accepted_at"] = datetime.now(timezone.utc).isoformat()
+            await db.instagram_accounts.insert_one(account_data)
+        
+        # Also create targeting settings if not exists
+        existing_targeting = await db.targeting_settings.find_one({"user_id": user_id})
+        if not existing_targeting:
+            await db.targeting_settings.insert_one({
+                "id": str(uuid.uuid4()),
+                "user_id": user_id,
+                "instagram_account_id": account_data.get("id"),
+                "niche": "",
+                "hashtags": [],
+                "competitor_accounts": [],
+                "locations": [],
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            })
+        
+        logger.info(f"Successfully connected Instagram for user {user_id}: @{profile_data.get('username')}")
+        
+        # Redirect to frontend with success
+        frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:3000")
+        return RedirectResponse(
+            url=f"{frontend_url}/connect-instagram?success=true&username={profile_data.get('username')}"
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"OAuth callback error: {str(e)}")
+        frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:3000")
+        return RedirectResponse(url=f"{frontend_url}/connect-instagram?error=OAuth+failed")
+
+
+@router.post("/oauth/refresh-token")
+async def refresh_instagram_token(
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Refresh Instagram long-lived access token.
+    Long-lived tokens can be refreshed before they expire.
+    """
+    user_id = current_user['user_id']
+    
+    account = await db.instagram_accounts.find_one(
+        {"user_id": user_id, "oauth_connected": True},
+        {"_id": 0}
+    )
+    
+    if not account or not account.get("access_token"):
+        raise HTTPException(status_code=404, detail="No OAuth-connected Instagram account found")
+    
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.get(
+                f"{GRAPH_API_BASE}/refresh_access_token",
+                params={
+                    "grant_type": "ig_refresh_token",
+                    "access_token": account["access_token"]
+                }
+            )
+            
+            if response.status_code != 200:
+                logger.error(f"Token refresh failed: {response.text}")
+                raise HTTPException(status_code=400, detail="Failed to refresh token")
+            
+            data = response.json()
+            new_token = data.get("access_token")
+            expires_in = data.get("expires_in", 5184000)
+            
+            await db.instagram_accounts.update_one(
+                {"user_id": user_id},
+                {
+                    "$set": {
+                        "access_token": new_token,
+                        "token_expires_at": (datetime.now(timezone.utc) + timedelta(seconds=expires_in)).isoformat(),
+                        "updated_at": datetime.now(timezone.utc).isoformat()
+                    }
+                }
+            )
+            
+            return {
+                "message": "Token refreshed successfully",
+                "expires_in": expires_in
+            }
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Token refresh error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Token refresh failed")
+
+
+@router.get("/oauth/status")
+async def get_oauth_status(
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Check if user has an OAuth-connected Instagram account.
+    """
+    user_id = current_user['user_id']
+    
+    account = await db.instagram_accounts.find_one(
+        {"user_id": user_id},
+        {"_id": 0, "access_token": 0}  # Don't return sensitive data
+    )
+    
+    if not account:
+        return {
+            "connected": False,
+            "oauth_connected": False,
+            "message": "No Instagram account connected"
+        }
+    
+    is_oauth = account.get("oauth_connected", False)
+    token_expires = account.get("token_expires_at")
+    
+    token_valid = False
+    if token_expires:
+        try:
+            expires_at = datetime.fromisoformat(token_expires.replace('Z', '+00:00'))
+            token_valid = expires_at > datetime.now(timezone.utc)
+        except:
+            pass
+    
+    return {
+        "connected": True,
+        "oauth_connected": is_oauth,
+        "username": account.get("username"),
+        "followers_count": account.get("followers_count", 0),
+        "posts_count": account.get("posts_count", 0),
+        "token_valid": token_valid if is_oauth else None,
+        "token_expires_at": token_expires if is_oauth else None,
+        "message": "OAuth connected" if is_oauth else "Manual connection (no real API access)"
+    }
+
+
+
+
 # ============== Helper Functions ==============
 
 async def get_instagram_token(user_id: str) -> Optional[str]:
