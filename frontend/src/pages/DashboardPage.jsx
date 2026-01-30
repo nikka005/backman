@@ -494,7 +494,7 @@ const DashboardPage = () => {
                 return (
                   <button
                     key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
+                    onClick={() => handleTabChange(tab.id)}
                     className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
                       activeTab === tab.id
                         ? 'bg-pink-100 text-pink-600'
