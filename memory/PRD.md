@@ -131,6 +131,29 @@ Adverlyx Digital is a full-stack SaaS platform for Instagram growth services (pl
 
 ---
 
+### Yearly Billing Display Fix ✅ (Jan 30, 2026)
+- Pricing page now shows yearly total: `$492/year` with crossed out original
+- Format: `$41/mo` → `$492/year` (~~$828/year~~)
+- Applied to all plans (Basic, Pro, Enterprise)
+
+### Instagram Real Data Integration ✅ (Jan 30, 2026)
+- Added `/api/instagram-api/refresh-data` endpoint for OAuth data refresh
+- Added `/api/instagram-api/account-stats` endpoint for current stats
+- Dashboard "Refresh Data" button for manual data sync
+- OAuth connections fetch real Instagram followers, posts, engagement
+- Manual connections show prompt to connect via OAuth
+
+### Admin Documentation Page ✅ (Jan 30, 2026)
+- New `/admin/docs` route with comprehensive admin guide
+- Covers 20+ features: AI Intelligence, Analytics, Plans, Coupons, etc.
+- Searchable and expandable sections
+- Added to admin sidebar navigation
+
+### Token Fix ✅ (Jan 30, 2026)
+- Fixed `localStorage.getItem('token')` → `localStorage.getItem('accessToken')`
+- Applied to ConnectInstagramPage.jsx and AdminNotificationsManager.jsx
+
+
 ## Test Credentials
 - **Admin:** admin@adverlyx.com / Admin123!
 - **User:** demo@user.com / User123!
