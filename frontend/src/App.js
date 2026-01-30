@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './App.css';
 import { AuthProvider } from './context/AuthContext';
 import { SiteSettingsProvider } from './context/SiteSettingsContext';
+import MobileNav from './components/layout/MobileNav';
 
 // Pages
 import HomePage from './pages/HomePage';
@@ -50,6 +51,8 @@ function App() {
               {/* Catch-all route */}
               <Route path="*" element={<HomePage />} />
             </Routes>
+            {/* Mobile Bottom Navigation */}
+            <MobileNav />
           </BrowserRouter>
         </AuthProvider>
       </SiteSettingsProvider>
