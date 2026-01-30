@@ -359,42 +359,42 @@ const DashboardPage = () => {
 
         <nav className="px-4 space-y-1">
           <button 
-            onClick={() => setActiveTab('overview')}
+            onClick={() => handleTabChange('overview')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl w-full text-left transition-colors ${activeTab === 'overview' ? 'bg-gradient-to-r from-pink-50 to-orange-50 text-pink-600 font-medium' : 'text-gray-600 hover:bg-gray-50'}`}
           >
             <BarChart3 className="w-5 h-5" />
             Dashboard
           </button>
           <button 
-            onClick={() => setActiveTab('billing')}
+            onClick={() => handleTabChange('billing')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl w-full text-left transition-colors ${activeTab === 'billing' ? 'bg-gradient-to-r from-pink-50 to-orange-50 text-pink-600 font-medium' : 'text-gray-600 hover:bg-gray-50'}`}
           >
             <CreditCard className="w-5 h-5" />
             Billing
           </button>
           <button 
-            onClick={() => setActiveTab('targeting')}
+            onClick={() => handleTabChange('targeting')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl w-full text-left transition-colors ${activeTab === 'targeting' ? 'bg-gradient-to-r from-pink-50 to-orange-50 text-pink-600 font-medium' : 'text-gray-600 hover:bg-gray-50'}`}
           >
             <Target className="w-5 h-5" />
             Targeting
           </button>
           <button 
-            onClick={() => setActiveTab('analytics')}
+            onClick={() => handleTabChange('analytics')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl w-full text-left transition-colors ${activeTab === 'analytics' ? 'bg-gradient-to-r from-pink-50 to-orange-50 text-pink-600 font-medium' : 'text-gray-600 hover:bg-gray-50'}`}
           >
             <TrendingUp className="w-5 h-5" />
             Analytics
           </button>
           <button 
-            onClick={() => setActiveTab('support')}
+            onClick={() => handleTabChange('support')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl w-full text-left transition-colors ${activeTab === 'support' ? 'bg-gradient-to-r from-pink-50 to-orange-50 text-pink-600 font-medium' : 'text-gray-600 hover:bg-gray-50'}`}
           >
             <MessageCircle className="w-5 h-5" />
             Support
           </button>
           <button 
-            onClick={() => setActiveTab('settings')}
+            onClick={() => handleTabChange('settings')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl w-full text-left transition-colors ${activeTab === 'settings' ? 'bg-gradient-to-r from-pink-50 to-orange-50 text-pink-600 font-medium' : 'text-gray-600 hover:bg-gray-50'}`}
           >
             <Settings className="w-5 h-5" />
