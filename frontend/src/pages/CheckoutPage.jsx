@@ -19,7 +19,7 @@ import {
 const CheckoutPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
   
   // Get plan and billing cycle from URL params
   const planSlug = searchParams.get('plan');
