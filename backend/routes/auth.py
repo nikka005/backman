@@ -326,7 +326,8 @@ async def get_current_user_info(current_user: dict = Depends(get_current_user)):
         current_plan=user_doc.get('current_plan'),
         email_verified=user_doc.get('email_verified', False),
         created_at=datetime.fromisoformat(user_doc['created_at']) if isinstance(user_doc['created_at'], str) else user_doc['created_at'],
-        last_login=datetime.fromisoformat(user_doc['last_login']) if user_doc.get('last_login') else None
+        last_login=datetime.fromisoformat(user_doc['last_login']) if user_doc.get('last_login') else None,
+        ai_analysis=user_doc.get('ai_analysis')
     )
 
 
