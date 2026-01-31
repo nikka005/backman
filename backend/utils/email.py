@@ -402,7 +402,8 @@ def get_verification_email_html(name: str, token: str) -> str:
 
 def get_password_reset_email_html(name: str, token: str) -> str:
     """Generate password reset email HTML."""
-    reset_url = f"https://adverlyx.digital/reset-password?token={token}"
+    frontend_url = os.environ.get("FRONTEND_URL", "https://adverlyx.digital")
+    reset_url = f"{frontend_url}/reset-password?token={token}"
     return f"""
     <!DOCTYPE html>
     <html>
