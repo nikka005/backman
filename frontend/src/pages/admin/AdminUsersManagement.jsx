@@ -294,8 +294,8 @@ const AdminUsersManagement = () => {
                         <Button size="sm" variant="outline" onClick={() => viewUserDetails(user)} data-testid={`view-user-${user.id}`}>
                           <Eye className="w-4 h-4 mr-1" /> View
                         </Button>
-                        {user.status === 'suspended' ? (
-                          <Button size="sm" variant="outline" onClick={() => handleActivate(user.id)} className="text-green-600">
+                        {user.status === 'suspended' || user.status === 'pending_verification' ? (
+                          <Button size="sm" variant="outline" onClick={() => handleActivate(user.id)} className="text-green-600" title="Activate & Verify">
                             <Play className="w-4 h-4" />
                           </Button>
                         ) : (
