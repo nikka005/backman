@@ -55,7 +55,7 @@ const AdminWeeklyReports = () => {
       }
       setMessage(null);
       
-      const response = await adminAPI.post('/weekly-reports/send', { user_id: userId });
+      const response = await adminAPI.sendWeeklyReports(userId);
       
       setMessage({
         type: 'success',
