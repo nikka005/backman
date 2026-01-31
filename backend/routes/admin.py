@@ -324,6 +324,33 @@ async def activate_user(user_id: str, current_user: dict = Depends(admin_require
     return {"message": "User activated"}
 
 
+@router.post("/users/bulk-activate")
+async def bulk_activate_pending_users(current_user: dict = Depends(admin_required)):
+    """Activate all pending_verification users at once."""
+    result = await db.users.update_many(
+        {"status": "pending_verification"},
+        {"$set": {
+            "status": UserStatus.ACTIVE,
+            "email_verified": True,
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    
+    # Log action
+    log = AdminLog(
+        admin_id=current_user['user_id'],
+        admin_email=current_user['email'],
+        action=AdminAction.USER_UPDATE,
+        target_type="bulk_users",
+        description=f"Bulk activated {result.modified_count} pending users"
+    )
+    log_dict = log.model_dump()
+    log_dict['created_at'] = log_dict['created_at'].isoformat()
+    await db.admin_logs.insert_one(log_dict)
+    
+    return {"message": f"Activated {result.modified_count} users", "count": result.modified_count}
+
+
 # ==================== SUBSCRIPTION MANAGEMENT ====================
 
 @router.get("/subscriptions")
