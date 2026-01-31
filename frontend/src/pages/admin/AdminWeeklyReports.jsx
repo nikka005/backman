@@ -78,7 +78,7 @@ const AdminWeeklyReports = () => {
   const previewReport = async (userId) => {
     try {
       setLoadingPreview(true);
-      const response = await adminAPI.get(`/weekly-reports/preview/${userId}`);
+      const response = await adminAPI.previewWeeklyReport(userId);
       setPreviewData(response.data);
       setSelectedUser(userId);
     } catch (error) {
