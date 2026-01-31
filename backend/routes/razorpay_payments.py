@@ -90,6 +90,7 @@ class RazorpayVerifyRequest(BaseModel):
     razorpay_order_id: str
     razorpay_payment_id: str
     razorpay_signature: str
+    package_id: Optional[str] = None  # Optional for backwards compatibility
 
 
 @router.post("/create-order", response_model=RazorpayOrderResponse)
