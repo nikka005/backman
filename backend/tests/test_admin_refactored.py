@@ -119,7 +119,9 @@ class TestAdminUsersManagement:
             )
             assert response.status_code == 200
             data = response.json()
-            assert data["id"] == user_id
+            # Response is wrapped in {"user": {...}}
+            assert "user" in data
+            assert data["user"]["id"] == user_id
 
 
 class TestAdminSubscriptionsManagement:
