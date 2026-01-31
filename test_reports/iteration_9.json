@@ -1,0 +1,82 @@
+{
+  "summary": "Tested Priority 1 issues for Adverlyx Digital: Forgot Password feature, Reset Password feature, Stripe Payment checkout, and Yearly billing display. All features are working correctly.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_forgot_reset_password.py",
+    "/app/test_reports/pytest/pytest_forgot_reset_password.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [
+    "/app/backend/tests/test_forgot_reset_password.py"
+  ],
+  "success_rate": {
+    "backend": "100% (11/11 tests passed)",
+    "frontend": "100% (all UI features verified)"
+  },
+  "test_credentials": {
+    "demo_user_email": "demo@user.com",
+    "demo_user_password": "User123!",
+    "admin_email": "admin@adverlyx.com",
+    "admin_password": "Admin123!"
+  },
+  "seed_data_creation": "None - used existing demo user account",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "All Priority 1 issues have been verified as working: Forgot Password flow, Reset Password flow, Stripe Payment checkout, and Yearly billing display on Pricing page.",
+  "features_tested": {
+    "forgot_password_page": {
+      "status": "PASS",
+      "url": "/forgot-password",
+      "details": "Page loads correctly with email input (data-testid='forgot-email-input'), submit button (data-testid='forgot-submit-btn'). Email submission works and shows 'Check Your Email' success message with green checkmark."
+    },
+    "forgot_password_api": {
+      "status": "PASS",
+      "endpoint": "POST /api/auth/forgot-password",
+      "details": "API accepts email, returns 200 with message 'If the email exists, a reset link will be sent.' Rate limiting (429) is properly implemented for security."
+    },
+    "reset_password_page": {
+      "status": "PASS",
+      "url": "/reset-password?token=xxx",
+      "details": "Page loads with password input (data-testid='reset-password-input'), confirm password input (data-testid='reset-confirm-password-input'), submit button (data-testid='reset-submit-btn'). Password requirements are displayed with real-time validation (8+ chars, uppercase, lowercase, number, special char). 'Passwords match' indicator works."
+    },
+    "reset_password_api": {
+      "status": "PASS",
+      "endpoint": "POST /api/auth/reset-password",
+      "details": "API accepts token and password. Returns 400 for invalid/expired tokens with appropriate error message."
+    },
+    "login_forgot_password_link": {
+      "status": "PASS",
+      "url": "/login",
+      "details": "Login page has 'Forgot password?' link that navigates to /forgot-password correctly."
+    },
+    "stripe_payment_checkout": {
+      "status": "PASS",
+      "endpoint": "POST /api/payments/checkout/session",
+      "details": "API requires authentication (returns 403 without auth). With auth, creates checkout session and returns URL. Supports package_id format like 'pro_yearly'."
+    },
+    "pricing_page_yearly_display": {
+      "status": "PASS",
+      "url": "/pricing",
+      "details": "Yearly toggle is ON by default. Shows yearly totals correctly: Basic $348/year, Pro $492/year, Enterprise $1188/year. 'Save 50%' badge displayed. Strikethrough prices show original monthly totals."
+    },
+    "checkout_page": {
+      "status": "PASS",
+      "url": "/checkout?plan=pro&billing=yearly",
+      "details": "Checkout page loads with correct pricing: Pro Plan $41/mo, Annual Total $492, Annual Savings -$336. Shows both Stripe and Razorpay payment options. 'Annual Billing' badge displayed. Pay button present."
+    }
+  },
+  "mocked_apis": {
+    "has_mocked_apis": false,
+    "mocked_apis_list": []
+  },
+  "notes": "All Priority 1 issues from the problem statement have been verified as working: 1) Forgot Password feature is fully functional with proper UI and API, 2) Reset Password feature works with password validation, 3) Stripe Payment checkout creates sessions correctly, 4) Yearly billing displays correct totals ($492/year for Pro plan, not monthly rate)."
+}
