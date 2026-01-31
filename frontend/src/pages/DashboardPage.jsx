@@ -1043,6 +1043,11 @@ const DashboardPage = () => {
                             Demo Mode
                           </span>
                         )}
+                        {instagramAccount && instagramAccount.oauth_connected && (
+                          <span className="px-2 py-0.5 bg-green-500/20 text-green-300 text-xs rounded-full">
+                            Live Data
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
