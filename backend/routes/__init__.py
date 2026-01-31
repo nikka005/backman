@@ -24,6 +24,7 @@ from .instagram_graph_api import router as instagram_graph_router, init_router a
 from .affiliate_referral import router as affiliate_referral_router, init_router as init_affiliate_referral
 from .admin_programs import router as admin_programs_router, init_router as init_admin_programs
 from .weekly_reports import router as weekly_reports_router, init_router as init_weekly_reports
+from .growth_tracking import router as growth_tracking_router, init_router as init_growth_tracking
 from utils.email import init_email_db
 
 
