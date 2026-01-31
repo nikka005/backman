@@ -257,6 +257,22 @@ async def get_checkout_status(session_id: str, current_user: dict = Depends(get_
                 {"$set": {"plan": transaction["plan"], "account_status": "active"}}
             )
             
+            # Create payment record for admin tracking
+            payment_record = {
+                "id": f"pay_stripe_{session_id[:20]}",
+                "user_id": transaction["user_id"],
+                "stripe_session_id": session_id,
+                "amount": status.amount_total / 100 if status.amount_total else transaction["amount"],
+                "currency": status.currency or transaction["currency"],
+                "status": "success",
+                "provider": "stripe",
+                "payment_method": "card",
+                "plan": transaction["plan"],
+                "billing": transaction["billing"],
+                "created_at": datetime.now(timezone.utc).isoformat()
+            }
+            await db.payments.insert_one(payment_record)
+            
             update_data["subscription_created"] = True
             update_data["subscription_created_at"] = datetime.now(timezone.utc).isoformat()
             
