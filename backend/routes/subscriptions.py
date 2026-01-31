@@ -191,11 +191,12 @@ async def create_subscription(sub_data: SubscriptionCreate, current_user: dict =
     
     # Send confirmation email
     user_doc = await db.users.find_one({"id": current_user['user_id']})
-    await send_subscription_email(
+    await send_payment_confirmation_email(
         user_doc['email'],
         user_doc['name'],
         plan_details.name,
-        final_price
+        final_price,
+        request.billing_cycle
     )
     
     return SubscriptionResponse(
