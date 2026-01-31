@@ -79,6 +79,22 @@ Adverlyx Digital is a full-stack SaaS platform for Instagram growth services (pl
 - Dashboard tab URL synchronization
 - Targeting save functionality
 
+#### Admin Dashboard Refactoring ✅ (Jan 31, 2026)
+- AdminDashboard.jsx reduced from 1346 to ~300 lines
+- Extracted UsersManagement to AdminUsersManagement.jsx
+- Extracted SubscriptionsManagement to AdminSubscriptionsManagement.jsx
+- Extracted PaymentsManagement to AdminPaymentsManagement.jsx
+- Extracted TicketsManagement to AdminTicketsManagement.jsx
+- Improved code maintainability and readability
+
+#### AI Weekly Growth Reports ✅ (Jan 31, 2026)
+- New `/admin/weekly-reports` page for sending AI-powered reports
+- Backend API at `/api/weekly-reports/*` for send, history, preview
+- Beautiful HTML email template with growth metrics
+- AI-generated insights and recommendations
+- Preview functionality before sending
+- Bulk send to all eligible users
+
 #### Professional Checkout & Coupons ✅ (Jan 30, 2026)
 - New `/checkout` page with plan summary, coupon validation
 - Admin coupon management at `/admin/coupons`
