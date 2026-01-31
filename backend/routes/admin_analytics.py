@@ -58,17 +58,23 @@ async def get_platform_analytics(
     total_subs = await db.subscriptions.count_documents({})
     active_subs = await db.subscriptions.count_documents({"status": "active"})
     
-    # Revenue calculation
+    # Revenue calculation from payments collection
     revenue_query = {"status": "success"}
     if start_date:
         revenue_query["created_at"] = {"$gte": start_date.isoformat()}
     payments = await db.payments.find(revenue_query).to_list(10000)
     total_revenue = sum(p.get('amount', 0) for p in payments)
     
-    # MRR from active subs
+    # MRR from active subscriptions - check both 'price' and 'amount' fields
     active_sub_docs = await db.subscriptions.find({"status": "active"}).to_list(1000)
-    mrr = sum(s.get('price', 0) for s in active_sub_docs if s.get('billing_cycle') == 'monthly')
-    mrr += sum(s.get('price', 0) / 12 for s in active_sub_docs if s.get('billing_cycle') == 'yearly')
+    mrr = 0
+    for s in active_sub_docs:
+        sub_amount = s.get('price') or s.get('amount') or s.get('monthly_price') or 0
+        billing = s.get('billing_cycle') or s.get('billing') or 'monthly'
+        if billing == 'monthly':
+            mrr += sub_amount
+        elif billing == 'yearly':
+            mrr += sub_amount / 12
     
     # Churn
     cancelled_query = {"status": "cancelled"}
@@ -81,11 +87,13 @@ async def get_platform_analytics(
     arpu = total_revenue / max(total_users, 1)
     arppu = total_revenue / max(active_subs, 1)
     
-    # Plan distribution
+    # Plan distribution - include ALL plans from subscriptions (not just basic/pro/enterprise)
     plan_dist = {}
-    for plan in ['basic', 'pro', 'enterprise']:
-        count = await db.subscriptions.count_documents({"plan": plan, "status": "active"})
-        plan_dist[plan] = count
+    all_plans = await db.subscriptions.distinct("plan", {"status": "active"})
+    for plan in all_plans:
+        if plan:
+            count = await db.subscriptions.count_documents({"plan": plan, "status": "active"})
+            plan_dist[plan] = count
     
     return {
         "period": period,
