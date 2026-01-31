@@ -93,6 +93,8 @@ export const instagramAPI = {
   refreshData: () => api.post('/instagram-api/refresh-data'),
   getAccountStats: () => api.get('/instagram-api/account-stats'),
   getOAuthStatus: () => api.get('/instagram-api/oauth/status'),
+  getInsights: () => api.get('/instagram-api/insights'),
+  getAnalyticsSummary: () => api.get('/instagram-api/analytics/summary'),
 };
 
 // Subscription API
