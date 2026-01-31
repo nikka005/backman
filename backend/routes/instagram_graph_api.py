@@ -172,20 +172,27 @@ async def oauth_callback(
     """
     from urllib.parse import quote
     
-    # Handle errors
+    frontend_url = os.environ.get("FRONTEND_URL", "https://adverlyx.digital")
+    
+    # Handle errors from Instagram
     if error:
         error_msg = error_description or error_reason or error
-        # Redirect to frontend with error
-        frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:3000")
+        logger.error(f"Instagram OAuth error: {error_msg}")
         return RedirectResponse(url=f"{frontend_url}/connect-instagram?error={quote(error_msg)}")
     
-    if not code or not state:
-        raise HTTPException(status_code=400, detail="Missing code or state parameter")
+    if not code:
+        logger.error("Missing code parameter in OAuth callback")
+        return RedirectResponse(url=f"{frontend_url}/connect-instagram?error=Missing+authorization+code")
+    
+    if not state:
+        logger.error("Missing state parameter in OAuth callback")
+        return RedirectResponse(url=f"{frontend_url}/connect-instagram?error=Missing+state+parameter")
     
     # Verify state
     stored_state = await db.oauth_states.find_one({"state": state})
     if not stored_state:
-        raise HTTPException(status_code=400, detail="Invalid or expired state parameter")
+        logger.error(f"Invalid or expired state: {state}")
+        return RedirectResponse(url=f"{frontend_url}/connect-instagram?error=Invalid+or+expired+session.+Please+try+again.")
     
     # Delete used state
     await db.oauth_states.delete_one({"state": state})
