@@ -122,16 +122,23 @@ async def create_razorpay_order(
         amount_inr = package["amount"]
         plan = package["plan"]
     else:
-        # Fetch plan from database - supports any plan
+        # Fetch plan from database - supports any plan added via admin panel
+        # Search by slug, id, or name (case-insensitive)
         plan_doc = await db.plans.find_one({
             "$or": [
+                {"slug": plan_name},
+                {"slug": {"$regex": f"^{plan_name}$", "$options": "i"}},
                 {"id": plan_name},
+                {"id": {"$regex": f"^{plan_name}$", "$options": "i"}},
                 {"name": {"$regex": f"^{plan_name}$", "$options": "i"}}
             ]
         })
         
         if not plan_doc:
-            raise HTTPException(status_code=400, detail=f"Plan '{plan_name}' not found")
+            # Log available plans for debugging
+            all_plans = await db.plans.find({}, {"slug": 1, "id": 1, "name": 1, "_id": 0}).to_list(100)
+            logger.error(f"Plan '{plan_name}' not found. Available plans: {all_plans}")
+            raise HTTPException(status_code=400, detail=f"Plan '{plan_name}' not found. Please check plan configuration.")
         
         # Get price and convert USD to INR (approximate rate: 1 USD = 83 INR)
         usd_to_inr = 83
