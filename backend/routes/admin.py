@@ -63,14 +63,20 @@ async def get_dashboard_stats(current_user: dict = Depends(admin_required)):
     total_subs = await db.subscriptions.count_documents({})
     active_subs = await db.subscriptions.count_documents({"status": SubscriptionStatus.ACTIVE})
     
-    # Revenue calculation
+    # Revenue calculation from payments collection
     payments = await db.payments.find({"status": PaymentStatus.SUCCESS}).to_list(10000)
     total_revenue = sum(p.get('amount', 0) for p in payments)
     
-    # Calculate MRR from active subscriptions
+    # Calculate MRR from active subscriptions - check both 'price' and 'amount' fields
     active_sub_docs = await db.subscriptions.find({"status": SubscriptionStatus.ACTIVE}).to_list(1000)
-    mrr = sum(s.get('price', 0) for s in active_sub_docs if s.get('billing_cycle') == 'monthly')
-    mrr += sum(s.get('price', 0) / 12 for s in active_sub_docs if s.get('billing_cycle') == 'yearly')
+    mrr = 0
+    for s in active_sub_docs:
+        sub_amount = s.get('price') or s.get('amount') or s.get('monthly_price') or 0
+        billing = s.get('billing_cycle') or s.get('billing') or 'monthly'
+        if billing == 'monthly':
+            mrr += sub_amount
+        elif billing == 'yearly':
+            mrr += sub_amount / 12
     
     # Open tickets
     open_tickets = await db.tickets.count_documents({"status": {"$in": [TicketStatus.OPEN, TicketStatus.IN_PROGRESS]}})
