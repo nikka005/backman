@@ -1130,7 +1130,7 @@ const DashboardPage = () => {
                     <div className="flex-1">
                       <p className="text-sm font-medium text-gray-900">Live Instagram Data</p>
                       <p className="text-xs text-gray-600">
-                        Connected to Instagram API. Click "Refresh Data" to update your stats.
+                        Connected to Instagram API. Click Refresh Data to update your stats.
                       </p>
                     </div>
                   </div>

@@ -204,7 +204,7 @@ async def create_subscription(sub_data: SubscriptionCreate, current_user: dict =
         user_doc['name'],
         plan_details.name,
         final_price,
-        request.billing_cycle
+        sub_data.billing_cycle
     )
     
     return SubscriptionResponse(
