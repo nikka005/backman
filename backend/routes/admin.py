@@ -163,7 +163,7 @@ async def get_all_users(
 
 @router.get("/users/{user_id}")
 async def get_user_details(user_id: str, current_user: dict = Depends(admin_required)):
-    """Get detailed user information."""
+    """Get detailed user information including Instagram stats and growth progress."""
     user = await db.users.find_one({"id": user_id}, {"_id": 0, "password_hash": 0})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -171,8 +171,20 @@ async def get_user_details(user_id: str, current_user: dict = Depends(admin_requ
     # Get subscription
     subscription = await db.subscriptions.find_one({"user_id": user_id}, {"_id": 0})
     
-    # Get Instagram account
+    # Get Instagram account with stats
     instagram = await db.instagram_accounts.find_one({"user_id": user_id}, {"_id": 0})
+    
+    # Build instagram_stats from account data
+    instagram_stats = None
+    if instagram:
+        instagram_stats = {
+            "followers_count": instagram.get("followers_count", 0),
+            "following_count": instagram.get("following_count", 0),
+            "media_count": instagram.get("media_count", 0),
+            "engagement_rate": instagram.get("engagement_rate", 0),
+            "is_oauth_connected": instagram.get("is_oauth_connected", False),
+            "last_synced": instagram.get("last_synced")
+        }
     
     # Get payments
     payments = await db.payments.find({"user_id": user_id}, {"_id": 0}).sort("created_at", -1).limit(10).to_list(10)
@@ -180,13 +192,40 @@ async def get_user_details(user_id: str, current_user: dict = Depends(admin_requ
     # Get tickets
     tickets = await db.tickets.find({"user_id": user_id}, {"_id": 0}).sort("created_at", -1).limit(5).to_list(5)
     
-    return {
-        "user": user,
+    # Calculate growth data if subscription exists
+    growth_progress = None
+    if subscription and instagram:
+        start_followers = subscription.get("start_followers", instagram.get("initial_followers", 0))
+        current_followers = instagram.get("followers_count", start_followers)
+        
+        # Get plan details to determine target
+        plan = await db.plans.find_one({"name": {"$regex": f"^{user.get('current_plan', '')}$", "$options": "i"}}, {"_id": 0})
+        if plan:
+            target_followers = plan.get("follower_target_max") or plan.get("follower_target") or 1500
+            gained = max(0, current_followers - start_followers)
+            progress = min(100, round((gained / target_followers) * 100))
+            
+            growth_progress = {
+                "target": target_followers,
+                "start": start_followers,
+                "current": current_followers,
+                "gained": gained,
+                "progress": progress,
+                "is_complete": progress >= 100
+            }
+    
+    # Build response with all needed data for frontend
+    response = {
+        **user,
+        "instagram_username": instagram.get("username") if instagram else None,
+        "instagram_stats": instagram_stats,
         "subscription": subscription,
-        "instagram": instagram,
+        "growth_progress": growth_progress,
         "payments": payments,
         "tickets": tickets
     }
+    
+    return response
 
 
 @router.put("/users/{user_id}")
