@@ -8,7 +8,7 @@ import {
   LayoutDashboard, Users, CreditCard, MessageSquare,
   Bell, Settings, LogOut, DollarSign,
   Loader2, RefreshCw, Package, Grid3X3, BarChart3, Megaphone, Sliders,
-  Mail, Shield, Download, Brain, Gift, Share2, Tag, Book, Server, Instagram
+  Mail, Shield, Download, Brain, Gift, Share2, Tag, Book, Server, Instagram, FileText
 } from 'lucide-react';
 import AdminSettings from './AdminSettings';
 import AdminPlans from './AdminPlans';
