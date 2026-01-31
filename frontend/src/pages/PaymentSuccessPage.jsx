@@ -12,10 +12,15 @@ const PaymentSuccessPage = () => {
   const [paymentData, setPaymentData] = useState(null);
   const [attempts, setAttempts] = useState(0);
   const maxAttempts = 5;
-  const sessionId = searchParams.get('session_id');
   
-  // Check if coming from Razorpay (no session_id but has state or direct navigation)
-  const isRazorpay = !sessionId;
+  // Get params
+  const sessionId = searchParams.get('session_id');
+  const provider = searchParams.get('provider');
+  const planFromUrl = searchParams.get('plan');
+  const billingFromUrl = searchParams.get('billing');
+  
+  // Check if coming from Razorpay
+  const isRazorpay = provider === 'razorpay' || (!sessionId && !provider);
 
   useEffect(() => {
     if (sessionId) {
@@ -25,8 +30,8 @@ const PaymentSuccessPage = () => {
       // Razorpay flow - payment already verified, show success
       setStatus('success');
       setPaymentData({
-        plan: location.state?.plan || 'Your',
-        billing: location.state?.billing || 'subscription',
+        plan: planFromUrl || location.state?.plan || 'Your',
+        billing: billingFromUrl || location.state?.billing || 'subscription',
         provider: 'razorpay'
       });
     }
