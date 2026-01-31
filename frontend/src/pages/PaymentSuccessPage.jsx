@@ -96,20 +96,27 @@ const PaymentSuccessPage = () => {
               Welcome to the <span className="font-semibold capitalize">{paymentData?.plan}</span> plan!
               Your subscription is now active.
             </p>
-            <div className="bg-gray-50 rounded-xl p-4 mb-6">
-              <div className="flex justify-between text-sm mb-2">
-                <span className="text-gray-500">Plan</span>
-                <span className="font-medium capitalize">{paymentData?.plan}</span>
+            {paymentData?.amount_total && (
+              <div className="bg-gray-50 rounded-xl p-4 mb-6">
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-gray-500">Plan</span>
+                  <span className="font-medium capitalize">{paymentData?.plan}</span>
+                </div>
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-gray-500">Billing</span>
+                  <span className="font-medium capitalize">{paymentData?.billing}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500">Amount</span>
+                  <span className="font-medium">
+                    {paymentData?.provider === 'razorpay' 
+                      ? `₹${paymentData?.amount_total}`
+                      : `$${(paymentData?.amount_total / 100).toFixed(2)} ${paymentData?.currency?.toUpperCase()}`
+                    }
+                  </span>
+                </div>
               </div>
-              <div className="flex justify-between text-sm mb-2">
-                <span className="text-gray-500">Billing</span>
-                <span className="font-medium capitalize">{paymentData?.billing}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Amount</span>
-                <span className="font-medium">${(paymentData?.amount_total / 100).toFixed(2)} {paymentData?.currency?.toUpperCase()}</span>
-              </div>
-            </div>
+            )}
             <Link to="/dashboard">
               <Button className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white gap-2">
                 Go to Dashboard
