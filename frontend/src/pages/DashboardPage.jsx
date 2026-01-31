@@ -943,13 +943,46 @@ const DashboardPage = () => {
               </div>
             </div>
           ) : activeTab === 'analytics' ? (
-            /* Analytics Tab */
+            /* Analytics Tab - Enhanced with AI Insights */
             <div className="space-y-6">
+              {/* Performance Scores */}
+              {performanceScores && (
+                <div className="bg-white rounded-2xl border border-gray-100 p-6">
+                  <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-purple-500" />
+                    Performance Score
+                  </h2>
+                  <div className="grid md:grid-cols-5 gap-4">
+                    <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl">
+                      <div className="text-3xl font-bold text-purple-600">{performanceScores.overall_score}</div>
+                      <p className="text-sm text-gray-500">Overall</p>
+                    </div>
+                    <div className="text-center p-4 bg-gray-50 rounded-xl">
+                      <div className="text-2xl font-bold text-pink-600">{performanceScores.engagement_score}</div>
+                      <p className="text-xs text-gray-500">Engagement</p>
+                    </div>
+                    <div className="text-center p-4 bg-gray-50 rounded-xl">
+                      <div className="text-2xl font-bold text-green-600">{performanceScores.growth_score}</div>
+                      <p className="text-xs text-gray-500">Growth</p>
+                    </div>
+                    <div className="text-center p-4 bg-gray-50 rounded-xl">
+                      <div className="text-2xl font-bold text-blue-600">{performanceScores.content_score}</div>
+                      <p className="text-xs text-gray-500">Content</p>
+                    </div>
+                    <div className="text-center p-4 bg-gray-50 rounded-xl">
+                      <div className="text-2xl font-bold text-orange-600">{performanceScores.consistency_score}</div>
+                      <p className="text-xs text-gray-500">Consistency</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Growth Analytics */}
               <div className="bg-white rounded-2xl border border-gray-100 p-6">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">Growth Analytics</h2>
                 {stats ? (
                   <div className="space-y-6">
-                    <div className="grid md:grid-cols-3 gap-4">
+                    <div className="grid md:grid-cols-4 gap-4">
                       <div className="p-4 bg-gradient-to-r from-pink-50 to-orange-50 rounded-xl">
                         <p className="text-sm text-gray-500">Total Followers Gained</p>
                         <p className="text-2xl font-bold text-gray-900">{(stats.total_followers_gained || 0).toLocaleString()}</p>
@@ -962,10 +995,29 @@ const DashboardPage = () => {
                         <p className="text-sm text-gray-500">Engagement Rate</p>
                         <p className="text-2xl font-bold text-gray-900">{stats.engagement_rate || 0}%</p>
                       </div>
+                      <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl">
+                        <p className="text-sm text-gray-500">Reach</p>
+                        <p className="text-2xl font-bold text-gray-900">{instagramInsights?.reach ? `${(instagramInsights.reach / 1000).toFixed(1)}K` : '—'}</p>
+                      </div>
                     </div>
-                    <div className="h-64 bg-gray-50 rounded-xl flex items-center justify-center">
-                      <p className="text-gray-400">Detailed charts coming soon</p>
-                    </div>
+                    
+                    {/* Additional Instagram Metrics */}
+                    {instagramInsights && (
+                      <div className="grid md:grid-cols-3 gap-4">
+                        <div className="p-4 border border-gray-100 rounded-xl">
+                          <p className="text-sm text-gray-500">Impressions</p>
+                          <p className="text-xl font-bold text-gray-900">{instagramInsights.impressions?.toLocaleString() || '—'}</p>
+                        </div>
+                        <div className="p-4 border border-gray-100 rounded-xl">
+                          <p className="text-sm text-gray-500">Profile Views</p>
+                          <p className="text-xl font-bold text-gray-900">{instagramInsights.profile_views?.toLocaleString() || '—'}</p>
+                        </div>
+                        <div className="p-4 border border-gray-100 rounded-xl">
+                          <p className="text-sm text-gray-500">Website Clicks</p>
+                          <p className="text-xl font-bold text-gray-900">{instagramInsights.website_clicks?.toLocaleString() || '—'}</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="text-center py-8">
@@ -974,6 +1026,111 @@ const DashboardPage = () => {
                   </div>
                 )}
               </div>
+              
+              {/* AI Insights */}
+              {aiInsights.length > 0 && (
+                <div className="bg-white rounded-2xl border border-gray-100 p-6">
+                  <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-yellow-500" />
+                    AI Insights
+                  </h2>
+                  <div className="space-y-4">
+                    {aiInsights.map((insight, idx) => (
+                      <div key={idx} className={`p-4 rounded-xl border-l-4 ${
+                        insight.priority === 'high' ? 'bg-red-50 border-red-500' :
+                        insight.priority === 'medium' ? 'bg-yellow-50 border-yellow-500' :
+                        'bg-green-50 border-green-500'
+                      }`}>
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-medium text-gray-900">{insight.title}</h4>
+                          <Badge className={`text-xs ${
+                            insight.priority === 'high' ? 'bg-red-100 text-red-700' :
+                            insight.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                            'bg-green-100 text-green-700'
+                          }`}>
+                            {insight.priority}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-2">{insight.description}</p>
+                        {insight.action_items && insight.action_items.length > 0 && (
+                          <ul className="text-sm text-gray-500 list-disc list-inside">
+                            {insight.action_items.map((item, i) => (
+                              <li key={i}>{item}</li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Content Recommendations */}
+              {contentRecommendations.length > 0 && (
+                <div className="bg-white rounded-2xl border border-gray-100 p-6">
+                  <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-blue-500" />
+                    Content Recommendations
+                  </h2>
+                  <div className="grid md:grid-cols-3 gap-4">
+                    {contentRecommendations.map((rec, idx) => (
+                      <div key={idx} className="p-4 bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-100">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge className={`${
+                            rec.type === 'reel' ? 'bg-purple-100 text-purple-700' :
+                            rec.type === 'story' ? 'bg-pink-100 text-pink-700' :
+                            'bg-blue-100 text-blue-700'
+                          }`}>
+                            {rec.type}
+                          </Badge>
+                        </div>
+                        <h4 className="font-medium text-gray-900 mb-1">{rec.topic}</h4>
+                        <p className="text-xs text-gray-500 mb-2">Best time: {rec.best_time}</p>
+                        <p className="text-sm text-gray-600 italic">&ldquo;{rec.caption_suggestion}&rdquo;</p>
+                        {rec.hashtags && rec.hashtags.length > 0 && (
+                          <div className="mt-2 flex flex-wrap gap-1">
+                            {rec.hashtags.slice(0, 5).map((tag, i) => (
+                              <span key={i} className="text-xs text-pink-600">#{tag}</span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Recent Posts */}
+              {recentPosts.length > 0 && (
+                <div className="bg-white rounded-2xl border border-gray-100 p-6">
+                  <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Posts Performance</h2>
+                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                    {recentPosts.slice(0, 12).map((post, idx) => (
+                      <a 
+                        key={idx} 
+                        href={post.permalink} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="group relative aspect-square bg-gray-100 rounded-lg overflow-hidden"
+                      >
+                        {post.media_url && (
+                          <img 
+                            src={post.thumbnail_url || post.media_url} 
+                            alt="" 
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                          />
+                        )}
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <div className="text-white text-center text-xs">
+                            <p className="flex items-center gap-1"><Heart className="w-3 h-3" /> {post.like_count || 0}</p>
+                            <p className="flex items-center gap-1"><MessageCircle className="w-3 h-3" /> {post.comments_count || 0}</p>
+                          </div>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           ) : activeTab === 'support' ? (
             /* Support Tab */
