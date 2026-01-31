@@ -205,6 +205,40 @@ const DashboardPage = () => {
           setAiAnalysis(user.ai_analysis);
         }
       }
+      
+      // Load AI Analytics dashboard data
+      try {
+        const aiResponse = await aiAnalyticsAPI.getDashboard();
+        if (aiResponse.data) {
+          setAiDashboard(aiResponse.data);
+          setAiInsights(aiResponse.data.growth_analysis?.insights || []);
+          setContentRecommendations(aiResponse.data.content_recommendations || []);
+          setPerformanceScores(aiResponse.data.performance_scores || null);
+        }
+      } catch (e) {
+        // AI analytics not available
+      }
+      
+      // Load Instagram insights (detailed metrics)
+      try {
+        const insightsResponse = await instagramAPI.getInsights();
+        if (insightsResponse.data) {
+          setInstagramInsights(insightsResponse.data);
+          setRecentPosts(insightsResponse.data.recent_posts || []);
+        }
+      } catch (e) {
+        // Insights not available
+      }
+      
+      // Load notification preferences
+      try {
+        const prefsResponse = await notificationPreferencesAPI.getPreferences();
+        if (prefsResponse.data) {
+          setNotificationPrefs(prefsResponse.data);
+        }
+      } catch (e) {
+        // Use defaults
+      }
     } catch (error) {
       console.error('Error loading dashboard:', error);
     } finally {
