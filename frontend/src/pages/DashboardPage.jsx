@@ -1163,6 +1163,113 @@ const DashboardPage = () => {
                 })}
               </div>
 
+              {/* Plan Growth Progress Card - Shows after user buys a plan */}
+              {subscription && subscription.status === 'active' && (
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-200 p-6 mb-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
+                        <Target className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900 capitalize">{subscription.plan} Plan Progress</h3>
+                        <p className="text-sm text-gray-600">
+                          {subscription.growth_complete 
+                            ? 'Target reached! Your plan is complete.' 
+                            : 'Working towards your follower target'}
+                        </p>
+                      </div>
+                    </div>
+                    {subscription.growth_complete ? (
+                      <Badge className="bg-green-500 text-white px-4 py-2">
+                        <CheckCircle className="w-4 h-4 mr-2" /> Complete!
+                      </Badge>
+                    ) : (
+                      <Badge className="bg-emerald-100 text-emerald-700 px-4 py-2">In Progress</Badge>
+                    )}
+                  </div>
+                  
+                  {/* Progress Bar */}
+                  <div className="mb-4">
+                    {(() => {
+                      // Calculate progress based on plan targets
+                      const planTargets = {
+                        starter: { min: 1000, max: 1500 },
+                        growth: { min: 2500, max: 5000 },
+                        pro: { min: 5000, max: 10000 },
+                        elite: { min: 10000, max: 25000 },
+                        business: { min: 25000, max: 50000 }
+                      };
+                      
+                      const planTarget = planTargets[subscription.plan?.toLowerCase()] || { min: 1000, max: 1500 };
+                      const targetFollowers = planTarget.max;
+                      const startFollowers = subscription.start_followers || 0;
+                      const currentFollowers = instagramAccount?.followers_count || startFollowers;
+                      const gained = Math.max(0, currentFollowers - startFollowers);
+                      const progress = Math.min(100, Math.round((gained / targetFollowers) * 100));
+                      
+                      return (
+                        <>
+                          <div className="flex items-center justify-between text-sm mb-2">
+                            <span className="text-gray-600">
+                              <span className="font-semibold text-green-600">+{gained.toLocaleString()}</span> followers gained
+                            </span>
+                            <span className="text-gray-600">
+                              Target: <span className="font-semibold">{targetFollowers.toLocaleString()}</span>
+                            </span>
+                          </div>
+                          <div className="h-4 bg-gray-200 rounded-full overflow-hidden">
+                            <div 
+                              className={`h-full rounded-full transition-all duration-500 ${
+                                progress >= 100 
+                                  ? 'bg-gradient-to-r from-green-500 to-emerald-500' 
+                                  : 'bg-gradient-to-r from-pink-500 to-purple-500'
+                              }`}
+                              style={{ width: `${progress}%` }}
+                            />
+                          </div>
+                          <div className="flex items-center justify-between mt-2">
+                            <span className="text-xs text-gray-500">
+                              Started: {startFollowers.toLocaleString()} followers
+                            </span>
+                            <span className={`text-sm font-bold ${progress >= 100 ? 'text-green-600' : 'text-purple-600'}`}>
+                              {progress}%
+                            </span>
+                          </div>
+                        </>
+                      );
+                    })()}
+                  </div>
+                  
+                  {/* Milestones */}
+                  <div className="grid grid-cols-4 gap-2 mt-4">
+                    {[25, 50, 75, 100].map((milestone) => {
+                      const planTargets = {
+                        starter: 1500, growth: 5000, pro: 10000, elite: 25000, business: 50000
+                      };
+                      const target = planTargets[subscription.plan?.toLowerCase()] || 1500;
+                      const startFollowers = subscription.start_followers || 0;
+                      const currentFollowers = instagramAccount?.followers_count || startFollowers;
+                      const gained = currentFollowers - startFollowers;
+                      const progress = Math.min(100, Math.round((gained / target) * 100));
+                      const reached = progress >= milestone;
+                      
+                      return (
+                        <div 
+                          key={milestone} 
+                          className={`text-center p-2 rounded-lg ${reached ? 'bg-green-100' : 'bg-gray-100'}`}
+                        >
+                          <div className={`text-lg font-bold ${reached ? 'text-green-600' : 'text-gray-400'}`}>
+                            {reached ? <CheckCircle className="w-5 h-5 mx-auto" /> : `${milestone}%`}
+                          </div>
+                          <p className="text-xs text-gray-500">{Math.round(target * milestone / 100).toLocaleString()}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               <div className="grid lg:grid-cols-3 gap-6">
                 {/* Growth Chart */}
                 <div className="lg:col-span-2 bg-white rounded-xl border border-gray-100 p-6">
