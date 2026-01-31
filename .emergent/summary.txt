@@ -1,147 +1,165 @@
 <analysis>**original_problem_statement:**
-The user's goal is to build Adverlyx Digital, a production-ready SaaS platform. The initial request was to fix two mobile UI bugs on the live AWS server: broken navigation and a dashboard that wasn't updating.
+The user aims to build Adverlyx Digital, a production-ready SaaS platform for Instagram growth. The initial scope expanded from fixing mobile UI bugs to a complete overhaul of major features.
 
-After the agent began work, the user reported a new, more complex set of issues:
-1.  The dashboard still wasn't showing Targeting information for new accounts.
-2.  The AI analysis feature was failing because it was pulling placeholder Instagram data (0 followers/posts).
-3.  The subscription flow was unprofessional, redirecting users straight to a payment provider without a proper billing page to select plans, apply coupons, or choose a payment method.
-4.  The AI's analysis and recommendations were not being saved to the user's profile or displayed on their dashboard.
-5.  All new features, like coupons, must be manageable from the admin panel.
-6.  While setting up the Instagram OAuth flow, the user discovered they needed several legal pages (Privacy, Terms, Refund, Data Deletion) to satisfy Facebook's app requirements.
+Key requirements from the user during the sessions include:
+1.  **Fix Billing UI:** The pricing page showed monthly prices for yearly plans (e.g., 1/mo instead of 92/year). This needed correction.
+2.  **Enable Real-Time Data:** The user and admin dashboards were using mock data. The core requirement is to fetch and display *real* data from a user's Instagram profile after they connect via OAuth.
+3.  **AI Plan Recommendation:** The AI onboarding was suggesting a hardcoded, non-existent starter plan. It needed to be updated to suggest a real, popular plan from the database.
+4.  **Admin Documentation:** The user requested a comprehensive documentation page within the admin panel explaining how each feature works.
+5.  **Email Server Integration:** The user wanted to connect their professional email from Hostinger ( and ) to send application emails (e.g., welcome, password reset).
+6.  **Admin-Managed Settings:** The user explicitly requested that system settings, starting with email (SMTP) configuration, be manageable from the admin panel UI, not through backend code or  files.
+7.  **Instagram OAuth Connection:** The primary goal is to get the Instagram OAuth connection working to enable real-time data features. This has been a persistent and complex issue.
 
 **User's preferred language**: English
 
 **what currently exists?**
-The application is a full-stack React/FastAPI/MongoDB platform deployed on the user's AWS server.
+The application is a full-stack SaaS platform using React, FastAPI, and MongoDB, deployed on the user's AWS server, which is managed by PM2.
 
-The latest session introduced significant enhancements:
--   **Professional Checkout Flow:** A new  page has been created. It allows users to review their selected plan, apply coupon codes, see a detailed order summary, and choose between Stripe or Razorpay before payment.
--   **Admin-Managed Coupons:** A full CRUD interface at  allows the admin to create, view, update, and delete promotional codes. The backend includes an API to validate these codes.
--   **AI Analysis & Dashboard Integration:**
-    -   The AI analysis now saves its insights (detected niche, growth summary, suggested plan) directly to the user's profile in the database.
-    -   The user dashboard features a new AI Analysis Insights card that displays this data.
-    -   The manual Instagram connection now generates mock statistics (followers, posts) to provide the AI with realistic data for analysis, solving the 0 followers issue.
--   **Instagram OAuth Foundation:** All necessary frontend and backend code for a real Instagram Graph API OAuth 2.0 flow has been implemented. This includes the Connect with Instagram button, backend routes for authorization and token exchange, and environment variable handling for app credentials.
--   **Legal & Compliance Pages:** The application now includes dedicated, fully-styled pages for Privacy Policy, Terms of Service, Refund Policy, Cookie Policy, and Data Deletion Instructions, complete with a backend endpoint for handling data deletion requests as required by Facebook.
+Significant progress has been made:
+-   **UI Fixes & Enhancements:** The yearly billing display on the pricing page is now correct. The user and admin dashboards have been updated to differentiate between Live Data (for OAuth-connected accounts) and Demo Mode (for manual connections).
+-   **Real-time Data Backend:** Endpoints have been created to fetch and process real Instagram data (, ).
+-   **Improved Manual Connection:** The Demo Mode is now clearly labeled, and the simulated data is more realistic with auto-generated avatars and display names to provide a better user experience pending the OAuth fix.
+-   **Smarter AI:** The AI onboarding now fetches plans from the database and correctly recommends the most popular one (Pro).
+-   **Admin Panel Features:** An extensive documentation page has been added, along with a new page to view analytics for all connected Instagram users, showing real or simulated data as appropriate.
+-   **Instagram OAuth Attempts:** The agent has guided the user through creating multiple Facebook Apps (Business and Consumer types) and updated the backend code to support Instagram Business API. However, the connection is still not functional.
+-   **Email Integration:** The backend was temporarily configured to use the user's Hostinger SMTP credentials via  variables.
 
 **Last working item**:
--   **Last item agent was working:** The agent was guiding the user through the final steps of configuring the Instagram OAuth integration on their live AWS server. This involved instructing the user on how to add their Facebook App ID and Secret to the backend's  file and providing the correct  commands to deploy all the new features.
+-   **Last item agent was working:** The agent began implementing an admin UI for managing SMTP email settings. This was in direct response to the user's request to control settings from the admin panel instead of  files. The agent was investigating  to add the necessary API endpoints to store and retrieve this configuration.
 -   **Status:** IN PROGRESS
--   **Agent Testing Done:** Y
--   **Which testing method agent to use?** manual testing by curl
+-   **Agent Testing Done:** N
 -   **User Testing Done:** N
+-   **Which testing method agent to use?** both
 
 **All Pending/In progress Issue list**:
-  None. All previously reported bugs have been resolved. The current work is a feature implementation task.
+-   **Issue 1: Instagram Business API Connection Fails (P0)**
+    -   **Description:** The OAuth flow consistently fails on the user's live server. After the user clicks Connect with Instagram and is redirected to Instagram, they encounter errors like The profile that youre looking for doesnt exist or Invalid platform app. This is the primary blocker preventing the app from using real user data.
+    -   **Attempted fixes:**
+        -   Switched backend code from Instagram Basic Display to Instagram Business API.
+        -   Verified App ID, secret, and redirect URIs in the server's  file multiple times.
+        -   Guided the user to create different types of Facebook Apps (Business and Consumer).
+        -   Guided the user on adding Instagram Testers and linking the account to a Facebook Page via Business Suite.
+        -   Simplified the requested API scopes to the bare minimum ().
+    -   **Next debug checklist:**
+        1.  **Get Full Error URL:** When the redirect from Instagram fails, the browser URL contains  and  parameters. The next agent MUST obtain this full URL from the user to know the exact reason for the failure.
+        2.  **App Review:** The user needs to complete the App Review process in the Facebook Developer Console. The API will not work in Live mode for non-admin/tester users without it. Guide the user to submit the required screencasts and descriptions for the  permission.
+        3.  **Confirm Business Account Link:** Re-verify that the Instagram account is correctly connected to the Facebook Page and that the app has been added as an asset within the Facebook Business Suite settings.
+        4.  **File Reference:** The issue lies within the interaction between the user's Facebook App configuration and the backend code at .
+    -   **Why fix this issue?** This is the most critical feature for the platform. Fixing it will unlock real-time analytics for both the user and admin dashboards.
+    -   **Status:** BLOCKED
+    -   **Is recurring issue?** Y
+    -   **Should Test frontend/backend/both after fix?** both
+    -   **Blocked on other issue:** Meta App Review process.
 
 **In progress Task List**:
--   **Task 1:** (P0) Finalize and Test the Live Instagram OAuth Integration.
-    -   **Where to resume:** Guide the user to successfully update their  file on the AWS server with the correct Instagram App credentials and then run the deployment commands. The code is complete, but the live environment is not yet configured.
-    -   **What will be achieved with this?** Users will be able to connect their real Instagram accounts, enabling the AI to perform analysis on actual user data instead of mock data.
-    -   **Status:** BLOCKED
+-   **Task 1: Implement Admin UI for Email (SMTP) Configuration (P1)**
+    -   **Where to resume:**
+        1.  Add  and  endpoints to  to manage email settings in a new  collection in MongoDB.
+        2.  Create a new React component in  to provide a form for SMTP Host, Port, Username, Password, and SSL preference.
+        3.  Link this new component to the admin navigation in .
+        4.  Update the email sending logic in  to fetch credentials from the database instead of environment variables.
+    -   **What will be achieved with this?** The admin will be able to manage email server settings directly from the UI, improving operational flexibility.
+    -   **Status:** IN PROGRESS
     -   **Should Test frontend/backend/both after fix?** both
-    -   **Blocked on something:** User action is required to update environment variables and deploy the code on their AWS server.
+    -   **Blocked on something:** No.
 
 **Upcoming and Future Tasks**
-- **Upcoming Tasks:**
-    - (P1) **Test Live Instagram OAuth Flow:** Once the user deploys the changes, perform a full end-to-end test of the Instagram connection flow.
-    - (P2) **Prepare for Private Beta:** Conduct final polishing and stabilization for a beta launch.
-- **Future Tasks:**
-    - (P2) **Implement PayPal Integration:** Add PayPal as a third payment option.
-    - (P3) **Refactor :** Simplify the main admin layout component.
-    - (P3) **AI-Powered Weekly Growth Reports:** Develop a system to send automated weekly growth reports to users.
+-   **Upcoming Tasks:**
+    -   (P0) **Guide User Through Meta App Review:** Provide clear, step-by-step instructions for creating screencasts and writing descriptions to get the required Instagram API permissions approved.
+    -   (P1) **End-to-End Test of Live Instagram OAuth Flow:** Once the connection issue is resolved, perform a thorough test of the entire flow, from connection to data display on user and admin dashboards.
+-   **Future Tasks:**
+    -   (P2) **Implement PayPal Integration:** Add PayPal as a payment option.
+    -   (P3) **Refactor :** Simplify the main admin layout component.
+    -   (P3) **AI-Powered Weekly Growth Reports:** Develop a feature to email users automated weekly growth reports.
 
 **Completed work in this session**
--   **Mobile UI Bugs Fixed:** Resolved the initial mobile navigation and dashboard update issues. The navigation was refactored for URL consistency.
--   **Professional Checkout Page Implemented:** Created a new checkout page () with an order summary, coupon code validation, and payment method selection (Stripe/Razorpay).
--   **Admin Coupon Management System:** Built a full CRUD interface in the admin panel () and a backend API for managing coupons.
--   **AI Analysis & Dashboard Integration:**
-    -   Fixed the AI analysis flow by generating mock Instagram stats for manual connections.
-    -   The AI now saves its analysis (niche, summary, etc.) to the user's database profile.
-    -   A new AI Analysis Insights card was added to the user dashboard to display this data.
--   **Instagram OAuth Flow (Code Complete):** Implemented all backend routes and frontend UI for a real Meta Instagram Graph API OAuth connection.
--   **Legal & Data Deletion Pages:** Created and integrated five new pages: Privacy Policy, Terms of Service, Refund Policy, Cookie Policy, and Data Deletion, including backend endpoints for Facebook compliance.
+-   **Live Server Management:** Correctly identified the user's server uses PM2 and provided appropriate commands.
+-   **Authentication Bug Fix:** Resolved an issue where  was checked for  instead of .
+-   **Billing UI Fixed:** The pricing page now accurately displays total yearly prices for annual plans.
+-   **Real-time Data Integration:**
+    -   Implemented a Refresh Data button on the user dashboard.
+    -   The dashboard now shows a Live Data badge for OAuth accounts and a Demo Mode badge for manual ones.
+    -   Created an admin page at  to display analytics for all connected users, sourcing real data where available.
+-   **Improved Manual Connection Flow:** The UI now clearly communicates that manual connections use simulated Demo Mode data.
+-   **AI Logic Corrected:** The AI recommendation engine now dynamically suggests the Pro plan (marked as popular) from the database.
+-   **Admin Documentation:** A comprehensive documentation page was created and integrated into the admin panel at .
+-   **SMTP Email Integration (Initial):** Configured the backend to send emails via the user's Hostinger SMTP (this is now being migrated to a UI-managed feature).
+
+**Earlier issues found/mentioned but not fixed**
+-   None.
 
 **Known issue recurrence from previous fork**
 -   None.
 
 **Code Architecture**
-ai_analysisai_analysis
+
 
 **Key Technical Concepts**
--   **Live Co-Debugging:** Continued workflow of providing code and  commands for the user to execute on their live AWS server.
--   **Feature-Driven State Management:** Refactored components like the Dashboard to fetch and display data from multiple sources (user profile, targeting settings, AI analysis).
--   **Instagram Graph API OAuth Flow:** Implementation of the complete server-side OAuth 2.0 authorization code flow.
--   **Dynamic Mock Data Generation:** The backend now programmatically generates realistic-looking (but fake) Instagram statistics to enable robust testing of dependent AI features without a real API connection.
--   **Admin-Managed Configuration:** Extended the principle of admin control to include coupon management.
+-   **Live Server Debugging (AWS/PM2):** Interacting with the user's live server using PM2 for process management.
+-   **Instagram Business API OAuth:** Implementing and debugging the complex OAuth 2.0 flow, which is currently the main blocker.
+-   **Dynamic UI Rendering:** The frontend conditionally renders different components and badges (Live Data vs. Demo Mode) based on the  flag from the backend.
+-   **Admin-Managed Settings:** Migrating system configuration (like SMTP) from static  files to a database-backed admin UI.
 
 **key DB schema**
--   **users:** A new dictionary field  has been added to store the results from the AI onboarding process.
--   **coupons:** A new collection to store promotional codes, their discount values, and usage limits.
+-   **instagram_accounts:** Significantly updated with , , , ,  to support both real and simulated data.
+-   **settings:** A new collection will be implicitly created by  to store global configurations like SMTP credentials.
 
 **All files of reference**
--   **/app/backend/routes/instagram_graph_api.py**: Contains the newly added OAuth endpoints. The next agent needs to ensure the user's environment variables are set correctly for this to work.
--   **/app/frontend/src/pages/ConnectInstagramPage.jsx**: The UI for the new OAuth flow.
--   **/app/frontend/src/pages/DashboardPage.jsx**: Core user dashboard, now displays AI insights and correct targeting data.
--   **/app/frontend/src/pages/CheckoutPage.jsx**: The new professional billing page.
--   **/app/frontend/src/pages/admin/AdminCoupons.jsx**: The new admin interface for managing coupons.
--   **/app/backend/.env**: This file on the user's AWS server is the **critical blocking point**. It needs to be updated with the  and .
+-   : The core file for the failing Instagram OAuth flow.
+-   : The main user dashboard that displays real vs. demo data.
+-   : The target file for implementing the current task (UI-managed email settings).
+-   : The entry point for all admin panel features.
+-   : The critical configuration file on the user's live AWS server.
 
 **key api endpoints**
--   : Validates a coupon code and returns its discount.
--   : Initiates the Instagram OAuth flow by redirecting the user.
--   : Handles the callback from Instagram after user authorization, exchanges the code for an access token.
--   : Endpoint for users to request data deletion.
--   : Endpoint for Facebook to send automated deletion requests.
+-   : Initiates the Instagram Business API OAuth flow.
+-   : Handles the redirect from Instagram; currently a point of failure.
+-   : Fetches real-time profile data for OAuth-connected accounts.
+-   : Provides aggregated data for all connected Instagram accounts to the admin panel.
+-   : Endpoints to be created to manage SMTP settings from the admin UI.
 
 **Critical Info for New Agent**
--   **The Instagram OAuth flow is BLOCKED.** The code is fully implemented, but it will not work until the user correctly updates the  file on their live AWS server with their Facebook App ID and Secret, and then deploys the latest code.
--   Your immediate priority is to guide the user through this final configuration and deployment step.
--   The user's domain is , **not** . All URLs provided to the user must use the correct domain.
--   The user has already created their Facebook App and has the App ID () and App Secret. You just need to ensure they put these values into their server's  file.
--   Once deployed, you must perform a full end-to-end test of the Connect with Instagram button to verify the OAuth flow works live.
+-   **The Instagram API connection is the #1 blocker.** Do not get sidetracked. The root cause is likely the incomplete Meta App Review process or a misconfiguration in the Facebook Business Suite. Your first step should be to get the full failure URL from the user (with  and  parameters) to diagnose the exact issue.
+-   **The user's server uses PM2, not supervisor.** All deployment instructions must use .
+-   **The user prefers UI-based management over hardcoded settings.** The current task is to build a UI for SMTP settings. Continue this pattern for any future configurations.
+-   There is lingering confusion over Facebook App IDs. The correct one for the Business API seems to be , which is the **Instagram App ID** found inside the main app's settings (). Ensure the  file on the server uses this ID.
 
 **documents and test reports created in this job**
--   : Test report for mobile UI bug fixes.
--   : Test report for the new checkout flow and admin coupon management.
--   : Updated with all completed tasks.
+-   : Updated with completed tasks.
+-   : New documentation file created.
 
 **Last 10 User Messages and any pending HUMAN messages**
-10. **User:** Asks how to find the App ID and Secret. (Agent provided instructions).
-9.  **User:** Shares their App ID. (Agent acknowledged).
-8.  **User:** Shares their App Secret. (Agent instructed them to add it to their  file).
-7.  **User:** Reports the redirect URI is invalid, revealing their domain is , not . (Agent provided the corrected URI).
-6.  **User:** Still sees the invalid redirect URI error. (Agent guided them on where to paste the URI in the Facebook dashboard).
-5.  **User:** Confirms the redirect URI is now saved. (Agent provided next steps: update AWS  and deploy).
-4.  **User:** Asks where the App Mode toggle is. (Agent confirmed their app is already live).
-3.  **User:** Asks for final deployment steps. (Agent provided the  commands to update  and deploy).
-2.  **User:** Reports the data deletion page isn't working on the live site. (Agent explained it needs to be deployed).
-1.  **User:** Confirms they have deployed the changes but the legal pages are still not working. (Agent attempted to verify with  but it timed out). **This is the current pending message to resolve after the OAuth setup.**
+1.  **User:** Asks how to manage the email server from the admin panel instead of code. (Agent starts work on this).
+2.  **User:** Provides Hostinger SMTP credentials.
+3.  **User:** Provides email addresses to be used (, ).
+4.  **User:** Reports the AI suggests a non-existent starter plan and wants it to suggest the popular one. (Agent fixed this).
+5.  **User:** Asks if admin analytics will use real Instagram data. (Agent implemented this).
+6.  **User:** Deploys changes and reports Instagram connection now shows Invalid platform app error. (Agent identified App ID confusion).
+7.  **User:** Asks if admin analytics and other features will work with real Instagram data now. (Agent starts work on this).
+8.  **User:** Reports the Instagram connection redirects and shows the profile that youre looking for doesnt exist.
+9.  **User:** Confirms they are in Live Mode and have added a tester.
+10. **User:** Confirms they are using a Professional account and provides  output showing a valid token is generated.
 
 **Project Health Check:**
--   **Broken:** None.
--   **Mocked:**
-    -   The live Instagram connection is still effectively mocked because the OAuth credentials have not been deployed to the user's AWS server.
+-   **Broken:** The core Instagram OAuth flow for real-time data is broken.
+-   **Mocked:** Manual Instagram connections operate in a clearly labeled Demo Mode with simulated data, which is working as a fallback.
 
 **3rd Party Integrations**
--   **OpenAI GPT-5.2:** (Active) Uses Emergent LLM Key.
--   **Anthropic Claude Sonnet 4.5:** (Active) Uses Emergent LLM Key.
--   **Stripe (Payments):** (Active) Keys managed in admin panel.
--   **Razorpay (Payments):** (Active) Keys managed in admin panel.
--   **Meta Instagram Graph API:** (In Progress) Code is complete, but it is **blocked** on the user deploying the necessary App ID/Secret to their live server environment.
+-   **OpenAI GPT-5.2:** Active (via Emergent LLM Key).
+-   **Stripe:** Active.
+-   **Razorpay:** Active.
+-   **Meta Instagram Business API:** In Progress / **Broken**. This is the main focus. It requires a User API key (managed through Facebook Developer Console).
 
 **Testing status**
--   **Testing agent used after significant changes:** YES, used twice to verify bug fixes and the new checkout/coupon features.
+-   **Testing agent used after significant changes:** NO
 -   **Troubleshoot agent used after agent stuck in loop:** NO
 -   **Test files created:** None.
 -   **Known regressions:** None.
 
 **Credentials to test flow:**
--   **Admin Email:** 
--   **Admin Password:** 
--   **User Email:** 
--   **User Password:** 
--   **Test User with AI Data:**  / 
+-   **Admin Email:**  / **Password:** 
+-   **User Email:**  / **Password:** 
+-   **Hostinger SMTP User:**  / **Pass:** 
 
 **What agent forgot to execute**
--   The agent did not explicitly add the newly created legal page URLs to the  file until the user pointed out one was missing. This was corrected. The core tasks requested by the user were all addressed systematically.</analysis>
+-   The agent failed to insist on getting the **full browser URL** after the Instagram OAuth redirect failed. This URL contains critical  and  query parameters that would have likely explained the exact reason for the failure, saving significant debugging time.</analysis>
