@@ -69,6 +69,30 @@ const DashboardPage = () => {
   const [savingSettings, setSavingSettings] = useState(false);
   const [refreshingData, setRefreshingData] = useState(false);
   const [lastRefreshed, setLastRefreshed] = useState(null);
+  
+  // AI Analytics state
+  const [aiDashboard, setAiDashboard] = useState(null);
+  const [aiInsights, setAiInsights] = useState([]);
+  const [contentRecommendations, setContentRecommendations] = useState([]);
+  const [performanceScores, setPerformanceScores] = useState(null);
+  const [loadingAi, setLoadingAi] = useState(false);
+  
+  // Notification preferences state
+  const [notificationPrefs, setNotificationPrefs] = useState({
+    email_notifications: true,
+    growth_milestone_alerts: true,
+    weekly_reports: true,
+    promotional_emails: false,
+    security_alerts: true,
+    billing_alerts: true,
+    new_features: true,
+    tips_and_tricks: true
+  });
+  const [savingNotifPrefs, setSavingNotifPrefs] = useState(false);
+  
+  // Instagram insights state
+  const [instagramInsights, setInstagramInsights] = useState(null);
+  const [recentPosts, setRecentPosts] = useState([]);
 
   // Default stats when no real data
   const defaultStats = {
