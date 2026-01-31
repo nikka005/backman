@@ -153,6 +153,26 @@ const DashboardPage = () => {
         // No targeting
       }
       
+      // If OAuth connected, fetch real analytics
+      try {
+        const analyticsResponse = await instagramAPI.getAnalyticsSummary();
+        if (analyticsResponse.data) {
+          const analytics = analyticsResponse.data;
+          setStats(prev => ({
+            ...prev,
+            followers_count: analytics.current_followers,
+            following_count: prev?.following_count || 0,
+            engagement_rate: analytics.engagement_rate,
+            total_followers_gained: analytics.total_followers_gained,
+            followersGrowth: analytics.followers_today,
+            followers_this_month: analytics.followers_this_month,
+            growth_percentage: analytics.growth_percentage
+          }));
+        }
+      } catch (e) {
+        // Use existing stats
+      }
+      
       // Set user settings and AI analysis
       if (user) {
         setUserSettings({ name: user?.name || '' });
