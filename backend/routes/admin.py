@@ -272,6 +272,7 @@ async def update_user(user_id: str, update_data: UserUpdate, current_user: dict 
                     "status": "active",
                     "price": plan_price,
                     "amount": plan_price,
+                    "currency": "usd",
                     "start_followers": start_followers,
                     "admin_assigned": True,
                     "assigned_by": current_user['email'],
