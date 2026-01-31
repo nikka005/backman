@@ -504,7 +504,10 @@ const CheckoutPage = () => {
                   ) : (
                     <>
                       <Lock className="w-4 h-4 mr-2" />
-                      Pay ${finalPrice.toFixed(2)} {billingCycle === 'yearly' ? '/ month' : ''}
+                      {billingCycle === 'yearly' 
+                        ? `Pay $${yearlyTotal.toFixed(2)} for 1 Year`
+                        : `Pay $${finalMonthlyPrice.toFixed(2)} / month`
+                      }
                     </>
                   )}
                 </Button>
