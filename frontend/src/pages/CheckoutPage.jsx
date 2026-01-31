@@ -67,18 +67,24 @@ const CheckoutPage = () => {
       const response = await publicAPI.getPlans();
       const foundPlan = response.data.find(p => 
         p.slug?.toLowerCase() === planSlug?.toLowerCase() || 
-        p.id?.toLowerCase() === planSlug?.toLowerCase()
+        p.id?.toLowerCase() === planSlug?.toLowerCase() ||
+        p.name?.toLowerCase() === planSlug?.toLowerCase()
       );
       
       if (foundPlan) {
+        // Ensure we have a valid slug for payment - fallback to id or name
+        const planSlugValue = foundPlan.slug || foundPlan.id || foundPlan.name?.toLowerCase().replace(/\s+/g, '-');
+        
         setPlan({
-          id: foundPlan.id || foundPlan.slug,
-          slug: foundPlan.slug,
+          id: foundPlan.id || foundPlan.slug || planSlugValue,
+          slug: planSlugValue,
           name: foundPlan.name,
           description: foundPlan.description,
           monthlyPrice: foundPlan.monthly_price,
           yearlyPrice: foundPlan.yearly_price,
-          followers: `${(foundPlan.followers_min / 1000).toFixed(0)}K - ${(foundPlan.followers_max / 1000).toFixed(0)}K`,
+          followers: foundPlan.followers_min && foundPlan.followers_max 
+            ? `${(foundPlan.followers_min / 1000).toFixed(0)}K - ${(foundPlan.followers_max / 1000).toFixed(0)}K`
+            : foundPlan.followers || 'Custom',
           features: foundPlan.feature_list || foundPlan.features || []
         });
       } else {
