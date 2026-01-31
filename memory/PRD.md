@@ -135,12 +135,17 @@ Adverlyx Digital is a full-stack SaaS platform for Instagram growth services (pl
 - AI Weekly Growth Reports: Full implementation with preview & bulk send
 - Enhanced User Management: Edit users, change plans, view Instagram stats
 - Growth Tracking System: Progress tracking with milestones after purchase
+- **Forgot Password Feature**: Complete flow with ForgotPasswordPage and ResetPasswordPage
+- **Yearly Billing Display Fix**: Pricing page shows correct yearly totals ($492/year for Pro)
+- **Payment Routes**: Backend validates and creates checkout sessions correctly
 
 ### Upcoming Tasks (P0-P1)
-1. PayPal payment integration (when user is ready)
-2. Automated weekly report scheduling (cron job)
+1. Instagram Data Display: Show detailed metrics (engagement, reach, posts) on dashboard
+2. Razorpay Configuration: Requires API keys from user for Indian payments
+3. PayPal payment integration (when user is ready)
 
 ### Future/Backlog (P2-P3)
+- Automated weekly report scheduling (cron job)
 - User notification preferences for weekly reports
 - Advanced AI analytics features
 - More email template customizations
