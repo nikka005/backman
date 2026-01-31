@@ -23,6 +23,7 @@ from .ai_onboarding import router as ai_onboarding_router, init_router as init_a
 from .instagram_graph_api import router as instagram_graph_router, init_router as init_instagram_graph
 from .affiliate_referral import router as affiliate_referral_router, init_router as init_affiliate_referral
 from .admin_programs import router as admin_programs_router, init_router as init_admin_programs
+from utils.email import init_email_db
 
 
 def init_all_routes(database):
@@ -52,6 +53,8 @@ def init_all_routes(database):
     init_instagram_graph(database)
     init_affiliate_referral(database)
     init_admin_programs(database)
+    # Initialize email service with database
+    init_email_db(database)
 
 
 all_routers = [
