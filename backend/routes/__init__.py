@@ -54,6 +54,7 @@ def init_all_routes(database):
     init_instagram_graph(database)
     init_affiliate_referral(database)
     init_admin_programs(database)
+    init_weekly_reports(database)
     # Initialize email service with database
     init_email_db(database)
 
@@ -83,5 +84,6 @@ all_routers = [
     ai_onboarding_router,
     instagram_graph_router,
     affiliate_referral_router,
-    admin_programs_router
+    admin_programs_router,
+    weekly_reports_router
 ]
