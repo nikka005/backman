@@ -10,7 +10,7 @@ from models.subscription import (
 )
 from models.payment import Payment, PaymentCreate, PaymentStatus, PaymentMethod
 from utils.auth import get_current_user
-from utils.email import send_subscription_email
+from utils.email import send_payment_confirmation_email
 
 router = APIRouter(prefix="/subscriptions", tags=["Subscriptions"])
 
