@@ -28,6 +28,7 @@ import AdminSocialLinks from './AdminSocialLinks';
 import AdminCoupons from './AdminCoupons';
 import AdminDocumentation from './AdminDocumentation';
 import AdminInstagramUsers from './AdminInstagramUsers';
+import AdminEmailSettings from './AdminEmailSettings';
 
 const AdminDashboard = () => {
   const { user, logout, isAuthenticated, loading: authLoading } = useAuth();
@@ -82,6 +83,7 @@ const AdminDashboard = () => {
     { icon: MessageSquare, label: 'Support Tickets', path: '/admin/tickets' },
     { icon: Bell, label: 'Notifications', path: '/admin/notifications' },
     { icon: Mail, label: 'Email Templates', path: '/admin/email-templates' },
+    { icon: Server, label: 'Email Server', path: '/admin/email-settings' },
     { icon: Shield, label: 'Rate Limits', path: '/admin/rate-limits' },
     { icon: Download, label: 'Data Export', path: '/admin/export' },
     { icon: Share2, label: 'Social Links', path: '/admin/social-links' },
