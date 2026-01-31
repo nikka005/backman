@@ -184,8 +184,8 @@ async def create_razorpay_order(
             "notes": {
                 "user_id": current_user["user_id"],
                 "package_id": package_id,
-                "plan": package["plan"],
-                "billing": package["billing"]
+                "plan": plan,
+                "billing": billing
             }
         }
         
@@ -196,9 +196,9 @@ async def create_razorpay_order(
             "id": order["id"],
             "user_id": current_user["user_id"],
             "package_id": package_id,
-            "plan": package["plan"],
-            "billing": package["billing"],
-            "amount": package["amount"],
+            "plan": plan,
+            "billing": billing,
+            "amount": amount_inr,
             "amount_paise": amount_paise,
             "currency": "INR",
             "status": "created",
