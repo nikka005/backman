@@ -29,6 +29,10 @@ import AdminCoupons from './AdminCoupons';
 import AdminDocumentation from './AdminDocumentation';
 import AdminInstagramUsers from './AdminInstagramUsers';
 import AdminEmailSettings from './AdminEmailSettings';
+import AdminUsersManagement from './AdminUsersManagement';
+import AdminSubscriptionsManagement from './AdminSubscriptionsManagement';
+import AdminPaymentsManagement from './AdminPaymentsManagement';
+import AdminTicketsManagement from './AdminTicketsManagement';
 
 const AdminDashboard = () => {
   const { user, logout, isAuthenticated, loading: authLoading } = useAuth();
@@ -167,17 +171,17 @@ const AdminDashboard = () => {
           <Route path="/analytics" element={<AdminAnalytics />} />
           <Route path="/promotions" element={<AdminPromotions />} />
           <Route path="/programs" element={<AdminPrograms />} />
-          <Route path="/users" element={<UsersManagement />} />
+          <Route path="/users" element={<AdminUsersManagement />} />
           <Route path="/plans" element={<AdminPlans />} />
           <Route path="/feature-matrix" element={<AdminFeatureMatrix />} />
           <Route path="/features" element={<FeatureManagement />} />
           <Route path="/features/:featureType" element={<FeatureManagement />} />
           <Route path="/features/:featureType/:featureKey" element={<FeatureManagement />} />
-          <Route path="/subscriptions" element={<SubscriptionsManagement />} />
-          <Route path="/payments" element={<PaymentsManagement />} />
+          <Route path="/subscriptions" element={<AdminSubscriptionsManagement />} />
+          <Route path="/payments" element={<AdminPaymentsManagement />} />
           <Route path="/coupons" element={<AdminCoupons />} />
           <Route path="/instagram" element={<AdminInstagramUsers />} />
-          <Route path="/tickets" element={<TicketsManagement />} />
+          <Route path="/tickets" element={<AdminTicketsManagement />} />
           <Route path="/notifications" element={<AdminNotificationsManager />} />
           <Route path="/email-templates" element={<AdminEmailTemplates />} />
           <Route path="/email-settings" element={<AdminEmailSettings />} />
