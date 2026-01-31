@@ -25,6 +25,9 @@ from .affiliate_referral import router as affiliate_referral_router, init_router
 from .admin_programs import router as admin_programs_router, init_router as init_admin_programs
 from .weekly_reports import router as weekly_reports_router, init_router as init_weekly_reports
 from .growth_tracking import router as growth_tracking_router, init_router as init_growth_tracking
+from .scheduler import router as scheduler_router, init_router as init_scheduler
+from .notification_preferences import router as notification_preferences_router, init_router as init_notification_preferences
+from .ai_analytics import router as ai_analytics_router, init_router as init_ai_analytics
 from utils.email import init_email_db
 
 
@@ -57,6 +60,9 @@ def init_all_routes(database):
     init_admin_programs(database)
     init_weekly_reports(database)
     init_growth_tracking(database)
+    init_scheduler(database)
+    init_notification_preferences(database)
+    init_ai_analytics(database)
     # Initialize email service with database
     init_email_db(database)
 
@@ -88,5 +94,8 @@ all_routers = [
     affiliate_referral_router,
     admin_programs_router,
     weekly_reports_router,
-    growth_tracking_router
+    growth_tracking_router,
+    scheduler_router,
+    notification_preferences_router,
+    ai_analytics_router
 ]
