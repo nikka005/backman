@@ -432,3 +432,203 @@ async def update_social_links(links: dict, current_user: dict = Depends(admin_re
     await db.admin_logs.insert_one(log_dict)
     
     return {"message": "Social links updated successfully"}
+
+
+# ==================== EMAIL (SMTP) SETTINGS ====================
+
+class EmailSettingsRequest(BaseModel):
+    smtp_host: str
+    smtp_port: int = 465
+    smtp_username: str
+    smtp_password: str
+    smtp_use_ssl: bool = True
+    sender_email: str
+    sender_name: str = "Adverlyx Digital"
+
+
+@router.get("/email")
+async def get_email_settings(current_user: dict = Depends(admin_required)):
+    """Get email/SMTP settings (password masked)."""
+    settings = await db.email_settings.find_one({}, {"_id": 0})
+    if not settings:
+        return {
+            "smtp_host": "",
+            "smtp_port": 465,
+            "smtp_username": "",
+            "smtp_password": "",
+            "smtp_use_ssl": True,
+            "sender_email": "",
+            "sender_name": "Adverlyx Digital",
+            "is_configured": False,
+            "last_test_status": None,
+            "last_test_at": None
+        }
+    
+    # Mask password for security
+    masked_password = ""
+    if settings.get("smtp_password"):
+        pwd_len = len(settings["smtp_password"])
+        if pwd_len > 0:
+            masked_password = "*" * min(pwd_len, 12)
+    
+    return {
+        "smtp_host": settings.get("smtp_host", ""),
+        "smtp_port": settings.get("smtp_port", 465),
+        "smtp_username": settings.get("smtp_username", ""),
+        "smtp_password": masked_password,
+        "smtp_use_ssl": settings.get("smtp_use_ssl", True),
+        "sender_email": settings.get("sender_email", ""),
+        "sender_name": settings.get("sender_name", "Adverlyx Digital"),
+        "is_configured": bool(settings.get("smtp_host") and settings.get("smtp_username")),
+        "last_test_status": settings.get("last_test_status"),
+        "last_test_at": settings.get("last_test_at")
+    }
+
+
+@router.put("/email")
+async def update_email_settings(settings: EmailSettingsRequest, current_user: dict = Depends(admin_required)):
+    """Update email/SMTP settings."""
+    # Check if password is masked (not changed)
+    existing = await db.email_settings.find_one({})
+    password_to_save = settings.smtp_password
+    
+    # If password is all asterisks, keep the existing password
+    if settings.smtp_password and all(c == '*' for c in settings.smtp_password):
+        if existing and existing.get("smtp_password"):
+            password_to_save = existing["smtp_password"]
+        else:
+            raise HTTPException(status_code=400, detail="Please provide a valid password")
+    
+    update_data = {
+        "smtp_host": settings.smtp_host,
+        "smtp_port": settings.smtp_port,
+        "smtp_username": settings.smtp_username,
+        "smtp_password": password_to_save,
+        "smtp_use_ssl": settings.smtp_use_ssl,
+        "sender_email": settings.sender_email,
+        "sender_name": settings.sender_name,
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "updated_by": current_user['user_id']
+    }
+    
+    await db.email_settings.update_one(
+        {},
+        {"$set": update_data},
+        upsert=True
+    )
+    
+    # Log the action
+    log = AdminLog(
+        admin_id=current_user['user_id'],
+        admin_email=current_user['email'],
+        action=AdminAction.SETTINGS_UPDATE,
+        target_type="email_settings",
+        description="Updated email/SMTP settings"
+    )
+    log_dict = log.model_dump()
+    log_dict['created_at'] = log_dict['created_at'].isoformat()
+    await db.admin_logs.insert_one(log_dict)
+    
+    return {"message": "Email settings updated successfully"}
+
+
+@router.post("/email/test")
+async def test_email_settings(test_email: str, current_user: dict = Depends(admin_required)):
+    """Send a test email to verify SMTP settings."""
+    import smtplib
+    import ssl
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+    
+    settings = await db.email_settings.find_one({}, {"_id": 0})
+    if not settings or not settings.get("smtp_host"):
+        raise HTTPException(status_code=400, detail="Email settings not configured")
+    
+    try:
+        # Create test message
+        message = MIMEMultipart("alternative")
+        message["Subject"] = "Adverlyx Digital - SMTP Test Email"
+        message["From"] = f"{settings.get('sender_name', 'Adverlyx')} <{settings.get('sender_email', settings['smtp_username'])}>"
+        message["To"] = test_email
+        
+        html_content = f"""
+        <!DOCTYPE html>
+        <html>
+        <body style="font-family: Arial, sans-serif; padding: 20px;">
+            <div style="max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%); padding: 30px; border-radius: 16px;">
+                <h1 style="color: white; margin: 0;">SMTP Test Successful!</h1>
+            </div>
+            <div style="max-width: 600px; margin: 20px auto; padding: 20px;">
+                <p>This test email confirms that your email settings are configured correctly.</p>
+                <p><strong>SMTP Host:</strong> {settings['smtp_host']}</p>
+                <p><strong>SMTP Port:</strong> {settings['smtp_port']}</p>
+                <p><strong>SSL Enabled:</strong> {'Yes' if settings.get('smtp_use_ssl', True) else 'No'}</p>
+                <p style="color: #6b7280; font-size: 12px; margin-top: 30px;">Sent from Adverlyx Digital Admin Panel</p>
+            </div>
+        </body>
+        </html>
+        """
+        
+        html_part = MIMEText(html_content, "html")
+        message.attach(html_part)
+        
+        # Send email
+        smtp_host = settings['smtp_host']
+        smtp_port = settings['smtp_port']
+        smtp_username = settings['smtp_username']
+        smtp_password = settings['smtp_password']
+        use_ssl = settings.get('smtp_use_ssl', True)
+        sender_email = settings.get('sender_email', smtp_username)
+        
+        if use_ssl:
+            context = ssl.create_default_context()
+            with smtplib.SMTP_SSL(smtp_host, smtp_port, context=context) as server:
+                server.login(smtp_username, smtp_password)
+                server.sendmail(sender_email, test_email, message.as_string())
+        else:
+            with smtplib.SMTP(smtp_host, smtp_port) as server:
+                server.starttls()
+                server.login(smtp_username, smtp_password)
+                server.sendmail(sender_email, test_email, message.as_string())
+        
+        # Update test status
+        await db.email_settings.update_one(
+            {},
+            {"$set": {
+                "last_test_status": "success",
+                "last_test_at": datetime.now(timezone.utc).isoformat(),
+                "last_test_email": test_email
+            }}
+        )
+        
+        return {"message": f"Test email sent successfully to {test_email}", "status": "success"}
+        
+    except smtplib.SMTPAuthenticationError as e:
+        await db.email_settings.update_one(
+            {},
+            {"$set": {
+                "last_test_status": "auth_failed",
+                "last_test_at": datetime.now(timezone.utc).isoformat()
+            }}
+        )
+        raise HTTPException(status_code=400, detail=f"SMTP authentication failed: Invalid username or password")
+    
+    except smtplib.SMTPConnectError as e:
+        await db.email_settings.update_one(
+            {},
+            {"$set": {
+                "last_test_status": "connection_failed",
+                "last_test_at": datetime.now(timezone.utc).isoformat()
+            }}
+        )
+        raise HTTPException(status_code=400, detail=f"Failed to connect to SMTP server: {str(e)}")
+    
+    except Exception as e:
+        await db.email_settings.update_one(
+            {},
+            {"$set": {
+                "last_test_status": "failed",
+                "last_test_at": datetime.now(timezone.utc).isoformat()
+            }}
+        )
+        raise HTTPException(status_code=400, detail=f"Failed to send test email: {str(e)}")

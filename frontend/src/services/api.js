@@ -356,6 +356,11 @@ export const adminAPI = {
   exportGrowthLogs: (format = 'csv', days = 30) => api.get('/admin/export/growth-logs', { params: { format, days }, responseType: 'blob' }),
   exportFullReport: (days = 30) => api.get('/admin/export/full-report', { params: { format: 'json', period_days: days }, responseType: 'blob' }),
   
+  // Email Settings
+  getEmailSettings: () => api.get('/admin/settings/email'),
+  updateEmailSettings: (data) => api.put('/admin/settings/email', data),
+  testEmailSettings: (testEmail) => api.post(`/admin/settings/email/test?test_email=${encodeURIComponent(testEmail)}`),
+  
   // AI Intelligence
   aiChat: (message, conversationId, context) => api.post('/admin/ai/chat', { message, conversation_id: conversationId, context }),
   aiGetConversations: (limit = 20) => api.get('/admin/ai/conversations', { params: { limit } }),
