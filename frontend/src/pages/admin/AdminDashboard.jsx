@@ -180,6 +180,7 @@ const AdminDashboard = () => {
           <Route path="/tickets" element={<TicketsManagement />} />
           <Route path="/notifications" element={<AdminNotificationsManager />} />
           <Route path="/email-templates" element={<AdminEmailTemplates />} />
+          <Route path="/email-settings" element={<AdminEmailSettings />} />
           <Route path="/rate-limits" element={<AdminRateLimits />} />
           <Route path="/export" element={<AdminExport />} />
           <Route path="/social-links" element={<AdminSocialLinks />} />
