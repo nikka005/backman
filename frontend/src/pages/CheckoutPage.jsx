@@ -225,7 +225,13 @@ const CheckoutPage = () => {
               console.log('Verification response:', verifyResponse.data);
               if (verifyResponse.data.success) {
                 toast.success('Payment successful!');
-                navigate('/payment/success');
+                navigate('/payment/success', { 
+                  state: { 
+                    plan: plan.name,
+                    billing: billingCycle,
+                    provider: 'razorpay'
+                  }
+                });
               } else {
                 toast.error('Payment verification failed. Please contact support.');
               }
