@@ -95,6 +95,15 @@ Adverlyx Digital is a full-stack SaaS platform for Instagram growth services (pl
 - Preview functionality before sending
 - Bulk send to all eligible users
 
+#### Enhanced User Management & Growth Tracking ✅ (Jan 31, 2026)
+- **Admin User Details Modal**: View/edit all user info including Instagram stats
+- **Growth Progress Column**: Shows follower progress towards plan target
+- **Quick Plan Change**: Buttons to switch user plans directly from modal
+- **Edit Mode**: Admin can modify name, email, plan, Instagram username
+- **Growth Tracking API**: New `/api/growth/*` endpoints for status, simulate, sync
+- **User Dashboard Growth Card**: Shows plan progress with milestones when subscription active
+- **Auto-tracking**: Subscription saves start_followers to track growth from beginning
+
 #### Professional Checkout & Coupons ✅ (Jan 30, 2026)
 - New `/checkout` page with plan summary, coupon validation
 - Admin coupon management at `/admin/coupons`
