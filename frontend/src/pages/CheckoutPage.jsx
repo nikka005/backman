@@ -471,12 +471,21 @@ const CheckoutPage = () => {
                 
                 <div className="border-t pt-4 mb-6">
                   <div className="flex justify-between items-center">
-                    <span className="text-lg font-bold text-gray-900">Total</span>
+                    <span className="text-lg font-bold text-gray-900">
+                      {billingCycle === 'yearly' ? 'You Pay Today' : 'Total'}
+                    </span>
                     <div className="text-right">
-                      <p className="text-2xl font-bold text-gray-900">${finalPrice.toFixed(2)}</p>
-                      <p className="text-xs text-gray-500">
-                        {billingCycle === 'yearly' ? `$${(finalPrice * 12).toFixed(2)}/year` : '/month'}
-                      </p>
+                      {billingCycle === 'yearly' ? (
+                        <>
+                          <p className="text-2xl font-bold text-gray-900">${yearlyTotal.toFixed(2)}</p>
+                          <p className="text-xs text-gray-500">for 12 months (${finalMonthlyPrice.toFixed(2)}/mo)</p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-2xl font-bold text-gray-900">${finalMonthlyPrice.toFixed(2)}</p>
+                          <p className="text-xs text-gray-500">/month</p>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
