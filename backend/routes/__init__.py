@@ -87,5 +87,6 @@ all_routers = [
     instagram_graph_router,
     affiliate_referral_router,
     admin_programs_router,
-    weekly_reports_router
+    weekly_reports_router,
+    growth_tracking_router
 ]
