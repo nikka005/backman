@@ -321,11 +321,30 @@ const DashboardPage = () => {
     setSavingSettings(true);
     try {
       await authAPI.updateMe({ name: userSettings.name });
+      toast.success('Settings saved!');
     } catch (error) {
       console.error('Error saving settings:', error);
+      toast.error('Failed to save settings');
     } finally {
       setSavingSettings(false);
     }
+  };
+  
+  const handleSaveNotificationPrefs = async () => {
+    setSavingNotifPrefs(true);
+    try {
+      await notificationPreferencesAPI.updatePreferences(notificationPrefs);
+      toast.success('Notification preferences saved!');
+    } catch (error) {
+      console.error('Error saving notification preferences:', error);
+      toast.error('Failed to save notification preferences');
+    } finally {
+      setSavingNotifPrefs(false);
+    }
+  };
+  
+  const handleNotifPrefChange = (key, value) => {
+    setNotificationPrefs(prev => ({ ...prev, [key]: value }));
   };
 
   const toggleGrowth = async () => {
