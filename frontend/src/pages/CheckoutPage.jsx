@@ -259,6 +259,14 @@ const CheckoutPage = () => {
         };
         
         const rzp = new window.Razorpay(options);
+        
+        // Handle payment failure
+        rzp.on('payment.failed', function(response) {
+          console.error('Razorpay payment failed:', response.error);
+          toast.error(response.error.description || 'Payment failed. Please try again.');
+          setProcessing(false);
+        });
+        
         rzp.open();
         setProcessing(false);
         return;
