@@ -28,7 +28,7 @@ const AdminWeeklyReports = () => {
       setLoading(true);
       const [usersRes, historyRes] = await Promise.all([
         adminAPI.getUsers({ limit: 100 }),
-        adminAPI.get('/weekly-reports/history')
+        adminAPI.getWeeklyReportHistory()
       ]);
       setUsers(usersRes.data || []);
       setHistory(historyRes.data || []);
