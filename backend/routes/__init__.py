@@ -56,6 +56,7 @@ def init_all_routes(database):
     init_affiliate_referral(database)
     init_admin_programs(database)
     init_weekly_reports(database)
+    init_growth_tracking(database)
     # Initialize email service with database
     init_email_db(database)
 
