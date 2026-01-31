@@ -108,12 +108,43 @@ async def create_razorpay_order(
     if not client:
         raise HTTPException(status_code=500, detail="Razorpay not configured. Please add API keys in Admin Panel > Features > Payment Options")
     
-    # Validate package
-    if package_id not in PLAN_PACKAGES_INR:
-        raise HTTPException(status_code=400, detail="Invalid package")
+    # Parse package_id format: "planname_monthly" or "planname_yearly"
+    parts = package_id.rsplit('_', 1)
+    if len(parts) != 2 or parts[1] not in ['monthly', 'yearly']:
+        raise HTTPException(status_code=400, detail="Invalid package format. Use: planname_monthly or planname_yearly")
     
-    package = PLAN_PACKAGES_INR[package_id]
-    amount_paise = package["amount"] * 100  # Convert to paise
+    plan_name = parts[0].lower()
+    billing = parts[1]
+    
+    # Check hardcoded packages first for backwards compatibility
+    if package_id in PLAN_PACKAGES_INR:
+        package = PLAN_PACKAGES_INR[package_id]
+        amount_inr = package["amount"]
+        plan = package["plan"]
+    else:
+        # Fetch plan from database - supports any plan
+        plan_doc = await db.plans.find_one({
+            "$or": [
+                {"id": plan_name},
+                {"name": {"$regex": f"^{plan_name}$", "$options": "i"}}
+            ]
+        })
+        
+        if not plan_doc:
+            raise HTTPException(status_code=400, detail=f"Plan '{plan_name}' not found")
+        
+        # Get price and convert USD to INR (approximate rate: 1 USD = 83 INR)
+        usd_to_inr = 83
+        if billing == "yearly":
+            monthly_rate = plan_doc.get("yearly_price") or plan_doc.get("monthly_price", 49)
+            amount_usd = monthly_rate * 12
+        else:
+            amount_usd = plan_doc.get("monthly_price", 49)
+        
+        amount_inr = int(amount_usd * usd_to_inr)
+        plan = plan_doc.get("name", plan_name).lower()
+    
+    amount_paise = amount_inr * 100  # Convert to paise
     
     # Get key_id for frontend
     key_id = None
