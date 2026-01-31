@@ -156,8 +156,16 @@ async def create_subscription(sub_data: SubscriptionCreate, current_user: dict =
         status=SubscriptionStatus.ACTIVE
     )
     
-    # Save subscription
+    # Get user's current Instagram follower count for tracking growth
+    instagram_account = await db.instagram_accounts.find_one(
+        {"user_id": current_user['user_id']},
+        {"_id": 0, "followers_count": 1}
+    )
+    start_followers = instagram_account.get("followers_count", 0) if instagram_account else 0
+    
+    # Save subscription with start_followers
     sub_dict = subscription.model_dump()
+    sub_dict["start_followers"] = start_followers  # Track starting point for growth
     for key in ['start_date', 'end_date', 'next_billing_date', 'cancelled_at', 'last_payment_attempt', 'created_at', 'updated_at']:
         if sub_dict.get(key):
             sub_dict[key] = sub_dict[key].isoformat()
