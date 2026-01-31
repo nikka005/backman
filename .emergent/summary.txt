@@ -1,165 +1,227 @@
 <analysis>**original_problem_statement:**
-The user aims to build Adverlyx Digital, a production-ready SaaS platform for Instagram growth. The initial scope expanded from fixing mobile UI bugs to a complete overhaul of major features.
+The user wants to build a production-ready SaaS platform, Adverlyx Digital, for Instagram growth. The scope has evolved to address several critical bugs and feature enhancements on the user's live server.
 
-Key requirements from the user during the sessions include:
-1.  **Fix Billing UI:** The pricing page showed monthly prices for yearly plans (e.g., 1/mo instead of 92/year). This needed correction.
-2.  **Enable Real-Time Data:** The user and admin dashboards were using mock data. The core requirement is to fetch and display *real* data from a user's Instagram profile after they connect via OAuth.
-3.  **AI Plan Recommendation:** The AI onboarding was suggesting a hardcoded, non-existent starter plan. It needed to be updated to suggest a real, popular plan from the database.
-4.  **Admin Documentation:** The user requested a comprehensive documentation page within the admin panel explaining how each feature works.
-5.  **Email Server Integration:** The user wanted to connect their professional email from Hostinger ( and ) to send application emails (e.g., welcome, password reset).
-6.  **Admin-Managed Settings:** The user explicitly requested that system settings, starting with email (SMTP) configuration, be manageable from the admin panel UI, not through backend code or  files.
-7.  **Instagram OAuth Connection:** The primary goal is to get the Instagram OAuth connection working to enable real-time data features. This has been a persistent and complex issue.
+Key requirements from the user during this session:
+1.  **Fix Broken Payments:** Stripe and Razorpay checkouts are failing with a 400 Bad Request and Invalid package error on the live server.
+2.  **Fix Admin-Assigned Plans:** Manually assigning a plan from the admin panel did not activate dashboard features for the user because it wasn't creating a subscription record.
+3.  **Add Forgot Password Feature:** The application is missing a forgot password page and workflow.
+4.  **Fix Yearly Billing Display:** The pricing page incorrectly shows the monthly price for yearly plans.
+5.  **Display Full Instagram Data:** The user dashboard is not displaying detailed Instagram metrics like engagement, reach, and posts, even though the API connection is working.
+6.  **Fix Admin Blank Pages:** The user reported that the Settings/Branding and Promotions pages in the admin panel were blank on their live server.
+7.  **Resolve User Verification Flow:** The process for moving a user from pending_verification to active was unclear.
+8.  **Fix Data on Admin Analytics:** The admin analytics dashboard was not correctly reflecting newly added users with plans.
 
 **User's preferred language**: English
 
 **what currently exists?**
-The application is a full-stack SaaS platform using React, FastAPI, and MongoDB, deployed on the user's AWS server, which is managed by PM2.
+The application is a full-stack SaaS platform using React, FastAPI, and MongoDB. The agent made significant progress in this session before being interrupted by the user's report of live server issues.
 
-Significant progress has been made:
--   **UI Fixes & Enhancements:** The yearly billing display on the pricing page is now correct. The user and admin dashboards have been updated to differentiate between Live Data (for OAuth-connected accounts) and Demo Mode (for manual connections).
--   **Real-time Data Backend:** Endpoints have been created to fetch and process real Instagram data (, ).
--   **Improved Manual Connection:** The Demo Mode is now clearly labeled, and the simulated data is more realistic with auto-generated avatars and display names to provide a better user experience pending the OAuth fix.
--   **Smarter AI:** The AI onboarding now fetches plans from the database and correctly recommends the most popular one (Pro).
--   **Admin Panel Features:** An extensive documentation page has been added, along with a new page to view analytics for all connected Instagram users, showing real or simulated data as appropriate.
--   **Instagram OAuth Attempts:** The agent has guided the user through creating multiple Facebook Apps (Business and Consumer types) and updated the backend code to support Instagram Business API. However, the connection is still not functional.
--   **Email Integration:** The backend was temporarily configured to use the user's Hostinger SMTP credentials via  variables.
+**Completed in this session:**
+*   **Admin SMTP Settings UI:** A new page () allows admins to configure email settings from the UI.
+*   **AdminDashboard.jsx Refactoring:** The main admin dashboard component was broken down into smaller, manageable components, reducing its size from ~1300 to ~290 lines.
+*   **AI Weekly Growth Reports:** A new feature and page () were created to manage AI-powered growth reports.
+*   **Enhanced User Management & Activation:** The user management page () was overhauled with a detailed modal, growth progress tracking, and robust tools for admins to activate pending users individually or in bulk.
+*   **Fixed Admin-Assigned Subscriptions:** The backend logic was updated so that when an admin assigns a plan, a corresponding subscription record is now automatically created.
+*   **Dashboard Growth Card:** The user dashboard now displays a progress card visualizing follower growth towards their plan's target.
 
 **Last working item**:
--   **Last item agent was working:** The agent began implementing an admin UI for managing SMTP email settings. This was in direct response to the user's request to control settings from the admin panel instead of  files. The agent was investigating  to add the necessary API endpoints to store and retrieve this configuration.
+-   **Last item agent was working:** The agent began a large, multi-part task to fix several critical issues reported by the user on their live server. The agent started by refactoring the backend payment routes ( and ) to handle plan IDs dynamically and was about to create the Forgot Password frontend page.
 -   **Status:** IN PROGRESS
 -   **Agent Testing Done:** N
 -   **User Testing Done:** N
 -   **Which testing method agent to use?** both
 
 **All Pending/In progress Issue list**:
--   **Issue 1: Instagram Business API Connection Fails (P0)**
-    -   **Description:** The OAuth flow consistently fails on the user's live server. After the user clicks Connect with Instagram and is redirected to Instagram, they encounter errors like The profile that youre looking for doesnt exist or Invalid platform app. This is the primary blocker preventing the app from using real user data.
-    -   **Attempted fixes:**
-        -   Switched backend code from Instagram Basic Display to Instagram Business API.
-        -   Verified App ID, secret, and redirect URIs in the server's  file multiple times.
-        -   Guided the user to create different types of Facebook Apps (Business and Consumer).
-        -   Guided the user on adding Instagram Testers and linking the account to a Facebook Page via Business Suite.
-        -   Simplified the requested API scopes to the bare minimum ().
+-   **Issue 1: Payments Not Working on Live Server (P0)**
+    -   **Description:** Clicking the checkout button fails. Logs show 400 Bad Request and Invalid package. The root causes are: 1) The frontend sends an incorrect plan ID format (e.g., ). 2) The backend doesn't store Stripe/Razorpay API keys correctly in the database from the admin panel.
+    -   **Attempted fixes:** The agent started refactoring the backend payment routes to fetch plan details dynamically from the database.
     -   **Next debug checklist:**
-        1.  **Get Full Error URL:** When the redirect from Instagram fails, the browser URL contains  and  parameters. The next agent MUST obtain this full URL from the user to know the exact reason for the failure.
-        2.  **App Review:** The user needs to complete the App Review process in the Facebook Developer Console. The API will not work in Live mode for non-admin/tester users without it. Guide the user to submit the required screencasts and descriptions for the  permission.
-        3.  **Confirm Business Account Link:** Re-verify that the Instagram account is correctly connected to the Facebook Page and that the app has been added as an asset within the Facebook Business Suite settings.
-        4.  **File Reference:** The issue lies within the interaction between the user's Facebook App configuration and the backend code at .
-    -   **Why fix this issue?** This is the most critical feature for the platform. Fixing it will unlock real-time analytics for both the user and admin dashboards.
-    -   **Status:** BLOCKED
+        1.  Complete the backend refactoring for  and .
+        2.  Investigate and fix the admin panel logic for saving payment gateway credentials to the  collection in the database.
+        3.  Modify the frontend pricing page to send the correct database  during checkout.
+        4.  Perform an end-to-end test of the payment flow for both Stripe and Razorpay.
+    -   **Status:** IN PROGRESS
     -   **Is recurring issue?** Y
     -   **Should Test frontend/backend/both after fix?** both
-    -   **Blocked on other issue:** Meta App Review process.
+
+-   **Issue 2: Instagram Data Not Fully Displayed (P0)**
+    -   **Description:** The user dashboard does not show detailed Instagram metrics like post details, reach, and engagement, despite a successful API connection.
+    -   **Next debug checklist:**
+        1.  Review the  endpoint to ensure it requests all necessary fields from the Meta API.
+        2.  Inspect  to verify it can render the additional data.
+        3.  Update the UI and state management as needed to display the new metrics.
+    -   **Status:** NOT STARTED
+    -   **Is recurring issue?** N
+    -   **Should Test frontend/backend/both after fix?** both
+
+-   **Issue 3: Yearly Billing Price Display is Incorrect (P1)**
+    -   **Description:** The pricing page shows the per-month price for yearly plans instead of the total annual cost.
+    -   **Next debug checklist:**
+        1.  Edit .
+        2.  Adjust the state logic for the monthly/yearly toggle to display the  and a /year label when Yearly is selected.
+    -   **Status:** NOT STARTED
+    -   **Is recurring issue?** Y
+    -   **Should Test frontend/backend/both after fix?** frontend
 
 **In progress Task List**:
--   **Task 1: Implement Admin UI for Email (SMTP) Configuration (P1)**
-    -   **Where to resume:**
-        1.  Add  and  endpoints to  to manage email settings in a new  collection in MongoDB.
-        2.  Create a new React component in  to provide a form for SMTP Host, Port, Username, Password, and SSL preference.
-        3.  Link this new component to the admin navigation in .
-        4.  Update the email sending logic in  to fetch credentials from the database instead of environment variables.
-    -   **What will be achieved with this?** The admin will be able to manage email server settings directly from the UI, improving operational flexibility.
+-   **Task 1: Add Forgot Password Functionality (P1)**
+    -   **Where to resume:** The backend API endpoint () exists. The next steps are to create the frontend UI.
+        1.  Create the  component.
+        2.  Create a corresponding  for the user to land on from the email link.
+        3.  Implement the backend endpoint to handle the password reset token.
+        4.  Add a Forgot Password? link on .
+    -   **What will be achieved with this?** Users will have a self-service way to reset their passwords.
     -   **Status:** IN PROGRESS
     -   **Should Test frontend/backend/both after fix?** both
-    -   **Blocked on something:** No.
 
 **Upcoming and Future Tasks**
 -   **Upcoming Tasks:**
-    -   (P0) **Guide User Through Meta App Review:** Provide clear, step-by-step instructions for creating screencasts and writing descriptions to get the required Instagram API permissions approved.
-    -   (P1) **End-to-End Test of Live Instagram OAuth Flow:** Once the connection issue is resolved, perform a thorough test of the entire flow, from connection to data display on user and admin dashboards.
+    -   (P1) **End-to-End Test of Live Instagram OAuth Flow:** Confirm the user's claim that the connection is stable for new users.
+    -   (P2) **Auto-complete Plans:** Implement a background task to check if a user's follower count meets their plan's target and mark the subscription as complete.
+    -   (P2) **Fix Admin Blank Pages on Live Server:** Investigate why admin pages for Settings/Branding are blank on the user's deployed server. The issue was not reproducible in the preview environment.
 -   **Future Tasks:**
-    -   (P2) **Implement PayPal Integration:** Add PayPal as a payment option.
-    -   (P3) **Refactor :** Simplify the main admin layout component.
-    -   (P3) **AI-Powered Weekly Growth Reports:** Develop a feature to email users automated weekly growth reports.
+    -   (P2) **PayPal Integration:** Add PayPal as a payment option.
+    -   (P3) **AI-Powered Weekly Growth Reports (Automation):** The UI/backend exists, but a future task could be to automate the sending of these reports via a cron job.
 
 **Completed work in this session**
--   **Live Server Management:** Correctly identified the user's server uses PM2 and provided appropriate commands.
--   **Authentication Bug Fix:** Resolved an issue where  was checked for  instead of .
--   **Billing UI Fixed:** The pricing page now accurately displays total yearly prices for annual plans.
--   **Real-time Data Integration:**
-    -   Implemented a Refresh Data button on the user dashboard.
-    -   The dashboard now shows a Live Data badge for OAuth accounts and a Demo Mode badge for manual ones.
-    -   Created an admin page at  to display analytics for all connected users, sourcing real data where available.
--   **Improved Manual Connection Flow:** The UI now clearly communicates that manual connections use simulated Demo Mode data.
--   **AI Logic Corrected:** The AI recommendation engine now dynamically suggests the Pro plan (marked as popular) from the database.
--   **Admin Documentation:** A comprehensive documentation page was created and integrated into the admin panel at .
--   **SMTP Email Integration (Initial):** Configured the backend to send emails via the user's Hostinger SMTP (this is now being migrated to a UI-managed feature).
+-   Admin SMTP Settings UI (DONE)
+-    Refactoring (DONE)
+-   AI Weekly Growth Reports Feature (UI + Manual Trigger) (DONE)
+-   Enhanced Admin User Management UI and Quick Actions (DONE)
+-   Fixed User Activation Flow (pending_verification status) (DONE)
+-   Fixed Admin-Assigned Plan logic to correctly create subscription records (DONE)
+-   Added User Dashboard Growth Progress Card (DONE)
+-   Resolved  versioning issues for the user's server (DONE)
 
 **Earlier issues found/mentioned but not fixed**
--   None.
+-   The issues listed under **All Pending/In progress Issue list** are the primary ones that were identified but not yet fully resolved.
 
 **Known issue recurrence from previous fork**
--   None.
+-   **Instagram Business API Connection:** This was the main blocker in the previous fork. The user claims it is fixed, but this requires verification.
+-   **Billing UI:** The incorrect display of yearly plan prices was noted in the previous fork and was raised again by the user.
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
--   **Live Server Debugging (AWS/PM2):** Interacting with the user's live server using PM2 for process management.
--   **Instagram Business API OAuth:** Implementing and debugging the complex OAuth 2.0 flow, which is currently the main blocker.
--   **Dynamic UI Rendering:** The frontend conditionally renders different components and badges (Live Data vs. Demo Mode) based on the  flag from the backend.
--   **Admin-Managed Settings:** Migrating system configuration (like SMTP) from static  files to a database-backed admin UI.
+-   **Live Server Debugging:** Extensive use of  logs and Current Mongosh Log ID:	697de9a6cf6956be29284d0b
+Connecting to:		mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.6.0
+Using MongoDB:		7.0.28
+Using Mongosh:		2.6.0
+
+For mongosh info see: https://www.mongodb.com/docs/mongodb-shell/
+
+
+To help improve our products, anonymous usage data is collected and sent to MongoDB periodically (https://www.mongodb.com/legal/privacy-policy).
+You can opt-out by running the disableTelemetry() command.
+
+------
+   The server generated these startup warnings when booting
+   2026-01-31T11:38:12.530+00:00: Using the XFS filesystem is strongly recommended with the WiredTiger storage engine. See http://dochub.mongodb.org/core/prodnotes-filesystem
+   2026-01-31T11:38:13.570+00:00: Access control is not enabled for the database. Read and write access to data and configuration is unrestricted
+   2026-01-31T11:38:13.570+00:00: You are running this process as the root user, which is not recommended
+   2026-01-31T11:38:13.570+00:00: Soft rlimits for open file descriptors too low
+------
+
+test>  to diagnose and fix issues directly on the user's AWS server.
+-   **Database-Driven Configuration:** Continuing the pattern of moving configurations (Email, Payments) from static files to a database-backed admin UI.
+-   **Admin-Triggered Workflows:** Implementing logic where an admin action (e.g., assigning a plan) triggers a core business process like creating a new subscription.
 
 **key DB schema**
--   **instagram_accounts:** Significantly updated with , , , ,  to support both real and simulated data.
--   **settings:** A new collection will be implicitly created by  to store global configurations like SMTP credentials.
+-   **subscriptions:** A  field was added, which was a critical fix. The schema now also supports  and . The user's live  database had 0 subscriptions, which the agent provided a script to fix.
+-   **feature_management:** This collection is intended to store payment gateway keys but appears to be failing. Debugging this is a high priority.
 
 **All files of reference**
--   : The core file for the failing Instagram OAuth flow.
--   : The main user dashboard that displays real vs. demo data.
--   : The target file for implementing the current task (UI-managed email settings).
--   : The entry point for all admin panel features.
--   : The critical configuration file on the user's live AWS server.
-
-**key api endpoints**
--   : Initiates the Instagram Business API OAuth flow.
--   : Handles the redirect from Instagram; currently a point of failure.
--   : Fetches real-time profile data for OAuth-connected accounts.
--   : Provides aggregated data for all connected Instagram accounts to the admin panel.
--   : Endpoints to be created to manage SMTP settings from the admin UI.
+-   : Core of the Stripe payment issue.
+-   : Core of the Razorpay payment issue.
+-   : For the yearly billing display fix.
+-    & : For implementing the forgot password feature.
+-   : For displaying more Instagram data.
+-    (on user's server): Contains the  which is .
 
 **Critical Info for New Agent**
--   **The Instagram API connection is the #1 blocker.** Do not get sidetracked. The root cause is likely the incomplete Meta App Review process or a misconfiguration in the Facebook Business Suite. Your first step should be to get the full failure URL from the user (with  and  parameters) to diagnose the exact issue.
--   **The user's server uses PM2, not supervisor.** All deployment instructions must use .
--   **The user prefers UI-based management over hardcoded settings.** The current task is to build a UI for SMTP settings. Continue this pattern for any future configurations.
--   There is lingering confusion over Facebook App IDs. The correct one for the Business API seems to be , which is the **Instagram App ID** found inside the main app's settings (). Ensure the  file on the server uses this ID.
+-   **Payment gateways are completely broken on the live server.** This is the highest priority. The issue involves incorrect plan IDs from the frontend and API keys not being saved/retrieved correctly on the backend.
+-   **The user's server has Python environment issues.** A  error prevents running / scripts. You must provide Current Mongosh Log ID:	697de9a71bceabc3d7284d0b
+Connecting to:		mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.6.0
+Using MongoDB:		7.0.28
+Using Mongosh:		2.6.0
 
-**documents and test reports created in this job**
--   : Updated with completed tasks.
--   : New documentation file created.
+For mongosh info see: https://www.mongodb.com/docs/mongodb-shell/
+
+------
+   The server generated these startup warnings when booting
+   2026-01-31T11:38:12.530+00:00: Using the XFS filesystem is strongly recommended with the WiredTiger storage engine. See http://dochub.mongodb.org/core/prodnotes-filesystem
+   2026-01-31T11:38:13.570+00:00: Access control is not enabled for the database. Read and write access to data and configuration is unrestricted
+   2026-01-31T11:38:13.570+00:00: You are running this process as the root user, which is not recommended
+   2026-01-31T11:38:13.570+00:00: Soft rlimits for open file descriptors too low
+------
+
+test>  commands for any direct database operations.
+-   **The user's database name on the live server is **. Do not assume any other name.
+-   **The code is in an intermediate state.** The agent started a large refactoring task to fix payments, forgot password, and UI issues but did not finish. You will be resuming mid-task.
 
 **Last 10 User Messages and any pending HUMAN messages**
-1.  **User:** Asks how to manage the email server from the admin panel instead of code. (Agent starts work on this).
-2.  **User:** Provides Hostinger SMTP credentials.
-3.  **User:** Provides email addresses to be used (, ).
-4.  **User:** Reports the AI suggests a non-existent starter plan and wants it to suggest the popular one. (Agent fixed this).
-5.  **User:** Asks if admin analytics will use real Instagram data. (Agent implemented this).
-6.  **User:** Deploys changes and reports Instagram connection now shows Invalid platform app error. (Agent identified App ID confusion).
-7.  **User:** Asks if admin analytics and other features will work with real Instagram data now. (Agent starts work on this).
-8.  **User:** Reports the Instagram connection redirects and shows the profile that youre looking for doesnt exist.
-9.  **User:** Confirms they are in Live Mode and have added a tester.
-10. **User:** Confirms they are using a Professional account and provides  output showing a valid token is generated.
+1.  **User:** Asks how to handle pending_verification status for users.
+2.  **User:** Reports the Admin Analytics dashboard isn't showing data for new Pro users.
+3.  **User:** Reports that assigning a plan via Quick Actions for a specific user () isn't working on their end.
+4.  **User:** Provides output from running a Python script on their server, which fails with a  error.
+5.  **User:** Provides Current Mongosh Log ID:	697de9a87b50443cd8284d0b
+Connecting to:		mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.6.0
+Using MongoDB:		7.0.28
+Using Mongosh:		2.6.0
+
+For mongosh info see: https://www.mongodb.com/docs/mongodb-shell/
+
+------
+   The server generated these startup warnings when booting
+   2026-01-31T11:38:12.530+00:00: Using the XFS filesystem is strongly recommended with the WiredTiger storage engine. See http://dochub.mongodb.org/core/prodnotes-filesystem
+   2026-01-31T11:38:13.570+00:00: Access control is not enabled for the database. Read and write access to data and configuration is unrestricted
+   2026-01-31T11:38:13.570+00:00: You are running this process as the root user, which is not recommended
+   2026-01-31T11:38:13.570+00:00: Soft rlimits for open file descriptors too low
+------
+
+test>  output showing their database is named  and has 20 users but 0 subscriptions.
+6.  **User:** Reports their test payment plan () with Stripe/Razorpay isn't working; the checkout button doesn't proceed.
+7.  **User:** Provides command output confirming placeholder API keys in  and 400 Bad Request errors for payment endpoints.
+8.  **User:** States that the Current Mongosh Log ID:	697de9a8a35cf3af75284d0b
+Connecting to:		mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.6.0
+Using MongoDB:		7.0.28
+Using Mongosh:		2.6.0
+
+For mongosh info see: https://www.mongodb.com/docs/mongodb-shell/
+
+------
+   The server generated these startup warnings when booting
+   2026-01-31T11:38:12.530+00:00: Using the XFS filesystem is strongly recommended with the WiredTiger storage engine. See http://dochub.mongodb.org/core/prodnotes-filesystem
+   2026-01-31T11:38:13.570+00:00: Access control is not enabled for the database. Read and write access to data and configuration is unrestricted
+   2026-01-31T11:38:13.570+00:00: You are running this process as the root user, which is not recommended
+   2026-01-31T11:38:13.570+00:00: Soft rlimits for open file descriptors too low
+------
+
+test>  queries reveal payment settings are not being found in the database.
+9.  **User:** Confirms the forgot password page does not exist.
+10. **User:** Bundles all the major issues (payment plan matching, yearly billing display, forgot password, missing Instagram data) and asks the agent to fix them all in the code.
 
 **Project Health Check:**
--   **Broken:** The core Instagram OAuth flow for real-time data is broken.
--   **Mocked:** Manual Instagram connections operate in a clearly labeled Demo Mode with simulated data, which is working as a fallback.
+-   **Broken:** The entire payment and checkout flow is non-functional on the live server.
+-   **Mocked:** The user dashboard uses a growth simulation for users with admin-assigned plans, which acts as a temporary placeholder until real Instagram growth data is tracked.
 
 **3rd Party Integrations**
 -   **OpenAI GPT-5.2:** Active (via Emergent LLM Key).
--   **Stripe:** Active.
--   **Razorpay:** Active.
--   **Meta Instagram Business API:** In Progress / **Broken**. This is the main focus. It requires a User API key (managed through Facebook Developer Console).
+-   **Stripe:** In Progress / **Broken**. Requires user API key.
+-   **Razorpay:** In Progress / **Broken**. Requires user API key.
+-   **Meta Instagram Business API:** In Progress / User verification pending. Requires user API key.
 
 **Testing status**
--   **Testing agent used after significant changes:** NO
+-   **Testing agent used after significant changes:** YES (Agent used testing agent successfully after implementing the Admin Dashboard refactor and Weekly Reports feature).
 -   **Troubleshoot agent used after agent stuck in loop:** NO
 -   **Test files created:** None.
--   **Known regressions:** None.
+-   **Known regressions:** The payment system is a major regression.
 
 **Credentials to test flow:**
 -   **Admin Email:**  / **Password:** 
 -   **User Email:**  / **Password:** 
--   **Hostinger SMTP User:**  / **Pass:** 
 
 **What agent forgot to execute**
--   The agent failed to insist on getting the **full browser URL** after the Instagram OAuth redirect failed. This URL contains critical  and  query parameters that would have likely explained the exact reason for the failure, saving significant debugging time.</analysis>
+-   The agent did not fully test the payment gateway settings flow after creating the initial feature. This led to the discovery late in the session that the keys were not being saved to the database correctly.
+-   The forgot password page was part of the original application structure but was overlooked and never implemented until the user reported it missing.</analysis>
