@@ -206,6 +206,11 @@ const CheckoutPage = () => {
         const response = await paymentAPI.createRazorpayOrder(packageId, couponApplied?.code);
         const orderData = response.data;
         
+        // Store these for use in handler
+        const currentPackageId = packageId;
+        const currentPlanName = plan.name;
+        const currentBillingCycle = billingCycle;
+        
         const options = {
           key: orderData.key_id,
           amount: orderData.amount,
@@ -213,33 +218,30 @@ const CheckoutPage = () => {
           name: 'Adverlyx Digital',
           description: `${plan.name} - ${billingCycle === 'yearly' ? 'Annual' : 'Monthly'} Plan`,
           order_id: orderData.order_id,
-          handler: async function(response) {
-            try {
-              console.log('Razorpay payment success, verifying...', response);
-              const verifyResponse = await paymentAPI.verifyRazorpayPayment({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-                package_id: packageId
-              });
+          handler: function(razorpayResponse) {
+            // Handle payment success
+            console.log('Razorpay payment success, verifying...', razorpayResponse);
+            
+            paymentAPI.verifyRazorpayPayment({
+              razorpay_order_id: razorpayResponse.razorpay_order_id,
+              razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+              razorpay_signature: razorpayResponse.razorpay_signature,
+              package_id: currentPackageId
+            })
+            .then((verifyResponse) => {
               console.log('Verification response:', verifyResponse.data);
               if (verifyResponse.data.success) {
                 toast.success('Payment successful!');
-                navigate('/payment/success', { 
-                  state: { 
-                    plan: plan.name,
-                    billing: billingCycle,
-                    provider: 'razorpay'
-                  }
-                });
+                window.location.href = '/payment/success?provider=razorpay&plan=' + encodeURIComponent(currentPlanName) + '&billing=' + currentBillingCycle;
               } else {
                 toast.error('Payment verification failed. Please contact support.');
               }
-            } catch (error) {
+            })
+            .catch((error) => {
               console.error('Payment verification error:', error);
               const errorMsg = error.response?.data?.detail || 'Payment verification failed';
               toast.error(errorMsg + '. Your payment was received - please contact support if your plan is not activated.');
-            }
+            });
           },
           modal: {
             ondismiss: function() {
