@@ -380,6 +380,11 @@ export const adminAPI = {
   aiUpdateSettings: (data) => api.put('/admin/ai/settings', data),
   aiGetLogs: (moduleType, limit = 50) => api.get('/admin/ai/logs', { params: { module_type: moduleType, limit } }),
   aiGetStats: () => api.get('/admin/ai/stats'),
+  
+  // Weekly Reports
+  sendWeeklyReports: (userId = null) => api.post('/weekly-reports/send', { user_id: userId }),
+  getWeeklyReportHistory: (userId = null, limit = 20) => api.get('/weekly-reports/history', { params: { user_id: userId, limit } }),
+  previewWeeklyReport: (userId) => api.get(`/weekly-reports/preview/${userId}`),
 };
 
 export default api;
