@@ -444,13 +444,13 @@ const CheckoutPage = () => {
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">{plan.name} Plan ({billingCycle})</span>
-                    <span className="text-gray-900">${basePrice}/mo</span>
+                    <span className="text-gray-900">${monthlyRate}/mo</span>
                   </div>
                   
                   {billingCycle === 'yearly' && (
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Annual Total (12 months)</span>
-                      <span className="text-gray-900">${basePrice * 12}</span>
+                      <span className="text-gray-900 font-semibold">${monthlyRate * 12}</span>
                     </div>
                   )}
                   
@@ -463,7 +463,7 @@ const CheckoutPage = () => {
                   
                   {billingCycle === 'yearly' && savings > 0 && (
                     <div className="flex justify-between text-sm text-green-600">
-                      <span>Annual Savings</span>
+                      <span>Annual Savings vs Monthly</span>
                       <span>-${savings}</span>
                     </div>
                   )}
