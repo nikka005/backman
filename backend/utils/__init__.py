@@ -14,5 +14,8 @@ from .email import (
     send_password_reset_email,
     send_welcome_email,
     send_payment_confirmation_email,
-    send_subscription_email
+    send_subscription_cancelled_email,
+    send_refund_email,
+    is_email_configured,
+    get_email_service_status
 )
