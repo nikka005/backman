@@ -174,6 +174,12 @@ async def get_onboarding_recommendations(
     # Get user's plan tier for recommendation depth
     plan_tier = await get_user_plan_tier(user_id)
     
+    # Get actual plans from database
+    plans = await db.plans.find({"is_active": True}, {"_id": 0}).to_list(10)
+    plan_names = [p.get("name", "").lower() for p in plans if p.get("name")]
+    popular_plan = next((p.get("name") for p in plans if p.get("is_popular") or p.get("popular")), plan_names[1] if len(plan_names) > 1 else plan_names[0] if plan_names else "Pro")
+    plan_options = "|".join([p.get("name", "").lower() for p in plans]) if plans else "basic|pro|enterprise"
+    
     # Build context for AI
     context = f"""
 ## User Profile
@@ -195,15 +201,22 @@ async def get_onboarding_recommendations(
 - Target Country: {user_input.target_country or 'Global'}
 - Competitors to analyze: {', '.join(user_input.competitors) if user_input.competitors else 'None specified'}
 
+## Available Plans
+{chr(10).join([f"- {p.get('name')}: ${p.get('monthly_price', 0)}/mo - {p.get('description', '')} {'(MOST POPULAR)' if p.get('is_popular') or p.get('popular') else ''}" for p in plans])}
+
+IMPORTANT: The suggested_plan MUST be one of: {plan_options}
+The most popular plan is: {popular_plan}
+
 ## Plan Access Level
-- Free/Trial: Basic recommendations (limited hashtags, no competitor analysis)
-- Starter+: Full recommendations
-- Pro/Enterprise: Advanced + editable suggestions
+- Free/Trial: Basic recommendations
+- {plan_names[0].title() if plan_names else 'Basic'}+: Full recommendations  
+- {plan_names[-1].title() if plan_names else 'Enterprise'}: Advanced + editable suggestions
 
 Current user is on: {plan_tier} plan
 
 ## Task
 Analyze this Instagram account and provide personalized onboarding recommendations.
+Suggest "{popular_plan}" plan as it's the most popular, unless user needs are very basic or very advanced.
 Return a JSON object following the exact format specified.
 """
     
@@ -212,7 +225,7 @@ Return a JSON object following the exact format specified.
         result = await ai_service.send_message(
             session_id=f"onboarding_{user_id}_{datetime.now(timezone.utc).timestamp()}",
             message=context,
-            system_prompt=ONBOARDING_SYSTEM_PROMPT
+            system_prompt=ONBOARDING_SYSTEM_PROMPT.replace("starter|growth|pro", plan_options).replace("starter", popular_plan.lower())
         )
         
         if not result['success']:
