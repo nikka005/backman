@@ -104,18 +104,19 @@ Adverlyx Digital is a full-stack SaaS platform for Instagram growth services (pl
 
 ## Current Status
 
-### In Progress
-- **Instagram OAuth Live Deployment:** Code complete, blocked on user adding Facebook App credentials to AWS `.env`
+### Completed (Jan 31, 2026)
+- Admin Email Server UI: Full SMTP configuration from admin panel
 
-### Upcoming Tasks (P1-P2)
-1. Test Instagram OAuth end-to-end on live server after deployment
-2. Final polish for beta launch
-3. PayPal payment integration
+### Upcoming Tasks (P0-P1)
+1. **Instagram OAuth (P0):** Get full error URL from user when redirect fails
+2. Guide user through Meta App Review process
+3. Test Instagram OAuth end-to-end once working
 
-### Future/Backlog (P3)
-- AI-powered weekly growth reports
-- AdminDashboard.jsx refactoring
-- Full Onboarding Wizard (Option B)
+### Future/Backlog (P2-P3)
+- PayPal payment integration (P2)
+- AI-powered weekly growth reports (P3)
+- AdminDashboard.jsx refactoring (P3)
+- Full Onboarding Wizard (P3)
 
 ---
 
