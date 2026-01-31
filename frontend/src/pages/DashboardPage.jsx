@@ -12,7 +12,7 @@ import {
   AlertTriangle, Receipt, ArrowUp, Save, Shield, Sparkles
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { instagramAPI, notificationsAPI, paymentAPI, ticketsAPI, authAPI } from '../services/api';
+import { instagramAPI, notificationsAPI, paymentAPI, ticketsAPI, authAPI, aiAnalyticsAPI, notificationPreferencesAPI } from '../services/api';
 import TwoFactorSettings from '../components/TwoFactorSettings';
 import { toast } from 'sonner';
 
