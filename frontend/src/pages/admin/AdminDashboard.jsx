@@ -290,9 +290,7 @@ const DashboardOverview = ({ stats, onRefresh }) => {
   );
 };
 
-// Users Management Component
-const UsersManagement = () => {
-  const [users, setUsers] = useState([]);
+export default AdminDashboard;
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
