@@ -215,15 +215,30 @@ const CheckoutPage = () => {
           order_id: orderData.order_id,
           handler: async function(response) {
             try {
-              await paymentAPI.verifyRazorpayPayment({
+              console.log('Razorpay payment success, verifying...', response);
+              const verifyResponse = await paymentAPI.verifyRazorpayPayment({
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
                 package_id: packageId
               });
-              navigate('/payment/success');
+              console.log('Verification response:', verifyResponse.data);
+              if (verifyResponse.data.success) {
+                toast.success('Payment successful!');
+                navigate('/payment/success');
+              } else {
+                toast.error('Payment verification failed. Please contact support.');
+              }
             } catch (error) {
-              toast.error('Payment verification failed');
+              console.error('Payment verification error:', error);
+              const errorMsg = error.response?.data?.detail || 'Payment verification failed';
+              toast.error(errorMsg + '. Your payment was received - please contact support if your plan is not activated.');
+            }
+          },
+          modal: {
+            ondismiss: function() {
+              console.log('Razorpay modal closed');
+              setProcessing(false);
             }
           },
           prefill: {
