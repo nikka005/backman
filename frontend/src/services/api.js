@@ -385,6 +385,32 @@ export const adminAPI = {
   sendWeeklyReports: (userId = null) => api.post('/weekly-reports/send', { user_id: userId }),
   getWeeklyReportHistory: (userId = null, limit = 20) => api.get('/weekly-reports/history', { params: { user_id: userId, limit } }),
   previewWeeklyReport: (userId) => api.get(`/weekly-reports/preview/${userId}`),
+  
+  // Scheduler
+  getSchedulerStatus: () => api.get('/scheduler/status'),
+  startScheduler: () => api.post('/scheduler/start'),
+  stopScheduler: () => api.post('/scheduler/stop'),
+  updateSchedulerConfig: (config) => api.put('/scheduler/config', config),
+  runWeeklyReportsNow: () => api.post('/scheduler/run/weekly-reports'),
+  runGrowthCheckNow: () => api.post('/scheduler/run/growth-check'),
+  runTokenRefreshNow: () => api.post('/scheduler/run/token-refresh'),
+};
+
+// Notification Preferences API
+export const notificationPreferencesAPI = {
+  getPreferences: () => api.get('/notification-preferences'),
+  updatePreferences: (data) => api.put('/notification-preferences', data),
+  resetPreferences: () => api.post('/notification-preferences/reset'),
+  unsubscribeAll: () => api.post('/notification-preferences/unsubscribe-all'),
+};
+
+// AI Analytics API
+export const aiAnalyticsAPI = {
+  getDashboard: () => api.get('/ai-analytics/dashboard'),
+  getInsights: () => api.get('/ai-analytics/insights'),
+  getRecommendations: () => api.get('/ai-analytics/recommendations'),
+  getPerformance: () => api.get('/ai-analytics/performance'),
+  getWeeklySummary: () => api.get('/ai-analytics/weekly-summary'),
 };
 
 export default api;
