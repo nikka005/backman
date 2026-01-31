@@ -301,8 +301,11 @@ const CheckoutPage = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-2xl font-bold text-gray-900">${basePrice}</p>
-                      <p className="text-sm text-gray-500">/month</p>
+                      <p className="text-2xl font-bold text-gray-900">${monthlyRate}</p>
+                      <p className="text-sm text-gray-500">/mo</p>
+                      {billingCycle === 'yearly' && (
+                        <p className="text-xs text-pink-600 font-medium">${monthlyRate * 12}/year total</p>
+                      )}
                     </div>
                   </div>
                 </div>
