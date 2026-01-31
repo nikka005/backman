@@ -14,19 +14,19 @@ ADMIN_EMAIL = "admin@adverlyx.com"
 ADMIN_PASSWORD = "Admin123!"
 
 
+def get_admin_token():
+    """Helper to get admin token"""
+    response = requests.post(
+        f"{BASE_URL}/api/auth/login",
+        json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD}
+    )
+    if response.status_code == 200:
+        return response.json().get("access_token")
+    return None
+
+
 class TestAdminAuth:
     """Test admin authentication"""
-    
-    @pytest.fixture(scope="class")
-    def admin_token(self):
-        """Get admin authentication token"""
-        response = requests.post(
-            f"{BASE_URL}/api/auth/login",
-            json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD}
-        )
-        if response.status_code == 200:
-            return response.json().get("token")
-        pytest.skip(f"Admin login failed: {response.status_code}")
     
     def test_admin_login(self):
         """Test admin can login"""
@@ -36,7 +36,7 @@ class TestAdminAuth:
         )
         assert response.status_code == 200
         data = response.json()
-        assert "token" in data
+        assert "access_token" in data
         assert data.get("user", {}).get("role") in ["admin", "manager"]
 
 
@@ -46,13 +46,10 @@ class TestAdminDashboard:
     @pytest.fixture(scope="class")
     def admin_token(self):
         """Get admin authentication token"""
-        response = requests.post(
-            f"{BASE_URL}/api/auth/login",
-            json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD}
-        )
-        if response.status_code == 200:
-            return response.json().get("token")
-        pytest.skip("Admin login failed")
+        token = get_admin_token()
+        if not token:
+            pytest.skip("Admin login failed")
+        return token
     
     def test_get_dashboard(self, admin_token):
         """Test GET /api/admin/dashboard returns stats"""
@@ -75,13 +72,10 @@ class TestAdminUsersManagement:
     @pytest.fixture(scope="class")
     def admin_token(self):
         """Get admin authentication token"""
-        response = requests.post(
-            f"{BASE_URL}/api/auth/login",
-            json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD}
-        )
-        if response.status_code == 200:
-            return response.json().get("token")
-        pytest.skip("Admin login failed")
+        token = get_admin_token()
+        if not token:
+            pytest.skip("Admin login failed")
+        return token
     
     def test_get_users_list(self, admin_token):
         """Test GET /api/admin/users returns user list"""
@@ -134,13 +128,10 @@ class TestAdminSubscriptionsManagement:
     @pytest.fixture(scope="class")
     def admin_token(self):
         """Get admin authentication token"""
-        response = requests.post(
-            f"{BASE_URL}/api/auth/login",
-            json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD}
-        )
-        if response.status_code == 200:
-            return response.json().get("token")
-        pytest.skip("Admin login failed")
+        token = get_admin_token()
+        if not token:
+            pytest.skip("Admin login failed")
+        return token
     
     def test_get_subscriptions_list(self, admin_token):
         """Test GET /api/admin/subscriptions returns subscription list"""
@@ -165,13 +156,10 @@ class TestAdminPaymentsManagement:
     @pytest.fixture(scope="class")
     def admin_token(self):
         """Get admin authentication token"""
-        response = requests.post(
-            f"{BASE_URL}/api/auth/login",
-            json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD}
-        )
-        if response.status_code == 200:
-            return response.json().get("token")
-        pytest.skip("Admin login failed")
+        token = get_admin_token()
+        if not token:
+            pytest.skip("Admin login failed")
+        return token
     
     def test_get_payments_list(self, admin_token):
         """Test GET /api/admin/payments returns payment list"""
@@ -196,13 +184,10 @@ class TestAdminTicketsManagement:
     @pytest.fixture(scope="class")
     def admin_token(self):
         """Get admin authentication token"""
-        response = requests.post(
-            f"{BASE_URL}/api/auth/login",
-            json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD}
-        )
-        if response.status_code == 200:
-            return response.json().get("token")
-        pytest.skip("Admin login failed")
+        token = get_admin_token()
+        if not token:
+            pytest.skip("Admin login failed")
+        return token
     
     def test_get_tickets_list(self, admin_token):
         """Test GET /api/admin/tickets returns ticket list"""
@@ -227,13 +212,10 @@ class TestWeeklyReportsAPI:
     @pytest.fixture(scope="class")
     def admin_token(self):
         """Get admin authentication token"""
-        response = requests.post(
-            f"{BASE_URL}/api/auth/login",
-            json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD}
-        )
-        if response.status_code == 200:
-            return response.json().get("token")
-        pytest.skip("Admin login failed")
+        token = get_admin_token()
+        if not token:
+            pytest.skip("Admin login failed")
+        return token
     
     def test_get_weekly_reports_history(self, admin_token):
         """Test GET /api/weekly-reports/history returns array"""
@@ -293,13 +275,10 @@ class TestAdminPlans:
     @pytest.fixture(scope="class")
     def admin_token(self):
         """Get admin authentication token"""
-        response = requests.post(
-            f"{BASE_URL}/api/auth/login",
-            json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD}
-        )
-        if response.status_code == 200:
-            return response.json().get("token")
-        pytest.skip("Admin login failed")
+        token = get_admin_token()
+        if not token:
+            pytest.skip("Admin login failed")
+        return token
     
     def test_get_plans_list(self, admin_token):
         """Test GET /api/admin/plans returns plans list"""
