@@ -1,23 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { useSearchParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import { paymentAPI } from '../services/api';
 import { Button } from '../components/ui/button';
 import { Check, Loader2, XCircle, ArrowRight, PartyPopper } from 'lucide-react';
 
 const PaymentSuccessPage = () => {
   const [searchParams] = useSearchParams();
+  const location = useLocation();
   const navigate = useNavigate();
   const [status, setStatus] = useState('checking');
   const [paymentData, setPaymentData] = useState(null);
   const [attempts, setAttempts] = useState(0);
   const maxAttempts = 5;
   const sessionId = searchParams.get('session_id');
+  
+  // Check if coming from Razorpay (no session_id but has state or direct navigation)
+  const isRazorpay = !sessionId;
 
   useEffect(() => {
     if (sessionId) {
+      // Stripe flow - poll for status
       pollPaymentStatus();
     } else {
-      setStatus('error');
+      // Razorpay flow - payment already verified, show success
+      setStatus('success');
+      setPaymentData({
+        plan: location.state?.plan || 'Your',
+        billing: location.state?.billing || 'subscription',
+        provider: 'razorpay'
+      });
     }
   }, [sessionId]);
 
