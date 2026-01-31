@@ -294,14 +294,18 @@ async def suspend_user(user_id: str, current_user: dict = Depends(admin_required
 
 @router.post("/users/{user_id}/activate")
 async def activate_user(user_id: str, current_user: dict = Depends(admin_required)):
-    """Activate a suspended user."""
+    """Activate a user (also verifies email)."""
     user = await db.users.find_one({"id": user_id})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
     await db.users.update_one(
         {"id": user_id},
-        {"$set": {"status": UserStatus.ACTIVE, "updated_at": datetime.now(timezone.utc).isoformat()}}
+        {"$set": {
+            "status": UserStatus.ACTIVE, 
+            "email_verified": True,  # Also verify email when admin activates
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }}
     )
     
     # Log action
