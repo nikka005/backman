@@ -394,3 +394,189 @@ async def get_conversion_funnel(
             "trial_to_paid": round((paid_subs / max(free_users or signups, 1)) * 100, 2)
         }
     }
+
+
+
+# ==================== INSTAGRAM USER DATA ====================
+
+@router.get("/instagram-users")
+async def get_instagram_users_analytics(current_user: dict = Depends(admin_required)):
+    """
+    Get comprehensive Instagram analytics for all connected users.
+    Shows real data from OAuth connected accounts.
+    """
+    # Get all Instagram accounts with user info
+    accounts = await db.instagram_accounts.find(
+        {"status": {"$ne": "disconnected"}},
+        {"_id": 0, "access_token": 0}  # Don't expose access tokens
+    ).to_list(10000)
+    
+    # Get user info for each account
+    instagram_users = []
+    total_followers = 0
+    total_gained = 0
+    oauth_connected_count = 0
+    manual_connected_count = 0
+    
+    for account in accounts:
+        user = await db.users.find_one(
+            {"id": account.get("user_id")},
+            {"_id": 0, "password_hash": 0}
+        )
+        
+        # Get subscription info
+        subscription = await db.subscriptions.find_one(
+            {"user_id": account.get("user_id"), "status": "active"},
+            {"_id": 0}
+        )
+        
+        # Get targeting info
+        targeting = await db.targeting_settings.find_one(
+            {"user_id": account.get("user_id")},
+            {"_id": 0}
+        )
+        
+        followers = account.get("followers_count", 0)
+        gained = account.get("total_followers_gained", 0)
+        
+        total_followers += followers
+        total_gained += gained
+        
+        is_oauth = account.get("oauth_connected", False)
+        if is_oauth:
+            oauth_connected_count += 1
+        else:
+            manual_connected_count += 1
+        
+        instagram_users.append({
+            "user_id": account.get("user_id"),
+            "user_email": user.get("email") if user else "Unknown",
+            "user_name": user.get("name") if user else "Unknown",
+            "instagram_username": account.get("username"),
+            "instagram_name": account.get("name", ""),
+            "profile_picture_url": account.get("profile_picture_url", ""),
+            "account_type": account.get("account_type", "personal"),
+            "oauth_connected": is_oauth,
+            "followers_count": followers,
+            "following_count": account.get("following_count", 0),
+            "posts_count": account.get("posts_count", 0),
+            "engagement_rate": account.get("engagement_rate", 0),
+            "initial_followers": account.get("initial_followers", 0),
+            "total_followers_gained": gained,
+            "followers_today": account.get("followers_gained_today", 0),
+            "followers_this_week": account.get("followers_gained_this_week", 0),
+            "followers_this_month": account.get("followers_gained_this_month", 0),
+            "growth_paused": account.get("growth_paused", False),
+            "status": account.get("status", "active"),
+            "niche": targeting.get("niche") if targeting else None,
+            "subscription_plan": subscription.get("plan") if subscription else "Free",
+            "last_refreshed": account.get("last_refreshed"),
+            "connected_at": account.get("connected_at") or account.get("created_at"),
+        })
+    
+    # Sort by followers count
+    instagram_users.sort(key=lambda x: x["followers_count"], reverse=True)
+    
+    return {
+        "summary": {
+            "total_instagram_accounts": len(accounts),
+            "oauth_connected": oauth_connected_count,
+            "manual_connected": manual_connected_count,
+            "total_followers_across_all": total_followers,
+            "total_followers_delivered": total_gained,
+            "average_followers_per_account": round(total_followers / max(len(accounts), 1), 2),
+            "average_gained_per_account": round(total_gained / max(len(accounts), 1), 2)
+        },
+        "users": instagram_users
+    }
+
+
+@router.get("/instagram-users/{user_id}")
+async def get_instagram_user_detail(
+    user_id: str,
+    current_user: dict = Depends(admin_required)
+):
+    """
+    Get detailed Instagram analytics for a specific user.
+    """
+    # Get Instagram account
+    account = await db.instagram_accounts.find_one(
+        {"user_id": user_id},
+        {"_id": 0, "access_token": 0}
+    )
+    
+    if not account:
+        raise HTTPException(status_code=404, detail="Instagram account not found")
+    
+    # Get user info
+    user = await db.users.find_one(
+        {"id": user_id},
+        {"_id": 0, "password_hash": 0}
+    )
+    
+    # Get subscription
+    subscription = await db.subscriptions.find_one(
+        {"user_id": user_id, "status": "active"},
+        {"_id": 0}
+    )
+    
+    # Get targeting
+    targeting = await db.targeting_settings.find_one(
+        {"user_id": user_id},
+        {"_id": 0}
+    )
+    
+    # Get growth logs
+    growth_logs = await db.growth_logs.find(
+        {"user_id": user_id},
+        {"_id": 0}
+    ).sort("created_at", -1).limit(100).to_list(100)
+    
+    # Get AI analysis if available
+    ai_analysis = user.get("ai_analysis") if user else None
+    
+    # Calculate growth rate
+    days_active = 1
+    if account.get("connected_at"):
+        try:
+            connected = datetime.fromisoformat(account["connected_at"].replace('Z', '+00:00'))
+            days_active = max(1, (datetime.now(timezone.utc) - connected).days)
+        except (ValueError, AttributeError):
+            pass
+    
+    total_gained = account.get("total_followers_gained", 0)
+    daily_avg = round(total_gained / days_active, 2)
+    
+    return {
+        "user": user,
+        "instagram_account": {
+            "username": account.get("username"),
+            "name": account.get("name", ""),
+            "profile_picture_url": account.get("profile_picture_url", ""),
+            "account_type": account.get("account_type"),
+            "oauth_connected": account.get("oauth_connected", False),
+            "followers_count": account.get("followers_count", 0),
+            "following_count": account.get("following_count", 0),
+            "posts_count": account.get("posts_count", 0),
+            "engagement_rate": account.get("engagement_rate", 0),
+            "initial_followers": account.get("initial_followers", 0),
+            "total_followers_gained": total_gained,
+            "followers_today": account.get("followers_gained_today", 0),
+            "followers_this_week": account.get("followers_gained_this_week", 0),
+            "followers_this_month": account.get("followers_gained_this_month", 0),
+            "growth_paused": account.get("growth_paused", False),
+            "status": account.get("status"),
+            "connected_at": account.get("connected_at"),
+            "last_refreshed": account.get("last_refreshed")
+        },
+        "subscription": subscription,
+        "targeting": targeting,
+        "ai_analysis": ai_analysis,
+        "growth_logs": growth_logs[:20],  # Last 20 logs
+        "metrics": {
+            "days_active": days_active,
+            "daily_average_gain": daily_avg,
+            "weekly_projected": round(daily_avg * 7, 2),
+            "monthly_projected": round(daily_avg * 30, 2)
+        }
+    }
