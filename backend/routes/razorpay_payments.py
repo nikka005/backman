@@ -140,13 +140,19 @@ async def create_razorpay_order(
             logger.error(f"Plan '{plan_name}' not found. Available plans: {all_plans}")
             raise HTTPException(status_code=400, detail=f"Plan '{plan_name}' not found. Please check plan configuration.")
         
-        # Get price and convert USD to INR (approximate rate: 1 USD = 83 INR)
+        # Log found plan for debugging
+        logger.info(f"Found plan for Razorpay: {plan_doc.get('name')} - monthly: {plan_doc.get('monthly_price')}, yearly: {plan_doc.get('yearly_price')}")
+        
+        # Get price - check multiple possible field names
+        monthly_price = plan_doc.get("monthly_price") or plan_doc.get("monthlyPrice") or plan_doc.get("price") or 49
+        yearly_price = plan_doc.get("yearly_price") or plan_doc.get("yearlyPrice") or plan_doc.get("yearly") or monthly_price
+        
+        # Convert USD to INR (approximate rate: 1 USD = 83 INR)
         usd_to_inr = 83
         if billing == "yearly":
-            monthly_rate = plan_doc.get("yearly_price") or plan_doc.get("monthly_price", 49)
-            amount_usd = monthly_rate * 12
+            amount_usd = yearly_price * 12
         else:
-            amount_usd = plan_doc.get("monthly_price", 49)
+            amount_usd = monthly_price
         
         amount_inr = int(amount_usd * usd_to_inr)
         plan = plan_doc.get("name", plan_name).lower()
