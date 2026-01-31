@@ -232,9 +232,12 @@ async def verify_razorpay_payment(
     current_user: dict = Depends(get_current_user)
 ):
     """Verify Razorpay payment signature and activate subscription."""
+    logger.info(f"Verifying Razorpay payment - order_id: {verify_data.razorpay_order_id}, payment_id: {verify_data.razorpay_payment_id}")
+    
     # Get client to ensure keys are available
     client = await get_razorpay_client()
     if not client:
+        logger.error("Razorpay client not configured")
         raise HTTPException(status_code=500, detail="Razorpay not configured")
     
     try:
@@ -245,10 +248,17 @@ async def verify_razorpay_payment(
                 payment_config = await db.feature_payments.find_one({"key": "feature_razorpay"})
                 if payment_config:
                     key_secret = payment_config.get("api_secret")
-            except:
-                pass
+                    logger.info("Using Razorpay secret from database")
+            except Exception as e:
+                logger.warning(f"Failed to get Razorpay secret from DB: {e}")
         if not key_secret:
             key_secret = os.environ.get("RAZORPAY_KEY_SECRET", "")
+            if key_secret:
+                logger.info("Using Razorpay secret from environment")
+        
+        if not key_secret:
+            logger.error("Razorpay key_secret not found in DB or environment")
+            raise HTTPException(status_code=500, detail="Razorpay secret key not configured")
         
         # Create signature verification string
         message = f"{verify_data.razorpay_order_id}|{verify_data.razorpay_payment_id}"
@@ -258,7 +268,10 @@ async def verify_razorpay_payment(
             hashlib.sha256
         ).hexdigest()
         
+        logger.info(f"Signature verification - expected: {verify_data.razorpay_signature[:20]}..., generated: {generated_signature[:20]}...")
+        
         if generated_signature != verify_data.razorpay_signature:
+            logger.error(f"Invalid signature for order {verify_data.razorpay_order_id}")
             raise HTTPException(status_code=400, detail="Invalid payment signature")
         
         # Get order details
