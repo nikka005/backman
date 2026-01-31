@@ -31,6 +31,7 @@ import AdminUsersManagement from './AdminUsersManagement';
 import AdminSubscriptionsManagement from './AdminSubscriptionsManagement';
 import AdminPaymentsManagement from './AdminPaymentsManagement';
 import AdminTicketsManagement from './AdminTicketsManagement';
+import AdminWeeklyReports from './AdminWeeklyReports';
 
 const AdminDashboard = () => {
   const { user, logout, isAuthenticated, loading: authLoading } = useAuth();
