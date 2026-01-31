@@ -89,6 +89,7 @@ const AdminDashboard = () => {
     { icon: Server, label: 'Email Server', path: '/admin/email-settings' },
     { icon: Shield, label: 'Rate Limits', path: '/admin/rate-limits' },
     { icon: Download, label: 'Data Export', path: '/admin/export' },
+    { icon: FileText, label: 'Weekly Reports', path: '/admin/weekly-reports' },
     { icon: Share2, label: 'Social Links', path: '/admin/social-links' },
     { icon: Settings, label: 'Settings', path: '/admin/settings' },
     { icon: Book, label: 'Documentation', path: '/admin/docs' },
