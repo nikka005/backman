@@ -27,6 +27,7 @@ import AdminPrograms from './AdminPrograms';
 import AdminSocialLinks from './AdminSocialLinks';
 import AdminCoupons from './AdminCoupons';
 import AdminDocumentation from './AdminDocumentation';
+import AdminInstagramUsers from './AdminInstagramUsers';
 
 const AdminDashboard = () => {
   const { user, logout, isAuthenticated, loading: authLoading } = useAuth();
