@@ -111,11 +111,11 @@ const CheckoutPage = () => {
   };
   
   // Calculate prices
-  const basePrice = billingCycle === 'yearly' ? plan?.yearlyPrice : plan?.monthlyPrice;
+  const monthlyRate = billingCycle === 'yearly' ? plan?.yearlyPrice : plan?.monthlyPrice;
   const discount = couponApplied?.discount_percent || 0;
-  const discountAmount = basePrice ? (basePrice * discount / 100) : 0;
-  const finalPrice = basePrice ? (basePrice - discountAmount) : 0;
-  const yearlyTotal = billingCycle === 'yearly' ? finalPrice * 12 : finalPrice;
+  const discountAmount = monthlyRate ? (monthlyRate * discount / 100) : 0;
+  const finalMonthlyPrice = monthlyRate ? (monthlyRate - discountAmount) : 0;
+  const yearlyTotal = billingCycle === 'yearly' ? finalMonthlyPrice * 12 : finalMonthlyPrice;
   const savings = billingCycle === 'yearly' && plan ? (plan.monthlyPrice * 12) - (plan.yearlyPrice * 12) : 0;
   
   // Apply coupon
