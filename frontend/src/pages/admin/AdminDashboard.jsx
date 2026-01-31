@@ -174,7 +174,7 @@ const AdminDashboard = () => {
           <Route path="/subscriptions" element={<SubscriptionsManagement />} />
           <Route path="/payments" element={<PaymentsManagement />} />
           <Route path="/coupons" element={<AdminCoupons />} />
-          <Route path="/instagram" element={<InstagramManagement />} />
+          <Route path="/instagram" element={<AdminInstagramUsers />} />
           <Route path="/tickets" element={<TicketsManagement />} />
           <Route path="/notifications" element={<AdminNotificationsManager />} />
           <Route path="/email-templates" element={<AdminEmailTemplates />} />
