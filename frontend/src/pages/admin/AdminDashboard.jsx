@@ -10,7 +10,7 @@ import {
   Bell, Settings, LogOut, ChevronRight, TrendingUp, DollarSign,
   UserPlus, AlertCircle, Search, MoreVertical, Eye, Pause, Play,
   Loader2, RefreshCw, Package, Grid3X3, BarChart3, Megaphone, Sliders,
-  Mail, Shield, Download, Brain, Gift, Share2, Tag, Book
+  Mail, Shield, Download, Brain, Gift, Share2, Tag, Book, Server
 } from 'lucide-react';
 import AdminSettings from './AdminSettings';
 import AdminPlans from './AdminPlans';
