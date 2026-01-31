@@ -172,6 +172,26 @@ const AdminUsersManagement = () => {
     };
   };
 
+  const [activatingAll, setActivatingAll] = useState(false);
+
+  // Count pending users
+  const pendingCount = users.filter(u => u.status === 'pending_verification').length;
+
+  const handleBulkActivate = async () => {
+    if (!window.confirm(`Activate all ${pendingCount} pending users?`)) return;
+    setActivatingAll(true);
+    try {
+      const response = await adminAPI.post('/admin/users/bulk-activate');
+      showMessage('success', response.data.message);
+      loadUsers();
+    } catch (error) {
+      console.error('Error bulk activating:', error);
+      showMessage('error', 'Failed to activate users');
+    } finally {
+      setActivatingAll(false);
+    }
+  };
+
   return (
     <div data-testid="admin-users-management">
       <div className="flex items-center justify-between mb-8">
@@ -191,6 +211,17 @@ const AdminUsersManagement = () => {
               data-testid="user-search-input"
             />
           </div>
+          {pendingCount > 0 && (
+            <Button 
+              onClick={handleBulkActivate} 
+              disabled={activatingAll}
+              className="bg-green-600 hover:bg-green-700 gap-2"
+              data-testid="bulk-activate-btn"
+            >
+              {activatingAll ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserCheck className="w-4 h-4" />}
+              Activate All Pending ({pendingCount})
+            </Button>
+          )}
           <Button onClick={loadUsers} variant="outline" className="gap-2">
             <RefreshCw className="w-4 h-4" />
             Refresh
