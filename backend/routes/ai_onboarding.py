@@ -248,17 +248,22 @@ Return a JSON object following the exact format specified.
                 json_str = response_text
             
             parsed = json.loads(json_str)
+            
+            # Ensure suggested_plan is a valid plan name
+            if parsed.get("suggested_plan", "").lower() not in [p.lower() for p in plan_names]:
+                parsed["suggested_plan"] = popular_plan
+                
         except (json.JSONDecodeError, ValueError) as e:
             logger.error(f"Failed to parse AI response: {e}")
-            # Provide default recommendations
+            # Provide default recommendations with actual plan name
             parsed = {
                 "detected_niche": "lifestyle",
                 "recommended_hashtags": ["growth", "instagram", "socialmedia", "content", "creator"],
                 "recommended_similar_accounts": [],
                 "recommended_locations": [],
                 "growth_intensity": "moderate",
-                "suggested_plan": "starter",
-                "plan_reason": "Great starting point for new accounts",
+                "suggested_plan": popular_plan,  # Use actual popular plan
+                "plan_reason": f"Our most popular plan, perfect for growing accounts",
                 "confidence_level": "medium",
                 "growth_expectation": "Based on similar accounts, consistent engagement typically leads to gradual organic growth. Results may vary.",
                 "safety_notes": "Account safety is prioritized with gradual, natural-looking growth patterns.",
@@ -271,7 +276,7 @@ Return a JSON object following the exact format specified.
             parsed["recommended_hashtags"] = parsed.get("recommended_hashtags", [])[:5]
             parsed["recommended_similar_accounts"] = []  # No competitor analysis for free
             parsed["can_edit"] = False
-        elif plan_tier == "starter":
+        elif plan_tier.lower() in ["basic", "starter"]:
             parsed["recommended_hashtags"] = parsed.get("recommended_hashtags", [])[:8]
             parsed["recommended_similar_accounts"] = parsed.get("recommended_similar_accounts", [])[:3]
             parsed["can_edit"] = True
