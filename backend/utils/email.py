@@ -185,28 +185,55 @@ async def send_email_resend(to_email: str, subject: str, html_content: str) -> O
 
 async def send_email(to_email: str, subject: str, html_content: str) -> Optional[str]:
     """Send an email using configured service. Returns email ID on success, None on failure."""
-    if email_service_type == "smtp":
+    # Always try SMTP first (from DB or env)
+    config = await get_email_config()
+    if config:
         return await send_email_smtp(to_email, subject, html_content)
-    elif email_service_type == "resend":
+    
+    # Fallback to Resend if configured
+    if email_service_type == "resend":
         return await send_email_resend(to_email, subject, html_content)
-    else:
-        logger.warning("Email service not configured, skipping email send")
-        return None
+    
+    logger.warning("Email service not configured, skipping email send")
+    return None
 
 
-def is_email_configured() -> bool:
+async def is_email_configured() -> bool:
     """Check if email service is configured."""
-    return email_service_type is not None
+    config = await get_email_config()
+    return config is not None or email_service_type == "resend"
 
 
-def get_email_service_status() -> dict:
+async def get_email_service_status() -> dict:
     """Get current email service status."""
+    config = await get_email_config()
+    if config:
+        return {
+            "configured": True,
+            "service_type": "smtp",
+            "source": config.get("source", "unknown"),
+            "sender_email": config.get("sender_email"),
+            "sender_name": config.get("sender_name"),
+            "smtp_host": config.get("smtp_host")
+        }
+    
+    if email_service_type == "resend":
+        return {
+            "configured": True,
+            "service_type": "resend",
+            "source": "environment",
+            "sender_email": ENV_SENDER_EMAIL,
+            "sender_name": ENV_SENDER_NAME,
+            "smtp_host": None
+        }
+    
     return {
-        "configured": email_service_type is not None,
-        "service_type": email_service_type,
-        "sender_email": SENDER_EMAIL,
-        "sender_name": SENDER_NAME,
-        "smtp_host": SMTP_HOST if email_service_type == "smtp" else None
+        "configured": False,
+        "service_type": None,
+        "source": None,
+        "sender_email": None,
+        "sender_name": None,
+        "smtp_host": None
     }
 
 
