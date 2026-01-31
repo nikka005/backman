@@ -230,7 +230,7 @@ async def get_user_details(user_id: str, current_user: dict = Depends(admin_requ
 
 @router.put("/users/{user_id}")
 async def update_user(user_id: str, update_data: UserUpdate, current_user: dict = Depends(admin_required)):
-    """Update user (admin can change role, status, plan)."""
+    """Update user (admin can change role, status, plan). Also creates subscription when plan is assigned."""
     user = await db.users.find_one({"id": user_id})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -238,7 +238,70 @@ async def update_user(user_id: str, update_data: UserUpdate, current_user: dict 
     update_dict = {k: v for k, v in update_data.model_dump().items() if v is not None}
     update_dict['updated_at'] = datetime.now(timezone.utc).isoformat()
     
+    # Check if plan is being changed
+    new_plan = update_dict.get('current_plan')
+    old_plan = user.get('current_plan')
+    
     await db.users.update_one({"id": user_id}, {"$set": update_dict})
+    
+    # If admin assigned/changed a plan, create or update subscription record
+    if new_plan and new_plan != old_plan:
+        # Get plan details for pricing
+        plan_doc = await db.plans.find_one(
+            {"name": {"$regex": f"^{new_plan}$", "$options": "i"}},
+            {"_id": 0}
+        )
+        plan_price = plan_doc.get("monthly_price", 49) if plan_doc else 49
+        
+        # Get user's current Instagram followers for growth tracking
+        instagram = await db.instagram_accounts.find_one({"user_id": user_id}, {"_id": 0})
+        start_followers = instagram.get("followers_count", 0) if instagram else 0
+        
+        # Check if subscription exists
+        existing_sub = await db.subscriptions.find_one({"user_id": user_id})
+        
+        now = datetime.now(timezone.utc)
+        next_billing = now + timedelta(days=30)
+        
+        if existing_sub:
+            # Update existing subscription
+            await db.subscriptions.update_one(
+                {"user_id": user_id},
+                {"$set": {
+                    "plan": new_plan,
+                    "status": "active",
+                    "price": plan_price,
+                    "amount": plan_price,
+                    "start_followers": start_followers,
+                    "admin_assigned": True,
+                    "assigned_by": current_user['email'],
+                    "assigned_at": now.isoformat(),
+                    "updated_at": now.isoformat()
+                }}
+            )
+        else:
+            # Create new subscription
+            import uuid
+            subscription_data = {
+                "id": str(uuid.uuid4()),
+                "user_id": user_id,
+                "user_email": user.get("email"),
+                "user_name": user.get("name"),
+                "plan": new_plan,
+                "billing_cycle": "monthly",
+                "status": "active",
+                "price": plan_price,
+                "amount": plan_price,
+                "start_followers": start_followers,
+                "admin_assigned": True,
+                "assigned_by": current_user['email'],
+                "payment_method": "admin_assigned",
+                "created_at": now.isoformat(),
+                "updated_at": now.isoformat(),
+                "start_date": now.isoformat(),
+                "next_billing_date": next_billing.isoformat()
+            }
+            await db.subscriptions.insert_one(subscription_data)
     
     # Log admin action
     log = AdminLog(
@@ -247,7 +310,7 @@ async def update_user(user_id: str, update_data: UserUpdate, current_user: dict 
         action=AdminAction.USER_UPDATE,
         target_type="user",
         target_id=user_id,
-        description=f"Updated user {user['email']}",
+        description=f"Updated user {user['email']}" + (f" - assigned {new_plan} plan" if new_plan and new_plan != old_plan else ""),
         previous_value={k: user.get(k) for k in update_dict.keys() if k != 'updated_at'},
         new_value={k: v for k, v in update_dict.items() if k != 'updated_at'}
     )
@@ -255,7 +318,7 @@ async def update_user(user_id: str, update_data: UserUpdate, current_user: dict 
     log_dict['created_at'] = log_dict['created_at'].isoformat()
     await db.admin_logs.insert_one(log_dict)
     
-    return {"message": "User updated successfully"}
+    return {"message": "User updated successfully" + (f" with {new_plan} plan subscription created" if new_plan and new_plan != old_plan else "")}
 
 
 @router.post("/users/{user_id}/suspend")
