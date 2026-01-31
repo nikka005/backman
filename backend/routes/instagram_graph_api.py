@@ -1093,3 +1093,163 @@ async def get_account_stats(
         "growth_paused": account.get("growth_paused", False)
     }
 
+
+
+@router.get("/insights")
+async def get_instagram_insights(
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Get Instagram insights and analytics.
+    Fetches real data from Instagram API for OAuth connected accounts.
+    """
+    user_id = current_user['user_id']
+    
+    account = await db.instagram_accounts.find_one(
+        {"user_id": user_id},
+        {"_id": 0}
+    )
+    
+    if not account:
+        raise HTTPException(status_code=404, detail="No Instagram account connected")
+    
+    insights = {
+        "username": account.get("username"),
+        "profile_picture_url": account.get("profile_picture_url", ""),
+        "oauth_connected": account.get("oauth_connected", False),
+        "followers_count": account.get("followers_count", 0),
+        "following_count": account.get("following_count", 0),
+        "posts_count": account.get("posts_count", 0),
+        "engagement_rate": account.get("engagement_rate", 0),
+        "reach": 0,
+        "impressions": 0,
+        "profile_views": 0,
+        "website_clicks": 0,
+        "recent_posts": [],
+        "follower_demographics": {},
+        "growth_history": []
+    }
+    
+    # If OAuth connected, try to fetch real insights
+    if account.get("oauth_connected") and account.get("access_token"):
+        token_expires = account.get("token_expires_at")
+        token_valid = False
+        
+        if token_expires:
+            try:
+                expires_at = datetime.fromisoformat(token_expires.replace('Z', '+00:00'))
+                token_valid = expires_at > datetime.now(timezone.utc)
+            except (ValueError, AttributeError):
+                pass
+        
+        if token_valid:
+            try:
+                async with httpx.AsyncClient(timeout=30.0) as client:
+                    access_token = account["access_token"]
+                    
+                    # Fetch account insights (requires instagram_business_manage_insights permission)
+                    insights_response = await client.get(
+                        f"https://graph.instagram.com/v18.0/me/insights",
+                        params={
+                            "metric": "reach,impressions,profile_views,website_clicks",
+                            "period": "day",
+                            "access_token": access_token
+                        }
+                    )
+                    
+                    if insights_response.status_code == 200:
+                        insights_data = insights_response.json()
+                        for item in insights_data.get("data", []):
+                            metric_name = item.get("name")
+                            values = item.get("values", [{}])
+                            if values:
+                                insights[metric_name] = values[0].get("value", 0)
+                    
+                    # Fetch recent media
+                    media_response = await client.get(
+                        f"https://graph.instagram.com/v18.0/me/media",
+                        params={
+                            "fields": "id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count",
+                            "limit": 12,
+                            "access_token": access_token
+                        }
+                    )
+                    
+                    if media_response.status_code == 200:
+                        media_data = media_response.json()
+                        insights["recent_posts"] = media_data.get("data", [])
+                    
+            except Exception as e:
+                logger.error(f"Error fetching insights: {str(e)}")
+    
+    # Get growth history from database
+    growth_logs = await db.growth_logs.find(
+        {"user_id": user_id},
+        {"_id": 0, "created_at": 1, "details": 1}
+    ).sort("created_at", -1).limit(30).to_list(30)
+    
+    insights["growth_history"] = growth_logs
+    insights["last_refreshed"] = account.get("last_refreshed")
+    
+    return insights
+
+
+@router.get("/analytics/summary")
+async def get_analytics_summary(
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Get analytics summary for the user's Instagram account.
+    Provides growth metrics, engagement trends, and performance data.
+    """
+    user_id = current_user['user_id']
+    
+    account = await db.instagram_accounts.find_one(
+        {"user_id": user_id},
+        {"_id": 0, "access_token": 0}
+    )
+    
+    if not account:
+        raise HTTPException(status_code=404, detail="No Instagram account connected")
+    
+    # Calculate growth metrics
+    initial_followers = account.get("initial_followers", 0)
+    current_followers = account.get("followers_count", 0)
+    total_gained = account.get("total_followers_gained", 0)
+    
+    growth_percentage = 0
+    if initial_followers > 0:
+        growth_percentage = ((current_followers - initial_followers) / initial_followers) * 100
+    
+    # Get targeting settings for quality score
+    targeting = await db.targeting_settings.find_one({"user_id": user_id})
+    targeting_quality = 0
+    if targeting:
+        if targeting.get("niche"):
+            targeting_quality += 25
+        if targeting.get("hashtags") and len(targeting.get("hashtags", [])) >= 3:
+            targeting_quality += 25
+        if targeting.get("competitor_accounts") and len(targeting.get("competitor_accounts", [])) >= 2:
+            targeting_quality += 25
+        if targeting.get("locations") and len(targeting.get("locations", [])) >= 1:
+            targeting_quality += 25
+    
+    return {
+        "username": account.get("username"),
+        "oauth_connected": account.get("oauth_connected", False),
+        "current_followers": current_followers,
+        "initial_followers": initial_followers,
+        "total_followers_gained": total_gained,
+        "growth_percentage": round(growth_percentage, 2),
+        "followers_today": account.get("followers_gained_today", 0),
+        "followers_this_week": account.get("followers_gained_this_week", 0),
+        "followers_this_month": account.get("followers_gained_this_month", 0),
+        "engagement_rate": account.get("engagement_rate", 0),
+        "posts_count": account.get("posts_count", 0),
+        "targeting_quality": targeting_quality,
+        "estimated_daily_growth": round(2.5 * (targeting_quality / 100 + 1), 1),
+        "account_status": account.get("status", "active"),
+        "growth_paused": account.get("growth_paused", False),
+        "last_refreshed": account.get("last_refreshed")
+    }
+
