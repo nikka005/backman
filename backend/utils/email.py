@@ -15,14 +15,14 @@ logger = logging.getLogger(__name__)
 # Email configuration
 BRAND_NAME = "Adverlyx Digital"
 
-# SMTP Configuration (Primary - Hostinger)
-SMTP_HOST = os.environ.get("SMTP_HOST", "smtp.hostinger.com")
-SMTP_PORT = int(os.environ.get("SMTP_PORT", "465"))
-SMTP_USERNAME = os.environ.get("SMTP_USERNAME", "")
-SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "")
-SMTP_USE_SSL = os.environ.get("SMTP_USE_SSL", "true").lower() == "true"
-SENDER_EMAIL = os.environ.get("SENDER_EMAIL", SMTP_USERNAME)
-SENDER_NAME = os.environ.get("SENDER_NAME", BRAND_NAME)
+# Fallback SMTP Configuration from environment (used if DB not configured)
+ENV_SMTP_HOST = os.environ.get("SMTP_HOST", "")
+ENV_SMTP_PORT = int(os.environ.get("SMTP_PORT", "465"))
+ENV_SMTP_USERNAME = os.environ.get("SMTP_USERNAME", "")
+ENV_SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "")
+ENV_SMTP_USE_SSL = os.environ.get("SMTP_USE_SSL", "true").lower() == "true"
+ENV_SENDER_EMAIL = os.environ.get("SENDER_EMAIL", ENV_SMTP_USERNAME)
+ENV_SENDER_NAME = os.environ.get("SENDER_NAME", BRAND_NAME)
 
 # Fallback to Resend if SMTP not configured
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
@@ -31,13 +31,59 @@ RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
 email_service = None
 email_service_type = None
 
+# Database reference (will be set by init_email_db)
+_db = None
+
+def init_email_db(database):
+    """Initialize database reference for email settings."""
+    global _db
+    _db = database
+    logger.info("Email service database initialized")
+
+
+async def get_email_config():
+    """Get email configuration from database, fallback to environment."""
+    # Try to get settings from database first
+    if _db is not None:
+        try:
+            settings = await _db.email_settings.find_one({}, {"_id": 0})
+            if settings and settings.get("smtp_host") and settings.get("smtp_username"):
+                return {
+                    "smtp_host": settings.get("smtp_host"),
+                    "smtp_port": settings.get("smtp_port", 465),
+                    "smtp_username": settings.get("smtp_username"),
+                    "smtp_password": settings.get("smtp_password"),
+                    "smtp_use_ssl": settings.get("smtp_use_ssl", True),
+                    "sender_email": settings.get("sender_email") or settings.get("smtp_username"),
+                    "sender_name": settings.get("sender_name", BRAND_NAME),
+                    "source": "database"
+                }
+        except Exception as e:
+            logger.warning(f"Failed to get email settings from DB: {e}")
+    
+    # Fallback to environment variables
+    if ENV_SMTP_HOST and ENV_SMTP_USERNAME:
+        return {
+            "smtp_host": ENV_SMTP_HOST,
+            "smtp_port": ENV_SMTP_PORT,
+            "smtp_username": ENV_SMTP_USERNAME,
+            "smtp_password": ENV_SMTP_PASSWORD,
+            "smtp_use_ssl": ENV_SMTP_USE_SSL,
+            "sender_email": ENV_SENDER_EMAIL,
+            "sender_name": ENV_SENDER_NAME,
+            "source": "environment"
+        }
+    
+    return None
+
+
 def init_email_service():
     global email_service, email_service_type
     
-    # Try SMTP first (Hostinger)
-    if SMTP_HOST and SMTP_USERNAME and SMTP_PASSWORD:
+    # Check if SMTP is configured via environment (for initial setup)
+    if ENV_SMTP_HOST and ENV_SMTP_USERNAME and ENV_SMTP_PASSWORD:
         email_service_type = "smtp"
-        logger.info(f"SMTP email service configured: {SMTP_HOST}:{SMTP_PORT}")
+        logger.info(f"SMTP email service configured from env: {ENV_SMTP_HOST}:{ENV_SMTP_PORT}")
         return True
     
     # Fallback to Resend
@@ -52,20 +98,36 @@ def init_email_service():
         except ImportError:
             logger.warning("Resend package not installed")
     
-    logger.warning("No email service configured")
-    return False
+    # Mark as potentially configured via database
+    email_service_type = "smtp_db"
+    logger.info("Email service will use database configuration")
+    return True
 
 # Initialize on module load
 init_email_service()
 
 
 async def send_email_smtp(to_email: str, subject: str, html_content: str) -> Optional[str]:
-    """Send email using SMTP (Hostinger)."""
+    """Send email using SMTP (from DB or environment)."""
     try:
+        # Get configuration
+        config = await get_email_config()
+        if not config:
+            logger.warning("No SMTP configuration available")
+            return None
+        
+        smtp_host = config["smtp_host"]
+        smtp_port = config["smtp_port"]
+        smtp_username = config["smtp_username"]
+        smtp_password = config["smtp_password"]
+        smtp_use_ssl = config["smtp_use_ssl"]
+        sender_email = config["sender_email"]
+        sender_name = config["sender_name"]
+        
         # Create message
         message = MIMEMultipart("alternative")
         message["Subject"] = subject
-        message["From"] = f"{SENDER_NAME} <{SENDER_EMAIL}>"
+        message["From"] = f"{sender_name} <{sender_email}>"
         message["To"] = to_email
         
         # Attach HTML content
@@ -74,24 +136,24 @@ async def send_email_smtp(to_email: str, subject: str, html_content: str) -> Opt
         
         # Send email
         def _send():
-            if SMTP_USE_SSL:
+            if smtp_use_ssl:
                 # SSL connection (port 465)
                 context = ssl.create_default_context()
-                with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT, context=context) as server:
-                    server.login(SMTP_USERNAME, SMTP_PASSWORD)
-                    server.sendmail(SENDER_EMAIL, to_email, message.as_string())
+                with smtplib.SMTP_SSL(smtp_host, smtp_port, context=context) as server:
+                    server.login(smtp_username, smtp_password)
+                    server.sendmail(sender_email, to_email, message.as_string())
             else:
                 # TLS connection (port 587)
-                with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
+                with smtplib.SMTP(smtp_host, smtp_port) as server:
                     server.starttls()
-                    server.login(SMTP_USERNAME, SMTP_PASSWORD)
-                    server.sendmail(SENDER_EMAIL, to_email, message.as_string())
+                    server.login(smtp_username, smtp_password)
+                    server.sendmail(sender_email, to_email, message.as_string())
             return True
         
         # Run in thread to not block async
         result = await asyncio.to_thread(_send)
         if result:
-            logger.info(f"Email sent via SMTP to {to_email}")
+            logger.info(f"Email sent via SMTP ({config['source']}) to {to_email}")
             return f"smtp_{to_email}"
         return None
         
