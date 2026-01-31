@@ -89,17 +89,43 @@ async def create_checkout_session(
     if not checkout_client:
         raise HTTPException(status_code=500, detail="Stripe not configured. Please add API keys in Admin Panel > Features > Payment Options")
     
-    # Validate package exists
-    if package_id not in PLAN_PACKAGES:
-        raise HTTPException(status_code=400, detail="Invalid package")
+    # Parse package_id format: "planname_monthly" or "planname_yearly"
+    # Support any plan from database, not just hardcoded ones
+    parts = package_id.rsplit('_', 1)
+    if len(parts) != 2 or parts[1] not in ['monthly', 'yearly']:
+        raise HTTPException(status_code=400, detail="Invalid package format. Use: planname_monthly or planname_yearly")
     
-    package = PLAN_PACKAGES[package_id]
+    plan_name = parts[0].lower()
+    billing = parts[1]
     
-    # Get amount from server-side definition only (SECURITY)
-    amount = package["amount"]
-    currency = package["currency"]
-    plan = package["plan"]
-    billing = package["billing"]
+    # First check hardcoded packages for backwards compatibility
+    if package_id in PLAN_PACKAGES:
+        package = PLAN_PACKAGES[package_id]
+        amount = package["amount"]
+        currency = package["currency"]
+        plan = package["plan"]
+    else:
+        # Fetch plan from database - supports any plan added via admin panel
+        plan_doc = await db.plans.find_one({
+            "$or": [
+                {"id": plan_name},
+                {"name": {"$regex": f"^{plan_name}$", "$options": "i"}}
+            ]
+        })
+        
+        if not plan_doc:
+            raise HTTPException(status_code=400, detail=f"Plan '{plan_name}' not found")
+        
+        # Get the correct price based on billing cycle
+        if billing == "yearly":
+            # yearly_price is per month, so multiply by 12 for total
+            monthly_rate = plan_doc.get("yearly_price") or plan_doc.get("monthly_price", 49)
+            amount = monthly_rate * 12
+        else:
+            amount = plan_doc.get("monthly_price", 49)
+        
+        currency = "usd"
+        plan = plan_doc.get("name", plan_name).lower()
     
     # Build URLs from provided origin (dynamic, not hardcoded)
     success_url = f"{origin_url}/payment/success?session_id={{CHECKOUT_SESSION_ID}}"
