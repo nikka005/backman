@@ -1233,20 +1233,103 @@ const DashboardPage = () => {
               <TwoFactorSettings />
               
               <div className="bg-white rounded-2xl border border-gray-100 p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Notifications</h2>
+                <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <Bell className="w-5 h-5 text-pink-500" />
+                  Notification Preferences
+                </h2>
                 <div className="space-y-4">
-                  <label className="flex items-center justify-between">
-                    <span className="text-gray-700">Email notifications</span>
-                    <input type="checkbox" defaultChecked className="w-5 h-5 rounded accent-pink-500" />
-                  </label>
-                  <label className="flex items-center justify-between">
-                    <span className="text-gray-700">Growth milestone alerts</span>
-                    <input type="checkbox" defaultChecked className="w-5 h-5 rounded accent-pink-500" />
-                  </label>
-                  <label className="flex items-center justify-between">
-                    <span className="text-gray-700">Weekly reports</span>
-                    <input type="checkbox" defaultChecked className="w-5 h-5 rounded accent-pink-500" />
-                  </label>
+                  <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                    <div>
+                      <span className="text-gray-900 font-medium">Email Notifications</span>
+                      <p className="text-xs text-gray-500">Receive emails about your account activity</p>
+                    </div>
+                    <input 
+                      type="checkbox" 
+                      checked={notificationPrefs.email_notifications}
+                      onChange={(e) => handleNotifPrefChange('email_notifications', e.target.checked)}
+                      className="w-5 h-5 rounded accent-pink-500" 
+                    />
+                  </div>
+                  <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                    <div>
+                      <span className="text-gray-900 font-medium">Growth Milestone Alerts</span>
+                      <p className="text-xs text-gray-500">Get notified when you reach follower milestones</p>
+                    </div>
+                    <input 
+                      type="checkbox" 
+                      checked={notificationPrefs.growth_milestone_alerts}
+                      onChange={(e) => handleNotifPrefChange('growth_milestone_alerts', e.target.checked)}
+                      className="w-5 h-5 rounded accent-pink-500" 
+                    />
+                  </div>
+                  <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                    <div>
+                      <span className="text-gray-900 font-medium">Weekly Reports</span>
+                      <p className="text-xs text-gray-500">Receive AI-powered weekly growth reports</p>
+                    </div>
+                    <input 
+                      type="checkbox" 
+                      checked={notificationPrefs.weekly_reports}
+                      onChange={(e) => handleNotifPrefChange('weekly_reports', e.target.checked)}
+                      className="w-5 h-5 rounded accent-pink-500" 
+                    />
+                  </div>
+                  <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                    <div>
+                      <span className="text-gray-900 font-medium">Security Alerts</span>
+                      <p className="text-xs text-gray-500">Important security notifications (recommended)</p>
+                    </div>
+                    <input 
+                      type="checkbox" 
+                      checked={notificationPrefs.security_alerts}
+                      onChange={(e) => handleNotifPrefChange('security_alerts', e.target.checked)}
+                      className="w-5 h-5 rounded accent-pink-500" 
+                    />
+                  </div>
+                  <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                    <div>
+                      <span className="text-gray-900 font-medium">Billing Alerts</span>
+                      <p className="text-xs text-gray-500">Payment and subscription notifications</p>
+                    </div>
+                    <input 
+                      type="checkbox" 
+                      checked={notificationPrefs.billing_alerts}
+                      onChange={(e) => handleNotifPrefChange('billing_alerts', e.target.checked)}
+                      className="w-5 h-5 rounded accent-pink-500" 
+                    />
+                  </div>
+                  <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                    <div>
+                      <span className="text-gray-900 font-medium">New Features</span>
+                      <p className="text-xs text-gray-500">Updates about new features and improvements</p>
+                    </div>
+                    <input 
+                      type="checkbox" 
+                      checked={notificationPrefs.new_features}
+                      onChange={(e) => handleNotifPrefChange('new_features', e.target.checked)}
+                      className="w-5 h-5 rounded accent-pink-500" 
+                    />
+                  </div>
+                  <div className="flex items-center justify-between py-2">
+                    <div>
+                      <span className="text-gray-900 font-medium">Tips & Tricks</span>
+                      <p className="text-xs text-gray-500">Instagram growth tips and best practices</p>
+                    </div>
+                    <input 
+                      type="checkbox" 
+                      checked={notificationPrefs.tips_and_tricks}
+                      onChange={(e) => handleNotifPrefChange('tips_and_tricks', e.target.checked)}
+                      className="w-5 h-5 rounded accent-pink-500" 
+                    />
+                  </div>
+                  <Button 
+                    onClick={handleSaveNotificationPrefs}
+                    disabled={savingNotifPrefs}
+                    className="bg-gradient-to-r from-pink-500 to-purple-500 text-white mt-4"
+                  >
+                    {savingNotifPrefs ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
+                    Save Preferences
+                  </Button>
                 </div>
               </div>
               
