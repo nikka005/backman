@@ -1115,6 +1115,23 @@ const DashboardPage = () => {
                 </div>
               )}
 
+              {/* Live Data Banner - OAuth Connected */}
+              {instagramAccount && instagramAccount.oauth_connected && (
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4 mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-900">Live Instagram Data</p>
+                      <p className="text-xs text-gray-600">
+                        Connected to Instagram API. Click "Refresh Data" to update your stats.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Stats Grid */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 {statsCards.map((stat) => {
