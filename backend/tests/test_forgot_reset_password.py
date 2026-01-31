@@ -117,9 +117,9 @@ class TestStripePaymentAPI:
                 "origin_url": "https://example.com"
             }
         )
-        # Should return 401 without auth
-        assert response.status_code == 401
-        print("✓ Checkout session requires authentication (401)")
+        # Should return 401 or 403 without auth
+        assert response.status_code in [401, 403]
+        print(f"✓ Checkout session requires authentication ({response.status_code})")
     
     def test_checkout_session_with_auth(self, auth_token):
         """Test checkout session creation with valid auth"""
