@@ -68,17 +68,23 @@ const PricingPage = () => {
     try {
       const response = await publicAPI.getPlans();
       // Transform API response to match expected format
-      const transformedPlans = response.data.map(plan => ({
-        id: plan.id || plan.slug,
-        slug: plan.slug,
-        name: plan.name,
-        description: plan.description,
-        monthlyPrice: plan.monthly_price,
-        yearlyPrice: plan.yearly_price,
-        followers: `${(plan.followers_min / 1000).toFixed(0)}K - ${(plan.followers_max / 1000).toFixed(0)}K`,
-        features: plan.feature_list || plan.features || [],
-        popular: plan.is_popular || plan.popular
-      }));
+      const transformedPlans = response.data.map(plan => {
+        // Ensure we have a valid slug - fallback to id or name
+        const planSlug = plan.slug || plan.id || plan.name?.toLowerCase().replace(/\s+/g, '-');
+        return {
+          id: plan.id || planSlug,
+          slug: planSlug,
+          name: plan.name,
+          description: plan.description,
+          monthlyPrice: plan.monthly_price,
+          yearlyPrice: plan.yearly_price,
+          followers: plan.followers_min && plan.followers_max 
+            ? `${(plan.followers_min / 1000).toFixed(0)}K - ${(plan.followers_max / 1000).toFixed(0)}K`
+            : plan.followers || 'Custom',
+          features: plan.feature_list || plan.features || [],
+          popular: plan.is_popular || plan.popular
+        };
+      });
       setPlans(transformedPlans);
     } catch (error) {
       console.error('Error loading plans:', error);
