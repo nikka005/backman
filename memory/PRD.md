@@ -208,6 +208,8 @@ Note: Only works with Business/Creator Instagram accounts
 
 ### Admin
 - `/api/admin/settings/*` - Platform settings CRUD
+- `/api/admin/settings/email` - Email/SMTP settings (GET/PUT)
+- `/api/admin/settings/email/test` - Send test email (POST)
 - `/api/admin/plans/*` - Plan management
 - `/api/admin/analytics/*` - Platform analytics
 - `/api/admin/ai/*` - AI Intelligence endpoints
