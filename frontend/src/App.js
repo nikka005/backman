@@ -33,16 +33,8 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import AuthCallback from './pages/AuthCallback';
 
-// AppRouter component to handle OAuth callback detection
-// REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
+// AppRouter component to handle routing
 function AppRouter() {
-  const location = useLocation();
-  
-  // Check URL fragment for session_id (OAuth callback) - MUST be synchronous
-  if (location.hash?.includes('session_id=')) {
-    return <AuthCallback />;
-  }
-  
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
