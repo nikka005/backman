@@ -98,6 +98,220 @@ Powered by GPT-5.2 and Claude Sonnet 4.5 for intelligent decision support.
       `
     },
     {
+      id: 'charts-traffic',
+      icon: PieChart,
+      title: 'Charts & Traffic',
+      content: `
+## Charts & Traffic Analytics
+
+Visual analytics dashboard with real-time statistics.
+
+### Access
+Navigate to: **Admin Panel → Charts & Traffic**
+
+### Features
+
+#### Real-time Stats
+- Current visitors online
+- Active users (last hour)
+- Recent signups
+- Page views
+- Revenue
+
+#### Charts Available
+- **Revenue Chart**: Daily revenue trend with growth %
+- **User Growth**: New users and cumulative growth
+- **Traffic Chart**: Page views and unique visitors
+- **Traffic Sources**: Organic, Direct, Social, Referral, Paid
+- **Conversion Funnel**: Visitors → Signups → Trials → Paid
+- **Geographic**: Users by country
+- **Top Pages**: Most visited pages with bounce rate
+
+### Time Periods
+Select 7 days, 30 days, or 90 days for chart data.
+
+### Note
+Traffic data is simulated for demo. Integrate Google Analytics for real data.
+      `
+    },
+    {
+      id: 'refunds',
+      icon: DollarSign,
+      title: 'Refund Management',
+      content: `
+## Refund Management
+
+Handle customer refund requests with approval workflow.
+
+### Access
+Navigate to: **Admin Panel → Refunds**
+
+### Dashboard Stats
+- **Pending**: Awaiting review
+- **Processed**: Completed refunds
+- **Total Refunded**: Lifetime amount
+- **Refund Rate**: Percentage of payments refunded
+
+### Workflow
+1. Customer submits refund request
+2. Admin reviews request details
+3. Admin approves or rejects
+4. Process approved refunds
+5. Customer receives email notification
+
+### Actions
+- **View**: See refund details and reason
+- **Approve**: Accept the refund request
+- **Reject**: Deny with admin notes
+- **Process**: Execute approved refund
+
+### Refund Types
+- **Full Refund**: 100% of payment (cancels subscription)
+- **Partial Refund**: Custom amount
+      `
+    },
+    {
+      id: 'renewals',
+      icon: RefreshCw,
+      title: 'Subscription Renewals',
+      content: `
+## Subscription Renewals
+
+Manage automatic subscription renewals.
+
+### Access
+Navigate to: **Admin Panel → Renewals**
+
+### Tabs
+- **Due Now**: Subscriptions needing immediate renewal
+- **Upcoming**: Renewals in next 7-14 days
+- **History**: Past renewal attempts
+
+### Settings
+Click Settings button to configure:
+- Auto-Renewal: Enable/disable automatic processing
+- Max Retry Attempts: Retries for failed payments (default: 3)
+- Retry Interval: Days between retries (default: 1)
+- Grace Period: Days before cancellation (default: 7)
+
+### Actions
+- **Process Single**: Renew one subscription
+- **Process All Due**: Batch process all due renewals
+
+### Email Notifications
+- Renewal success confirmation
+- Payment failed warning
+- Subscription cancelled notice
+      `
+    },
+    {
+      id: 'languages',
+      icon: Globe,
+      title: 'Multi-language (i18n)',
+      content: `
+## Multi-language Support
+
+Configure platform languages and translations.
+
+### Access
+Navigate to: **Admin Panel → Languages**
+
+### Supported Languages
+14 languages: English, Spanish, French, German, Portuguese, Italian, Dutch, Russian, Japanese, Korean, Chinese, Arabic (RTL), Hindi, Turkish
+
+### Settings Panel
+- **Default Language**: Primary site language
+- **Auto-Detect**: Detect from browser
+- **Enabled Languages**: Toggle languages on/off
+
+### Translation Editor
+- Search by key or value
+- Edit translations inline
+- Organized by category (nav, hero, pricing, auth, dashboard, common, errors, footer)
+
+### How to Edit
+1. Select language from dropdown
+2. Search or browse translations
+3. Click edit icon on any translation
+4. Update value and save
+      `
+    },
+    {
+      id: 'invoices',
+      icon: FileText,
+      title: 'Invoice Generation',
+      content: `
+## Invoice Generation
+
+Generate professional invoices for payments.
+
+### Features
+- Professional invoice layout
+- PDF download option
+- Automatic invoice numbering
+- Company branding included
+
+### Invoice Contains
+- Invoice number (INV-YYYYMM-XXXXX)
+- Customer name and email
+- Payment date and method
+- Plan name and billing cycle
+- Amount breakdown
+
+### Access Invoices
+- **Users**: View their invoices from dashboard billing section
+- **Admin**: View all invoices from Payments page
+
+### Formats
+- HTML: View in browser
+- PDF: Download file
+      `
+    },
+    {
+      id: 'affiliate-dashboard',
+      icon: Gift,
+      title: 'Affiliate Dashboard',
+      content: `
+## Affiliate Dashboard
+
+User-facing partner program dashboard.
+
+### Access
+URL: /affiliate/dashboard (for users)
+
+### Tabs
+
+#### Overview
+- Referral link with copy/share
+- Quick stats cards
+- Program comparison
+
+#### Referral Program (All Users)
+- Share link, earn $10 credit
+- Friends get 20% off first month
+- No limit on referrals
+- Track referrals and rewards
+
+#### Affiliate Program (Approved Only)
+- 20% commission on sales
+- 30-day cookie duration
+- $50 minimum payout
+- Monthly payouts
+
+### Stats Displayed
+- Total Referrals
+- Successful Referrals
+- Pending Rewards
+- Total Earned
+
+### How It Works
+1. User shares referral link
+2. Friend signs up and subscribes
+3. User gets $10 credit
+4. Friend gets 20% off
+      `
+    },
+    {
       id: 'analytics',
       icon: BarChart3,
       title: 'Analytics',
