@@ -36,6 +36,8 @@ import AdminRefundsManagement from './AdminRefundsManagement';
 import AdminRenewalsManagement from './AdminRenewalsManagement';
 import AdminLanguages from './AdminLanguages';
 import AdminChartsPage from './AdminChartsPage';
+import AdminGoogleAnalytics from './AdminGoogleAnalytics';
+import AdminGrowthEngine from './AdminGrowthEngine';
 
 const AdminDashboard = () => {
   const { user, logout, isAuthenticated, loading: authLoading } = useAuth();
