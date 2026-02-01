@@ -485,7 +485,7 @@ const DashboardPage = () => {
     {
       label: 'Total Followers',
       value: (displayStats.followers_count || displayStats.followers || 0).toLocaleString(),
-      change: displayStats.followersGrowth ? `+${displayStats.followersGrowth} today` : 'Connect IG',
+      change: displayStats.followersGrowth > 0 ? `+${displayStats.followersGrowth} today` : 'Connect IG',
       trend: 'up',
       icon: Users,
       color: 'from-pink-500 to-rose-500'
@@ -493,15 +493,15 @@ const DashboardPage = () => {
     {
       label: 'Engagement Rate',
       value: `${displayStats.engagement_rate || displayStats.engagement || 0}%`,
-      change: displayStats.engagementGrowth ? `+${displayStats.engagementGrowth}%` : '--',
+      change: displayStats.engagement_rate > 0 ? 'Active' : '--',
       trend: 'up',
       icon: Heart,
       color: 'from-orange-500 to-pink-500'
     },
     {
       label: 'Profile Reach',
-      value: displayStats.reach ? `${(displayStats.reach / 1000).toFixed(1)}K` : '0',
-      change: displayStats.reachGrowth ? `+${displayStats.reachGrowth}%` : '--',
+      value: displayStats.reach > 0 ? (displayStats.reach >= 1000 ? `${(displayStats.reach / 1000).toFixed(1)}K` : displayStats.reach.toString()) : '0',
+      change: displayStats.reach > 0 ? `Today` : '--',
       trend: 'up',
       icon: Eye,
       color: 'from-blue-500 to-cyan-500'
@@ -509,7 +509,7 @@ const DashboardPage = () => {
     {
       label: 'Profile Visits',
       value: (displayStats.profileVisits || 0).toLocaleString(),
-      change: displayStats.profileVisitsGrowth ? `+${displayStats.profileVisitsGrowth}%` : '--',
+      change: displayStats.profileVisits > 0 ? 'Today' : '--',
       trend: 'up',
       icon: TrendingUp,
       color: 'from-green-500 to-emerald-500'
