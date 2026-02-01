@@ -498,7 +498,7 @@ async def get_target_suggestions(
     # Get existing targets to avoid duplicates
     existing = await db.target_suggestions.find(
         {"campaign_id": campaign_id},
-        {"account_type": 1}
+        {"_id": 0, "account_type": 1}
     ).to_list(100)
     
     ai_service = AITargetingService()
@@ -508,13 +508,20 @@ async def get_target_suggestions(
         count
     )
     
-    # Store suggestions
+    # Store suggestions and prepare response
+    response_suggestions = []
     for suggestion in suggestions:
-        suggestion["campaign_id"] = campaign_id
-        suggestion["user_id"] = current_user["user_id"]
-        suggestion["generated_at"] = datetime.now(timezone.utc).isoformat()
-        suggestion["status"] = "pending"  # pending, actioned, skipped
-        await db.target_suggestions.insert_one(suggestion)
+        suggestion_doc = {
+            "campaign_id": campaign_id,
+            "user_id": current_user["user_id"],
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "status": "pending",
+            **suggestion
+        }
+        await db.target_suggestions.insert_one(suggestion_doc)
+        # Remove _id for response
+        suggestion_doc.pop("_id", None)
+        response_suggestions.append(suggestion_doc)
     
     # Update campaign stats
     await db.growth_campaigns.update_one(
@@ -523,8 +530,8 @@ async def get_target_suggestions(
     )
     
     return {
-        "suggestions": suggestions,
-        "count": len(suggestions),
+        "suggestions": response_suggestions,
+        "count": len(response_suggestions),
         "message": "These are AI-generated suggestions. Engage with these accounts manually for best results."
     }
 
