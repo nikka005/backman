@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -6,6 +6,8 @@ import { Label } from '../components/ui/label';
 import { Checkbox } from '../components/ui/checkbox';
 import { Eye, EyeOff, Mail, Lock, User, Instagram, ChevronRight, Check, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { authAPI } from '../services/api';
+import { toast } from 'sonner';
 
 const SignupPage = () => {
   const [formData, setFormData] = useState({
@@ -17,10 +19,48 @@ const SignupPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [googleClientId, setGoogleClientId] = useState(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
   const { register } = useAuth();
+
+  useEffect(() => {
+    loadGoogleConfig();
+  }, []);
+
+  const loadGoogleConfig = async () => {
+    try {
+      const response = await authAPI.getGoogleConfig();
+      setGoogleClientId(response.data.client_id);
+    } catch (error) {
+      console.log('Google login not configured');
+    }
+  };
+
+  const handleGoogleSignup = () => {
+    if (!googleClientId) {
+      toast.error('Google sign-up not configured. Please contact admin.');
+      return;
+    }
+    
+    setGoogleLoading(true);
+    
+    const redirectUri = window.location.origin + '/auth/callback';
+    const scope = 'openid email profile';
+    const responseType = 'code';
+    
+    const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
+      `client_id=${encodeURIComponent(googleClientId)}` +
+      `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+      `&response_type=${responseType}` +
+      `&scope=${encodeURIComponent(scope)}` +
+      `&access_type=offline` +
+      `&prompt=select_account`;
+    
+    window.location.href = googleAuthUrl;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
