@@ -554,6 +554,13 @@ const DashboardPage = () => {
             <BarChart3 className="w-5 h-5" />
             Dashboard
           </button>
+          <Link 
+            to="/growth"
+            className="flex items-center gap-3 px-4 py-3 rounded-xl w-full text-left transition-colors text-gray-600 hover:bg-gray-50"
+          >
+            <Zap className="w-5 h-5" />
+            Growth Engine
+          </Link>
           <button 
             onClick={() => handleTabChange('billing')}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl w-full text-left transition-colors ${activeTab === 'billing' ? 'bg-gradient-to-r from-pink-50 to-orange-50 text-pink-600 font-medium' : 'text-gray-600 hover:bg-gray-50'}`}
