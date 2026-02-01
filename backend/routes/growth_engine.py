@@ -246,18 +246,24 @@ async def get_growth_config(current_user: dict = Depends(get_current_user)):
     if current_user.get("role") not in [UserRole.ADMIN.value, "ADMIN", "admin"]:
         raise HTTPException(status_code=403, detail="Admin access required")
     
-    config = await db.growth_engine_config.find_one({"is_active": True}, {"_id": 0, "api_secret": 0})
+    config = await db.growth_engine_config.find_one({"is_active": True}, {"_id": 0})
     
     if not config:
         # Return default config
         config = {
-            "api_provider": "internal",
             "is_active": True,
             "daily_follow_limit": 200,
             "daily_unfollow_limit": 100,
             "daily_like_limit": 500,
             "daily_comment_limit": 50,
+            "daily_story_view_limit": 300,
             "targeting_accuracy": "high",
+            "auto_unfollow_days": 3,
+            "engagement_mode": "balanced",
+            "activity_hours_start": 8,
+            "activity_hours_end": 22,
+            "rest_between_actions": 30,
+            "max_following_ratio": 1.5,
             "configured": False
         }
     else:
