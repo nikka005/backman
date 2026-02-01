@@ -3,7 +3,8 @@ import {
   Book, Search, ChevronDown, ChevronRight, 
   LayoutDashboard, Brain, BarChart3, Megaphone, Gift, Users, Package, 
   Grid3X3, Sliders, CreditCard, DollarSign, Tag, Instagram, MessageSquare, 
-  Bell, Mail, Shield, Download, Share2, Settings
+  Bell, Mail, Shield, Download, Share2, Settings, RefreshCw, Globe,
+  FileText, TrendingUp, PieChart
 } from 'lucide-react';
 import { Input } from '../../components/ui/input';
 
