@@ -190,24 +190,60 @@ const AdminDashboard = () => {
           </Link>
         </div>
 
-        <nav className="flex-1 overflow-y-auto px-4 space-y-1 pb-4">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = location.pathname === item.path || 
-              (item.path !== '/admin' && location.pathname.startsWith(item.path + '/'));
+        <nav className="flex-1 overflow-y-auto px-3 pb-4">
+          {menuGroups.map((group) => {
+            const isExpanded = expandedGroups.includes(group.id);
+            const GroupIcon = group.icon;
+            const hasActiveItem = group.items.some(item => 
+              location.pathname === item.path || 
+              (item.path !== '/admin' && location.pathname.startsWith(item.path + '/'))
+            );
+            
             return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
-                  isActive
-                    ? 'bg-gradient-to-r from-pink-600 to-purple-600 text-white'
-                    : 'text-gray-400 hover:bg-gray-800 hover:text-white'
-                }`}
-              >
-                <Icon className="w-5 h-5" />
-                {item.label}
-              </Link>
+              <div key={group.id} className="mb-1">
+                {/* Group Header (if has label) */}
+                {group.label ? (
+                  <button
+                    onClick={() => toggleGroup(group.id)}
+                    className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                      hasActiveItem ? 'text-white' : 'text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    <GroupIcon className="w-4 h-4" />
+                    <span className="flex-1 text-left">{group.label}</span>
+                    {isExpanded ? (
+                      <ChevronDown className="w-4 h-4" />
+                    ) : (
+                      <ChevronRight className="w-4 h-4" />
+                    )}
+                  </button>
+                ) : null}
+                
+                {/* Group Items */}
+                {(group.label ? isExpanded : true) && (
+                  <div className={group.label ? 'ml-3 mt-1 space-y-0.5' : 'space-y-0.5 mb-2'}>
+                    {group.items.map((item) => {
+                      const Icon = item.icon;
+                      const isActive = location.pathname === item.path || 
+                        (item.path !== '/admin' && location.pathname.startsWith(item.path + '/'));
+                      return (
+                        <Link
+                          key={item.path}
+                          to={item.path}
+                          className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                            isActive
+                              ? 'bg-gradient-to-r from-pink-600 to-purple-600 text-white'
+                              : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                          }`}
+                        >
+                          <Icon className="w-4 h-4" />
+                          {item.label}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             );
           })}
         </nav>
