@@ -167,7 +167,13 @@ class TestFollowerAnalytics:
     
     def test_oauth_status_endpoint(self):
         """Test OAuth status endpoint"""
-        token = self.get_user_token()
+        # Get fresh token
+        response = requests.post(
+            f"{BASE_URL}/api/auth/login",
+            json={"email": "demo@user.com", "password": "User123!"}
+        )
+        assert response.status_code == 200, f"Login failed: {response.status_code}"
+        token = response.json().get("access_token")
         assert token is not None, "Failed to get user token"
         
         response = requests.get(
@@ -221,7 +227,13 @@ class TestAdminDashboard:
     
     def test_admin_dashboard_endpoint(self):
         """Test admin dashboard returns stats"""
-        token = self.get_admin_token()
+        # Get fresh token
+        response = requests.post(
+            f"{BASE_URL}/api/auth/login",
+            json={"email": "admin@adverlyx.com", "password": "Admin123!"}
+        )
+        assert response.status_code == 200, f"Admin login failed: {response.status_code}"
+        token = response.json().get("access_token")
         assert token is not None, "Failed to get admin token"
         
         response = requests.get(
