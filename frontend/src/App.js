@@ -33,6 +33,7 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import AuthCallback from './pages/AuthCallback';
 import AffiliateDashboard from './pages/AffiliateDashboard';
+import GrowthEnginePage from './pages/GrowthEnginePage';
 
 // AppRouter component to handle routing
 function AppRouter() {
