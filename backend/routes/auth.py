@@ -489,3 +489,154 @@ async def check_deletion_status(confirmation_code: str):
         "processed_at": request.get("processed_at"),
         "message": "Your data deletion request is being processed" if request.get("status") == "pending" else "Your data has been deleted"
     }
+
+
+
+# ============== Google OAuth (Emergent Auth) ==============
+# REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
+
+import httpx
+
+class GoogleSessionRequest(BaseModel):
+    session_id: str
+
+
+@router.post("/google/session")
+async def process_google_session(request: GoogleSessionRequest):
+    """
+    Process Google OAuth session from Emergent Auth.
+    Exchange session_id for user data and create/update user.
+    """
+    try:
+        # Call Emergent Auth API to get user data
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.get(
+                "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data",
+                headers={"X-Session-ID": request.session_id}
+            )
+            
+            if response.status_code != 200:
+                logger.error(f"Emergent Auth error: {response.status_code} - {response.text}")
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid or expired session"
+                )
+            
+            google_data = response.json()
+    except httpx.RequestError as e:
+        logger.error(f"Failed to connect to Emergent Auth: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Authentication service unavailable"
+        )
+    
+    email = google_data.get("email", "").lower()
+    name = google_data.get("name", "")
+    picture = google_data.get("picture", "")
+    google_id = google_data.get("id", "")
+    session_token = google_data.get("session_token", "")
+    
+    if not email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email not provided by Google"
+        )
+    
+    # Check if user exists
+    existing_user = await db.users.find_one({"email": email}, {"_id": 0})
+    
+    now = datetime.now(timezone.utc)
+    
+    if existing_user:
+        # Update existing user with Google data
+        user_id = existing_user["id"]
+        await db.users.update_one(
+            {"id": user_id},
+            {"$set": {
+                "google_id": google_id,
+                "avatar_url": picture if not existing_user.get("avatar_url") else existing_user.get("avatar_url"),
+                "email_verified": True,
+                "last_login": now.isoformat(),
+                "auth_provider": "google",
+                "updated_at": now.isoformat()
+            }}
+        )
+        user_doc = await db.users.find_one({"id": user_id}, {"_id": 0, "password_hash": 0})
+    else:
+        # Create new user
+        user_id = str(uuid.uuid4())
+        new_user = {
+            "id": user_id,
+            "email": email,
+            "name": name,
+            "google_id": google_id,
+            "avatar_url": picture,
+            "role": UserRole.USER,
+            "status": UserStatus.ACTIVE,
+            "email_verified": True,
+            "auth_provider": "google",
+            "current_plan": None,
+            "created_at": now.isoformat(),
+            "last_login": now.isoformat(),
+            "updated_at": now.isoformat()
+        }
+        await db.users.insert_one(new_user)
+        user_doc = {k: v for k, v in new_user.items() if k != "password_hash"}
+        
+        # Send welcome email
+        try:
+            await send_welcome_email(email, name)
+        except Exception as e:
+            logger.warning(f"Failed to send welcome email: {e}")
+    
+    # Store session in database for session management
+    session_data = {
+        "user_id": user_id,
+        "session_token": session_token,
+        "expires_at": (now + timedelta(days=7)).isoformat(),
+        "created_at": now.isoformat(),
+        "auth_provider": "google"
+    }
+    await db.user_sessions.update_one(
+        {"user_id": user_id},
+        {"$set": session_data},
+        upsert=True
+    )
+    
+    # Generate our own JWT tokens for consistency with existing auth
+    access_token = create_access_token({"user_id": user_id, "email": email, "role": user_doc.get("role", UserRole.USER)})
+    refresh_token = create_refresh_token({"user_id": user_id})
+    
+    logger.info(f"Google OAuth login successful for: {email}")
+    
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer",
+        "user": {
+            "id": user_doc["id"],
+            "email": user_doc["email"],
+            "name": user_doc["name"],
+            "role": user_doc.get("role", UserRole.USER),
+            "avatar_url": user_doc.get("avatar_url"),
+            "current_plan": user_doc.get("current_plan"),
+            "email_verified": True
+        }
+    }
+
+
+@router.post("/google/logout")
+async def google_logout(current_user: dict = Depends(get_current_user)):
+    """Logout user and invalidate Google session."""
+    user_id = current_user["user_id"]
+    
+    # Remove session from database
+    await db.user_sessions.delete_one({"user_id": user_id})
+    
+    # Update user last_logout
+    await db.users.update_one(
+        {"id": user_id},
+        {"$set": {"last_logout": datetime.now(timezone.utc).isoformat()}}
+    )
+    
+    return {"message": "Logged out successfully"}
