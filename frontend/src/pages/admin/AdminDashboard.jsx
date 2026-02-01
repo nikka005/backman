@@ -203,6 +203,8 @@ const AdminDashboard = () => {
           <Route path="/renewals" element={<AdminRenewalsManagement />} />
           <Route path="/languages" element={<AdminLanguages />} />
           <Route path="/charts" element={<AdminChartsPage />} />
+          <Route path="/google-analytics" element={<AdminGoogleAnalytics />} />
+          <Route path="/growth-engine" element={<AdminGrowthEngine />} />
           <Route path="/social-links" element={<AdminSocialLinks />} />
           <Route path="/settings" element={<AdminSettings />} />
           <Route path="/docs" element={<AdminDocumentation />} />
