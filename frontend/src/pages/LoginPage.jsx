@@ -53,6 +53,31 @@ const LoginPage = () => {
     }
   };
 
+  const handleGoogleLogin = () => {
+    if (!googleClientId) {
+      toast.error('Google login not configured. Please contact admin.');
+      return;
+    }
+    
+    setGoogleLoading(true);
+    
+    // Build Google OAuth URL
+    const redirectUri = window.location.origin + '/auth/callback';
+    const scope = 'openid email profile';
+    const responseType = 'code';
+    
+    const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
+      `client_id=${encodeURIComponent(googleClientId)}` +
+      `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+      `&response_type=${responseType}` +
+      `&scope=${encodeURIComponent(scope)}` +
+      `&access_type=offline` +
+      `&prompt=select_account`;
+    
+    // Redirect to Google
+    window.location.href = googleAuthUrl;
+  };
+
   return (
     <div className="min-h-screen flex">
       {/* Left Side - Form */}
