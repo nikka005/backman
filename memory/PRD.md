@@ -1,276 +1,242 @@
 # Adverlyx Digital - Product Requirements Document
 
-## Overview
-Adverlyx Digital is a full-stack SaaS platform for Instagram growth services (plixi.io clone). The platform allows users to grow their Instagram followers organically through AI-powered targeting, while providing administrators full control over the platform's branding, features, and pricing without code changes.
-
-## Core Features
-
-### User-Facing
-- Instagram account connection and growth tracking
-- Multiple subscription plans with different follower guarantees
-- Real-time analytics dashboard with subscription management
-- Billing & payment history
-- Support ticket system
-- AI-powered onboarding recommendations
-
-### Admin Control Panel
-- Full branding customization (colors, fonts, logos)
-- Dynamic plan creation and management
-- Feature matrix management
-- Content management (hero text, FAQs, testimonials)
-- User management and subscription controls
-- Advanced analytics with conversion funnels
-- Promotion & campaign management
-- AI Intelligence system for admin decision support
-- Coupon management system
+## Original Problem Statement
+Build and maintain a full-stack SaaS platform for Instagram growth services. The platform includes user authentication, subscription management, payment processing, Instagram integration, admin dashboard, and partner programs.
 
 ---
 
-## Implementation Status (Last Updated: January 31, 2026)
+## Completed Features
 
-### ✅ COMPLETED PHASES
+### Core Platform (Previously Completed)
+- ✅ User authentication (email/password, Google OAuth)
+- ✅ Subscription management (multiple plans)
+- ✅ Payment processing (Stripe & Razorpay)
+- ✅ Instagram API integration
+- ✅ Admin dashboard
+- ✅ Partner programs (Affiliate & Referral)
+- ✅ AI Analytics dashboard
+- ✅ Notification preferences
+- ✅ Forgot password / Reset password flow
 
-#### Phase 1-4: Core Platform ✅
-- Admin global control system with branding customization
-- Plan, limit & feature matrix management
-- Advanced analytics with revenue/user metrics
-- Promotion planning system with ICPs, A/B tests, campaigns
+### New Features (Completed Feb 1, 2025)
 
-#### Phase 5: Launch Readiness ✅
-- Email system with Resend integration
-- User dashboard enhancements
-- Security hardening with rate limiting
-- Demo data seeding
+#### 1. Automated Subscription Renewals
+- **Backend:** `/app/backend/routes/subscription_renewals.py`
+- **Features:**
+  - Process due renewals automatically
+  - Retry logic for failed payments (configurable max retries)
+  - Grace period settings
+  - Renewal history tracking
+  - Upcoming renewals view (7, 14, 30 days)
+  - Email notifications for renewals and failures
+- **Admin UI:** `/admin/renewals`
+  - Due Now tab, Upcoming tab, History tab
+  - Process All Due button
+  - Settings modal (auto-renewal, retry attempts, grace period)
 
-#### Phase 6-7: Enterprise Features ✅
-- Feature management system with publish/draft workflow
-- Email template customization
-- Push notifications with WebSocket
-- API rate limits dashboard
-- Data export system
+#### 2. Refund Management System
+- **Backend:** `/app/backend/routes/refund_management.py`
+- **Features:**
+  - Create refund requests (full or partial)
+  - Admin approval workflow
+  - Process approved refunds
+  - Automatic subscription cancellation on full refund
+  - Email notifications
+  - Refund statistics and rate tracking
+- **Admin UI:** `/admin/refunds`
+  - Stats cards (Pending, Processed, Total Refunded, Refund Rate)
+  - Search and filter by status
+  - Refund detail modal with approve/reject actions
 
-#### Admin Email Server UI ✅ (Jan 31, 2026)
-- New `/admin/email-settings` page for SMTP configuration
-- Manage email server from Admin Panel instead of .env files
-- SMTP Host, Port, Username, Password fields
-- SSL/TLS toggle for secure connections
-- Sender email and name customization
-- Test email functionality to verify settings
-- Password masking for security
-- Email utility now reads from database with .env fallback
+#### 3. Multi-language Support (i18n)
+- **Backend:** `/app/backend/routes/i18n.py`
+- **Supported Languages:** English, Spanish, French, German, Portuguese, Italian, Dutch, Russian, Japanese, Korean, Chinese, Arabic, Hindi, Turkish (14 total)
+- **Features:**
+  - Default translations for all major UI strings
+  - Custom translation editor
+  - Language auto-detection
+  - User language preference
+  - RTL support for Arabic
+- **Admin UI:** `/admin/languages`
+  - Enable/disable languages
+  - Translation editor with search
+  - Default language setting
 
-#### Phase 8-9: Multi-Currency & Admin Enhancements ✅
-- Razorpay integration for Indian users
-- Automatic currency detection (40+ currencies)
-- Admin panel UI enhancements (modals, refunds, etc.)
+#### 4. Affiliate Dashboard
+- **Backend:** Uses existing `/api/programs/` endpoints
+- **Frontend:** `/app/frontend/src/pages/AffiliateDashboard.jsx`
+- **Features:**
+  - Overview tab with stats
+  - Referral program details (share link, earn $10)
+  - Affiliate program details (20% commission)
+  - Copy/share referral link
+  - Track referrals, conversions, earnings
 
-#### Phase 10-11: AI Systems ✅
-- Adverlyx Intelligence AI (GPT-5.2 + Claude Sonnet 4.5)
-- AI User Onboarding with personalized recommendations
-- AI-powered growth planning, analytics, and risk assessment
+#### 5. PDF Invoice Generation
+- **Backend:** `/app/backend/routes/invoices.py`
+- **Features:**
+  - Generate professional HTML invoices
+  - PDF generation (with WeasyPrint)
+  - Invoice for payments
+  - Invoice for subscriptions
+  - Admin view all invoices
+  - User view own invoices
+- **API Endpoints:**
+  - `GET /api/invoices/payment/{payment_id}`
+  - `GET /api/invoices/my-invoices`
+  - `GET /api/invoices/admin/all`
 
-#### Phase 12: Partner Programs ✅
-- Affiliate program admin management
-- Referral program with rewards
-- Social media links management
-
-#### Mobile UI Bug Fixes ✅ (Jan 30, 2026)
-- Mobile bottom navigation routing fixed
-- Dashboard tab URL synchronization
-- Targeting save functionality
-
-#### Admin Dashboard Refactoring ✅ (Jan 31, 2026)
-- AdminDashboard.jsx reduced from 1346 to ~300 lines
-- Extracted UsersManagement to AdminUsersManagement.jsx
-- Extracted SubscriptionsManagement to AdminSubscriptionsManagement.jsx
-- Extracted PaymentsManagement to AdminPaymentsManagement.jsx
-- Extracted TicketsManagement to AdminTicketsManagement.jsx
-- Improved code maintainability and readability
-
-#### AI Weekly Growth Reports ✅ (Jan 31, 2026)
-- New `/admin/weekly-reports` page for sending AI-powered reports
-- Backend API at `/api/weekly-reports/*` for send, history, preview
-- Beautiful HTML email template with growth metrics
-- AI-generated insights and recommendations
-- Preview functionality before sending
-- Bulk send to all eligible users
-
-#### Enhanced User Management & Growth Tracking ✅ (Jan 31, 2026)
-- **Admin User Details Modal**: View/edit all user info including Instagram stats
-- **Growth Progress Column**: Shows follower progress towards plan target
-- **Quick Plan Change**: Buttons to switch user plans directly from modal
-- **Edit Mode**: Admin can modify name, email, plan, Instagram username
-- **Growth Tracking API**: New `/api/growth/*` endpoints for status, simulate, sync
-- **User Dashboard Growth Card**: Shows plan progress with milestones when subscription active
-- **Auto-tracking**: Subscription saves start_followers to track growth from beginning
-
-#### Professional Checkout & Coupons ✅ (Jan 30, 2026)
-- New `/checkout` page with plan summary, coupon validation
-- Admin coupon management at `/admin/coupons`
-- Payment method selection (Stripe/Razorpay)
-
-#### AI Dashboard Integration ✅ (Jan 30, 2026)
-- Mock Instagram stats generation for AI analysis
-- AI analysis saved to user profile
-- Dashboard AI Insights card
-
-#### Instagram OAuth Flow ✅ (Jan 30, 2026)
-- Backend OAuth endpoints implemented
-- Token management (long-lived tokens)
-- Frontend OAuth UI with manual fallback
-- **BLOCKED:** Awaiting user AWS deployment with credentials
-
-#### Legal & Compliance Pages ✅ (Jan 30, 2026)
-- Privacy Policy, Terms of Service
-- Refund Policy, Cookie Policy
-- Data Deletion page with backend endpoint
+#### 6. Admin Dashboard Charts & Traffic
+- **Backend:** `/app/backend/routes/admin_charts.py`
+- **Frontend:** `/app/frontend/src/pages/admin/AdminChartsPage.jsx`
+- **Features:**
+  - Real-time stats (current visitors, active users)
+  - Revenue trend chart
+  - User growth chart
+  - Website traffic chart
+  - Traffic sources distribution
+  - Top pages table
+  - Conversion funnel visualization
+  - Geographic distribution
+- **Note:** Traffic data is SIMULATED for demo. Real integration requires Google Analytics.
 
 ---
 
-## Current Status
+## Code Architecture
 
-### Completed (Feb 1, 2026)
-- Admin Email Server UI: Full SMTP configuration from admin panel
-- AdminDashboard.jsx refactoring: 1346 → 300 lines
-- AI Weekly Growth Reports: Full implementation with preview & bulk send
-- Enhanced User Management: Edit users, change plans, view Instagram stats
-- Growth Tracking System: Progress tracking with milestones after purchase
-- **Forgot Password Feature**: Complete flow with ForgotPasswordPage and ResetPasswordPage
-- **Yearly Billing Display Fix**: Pricing page shows correct yearly totals ($492/year for Pro)
-- **Payment Routes**: Backend validates and creates checkout sessions correctly
-- **Automated Weekly Reports (Cron Job)**: scheduler.py with configurable weekly report sending
-- **User Notification Preferences**: Full UI and API for managing email/alert preferences
-- **Advanced AI Analytics**: Performance scores, AI insights, content recommendations on dashboard
-- **Instagram Data Display**: Detailed metrics (reach, impressions, profile views, website clicks, recent posts)
-- **Razorpay Fixes**: Fixed custom plan payments, signature verification, success redirect
-- **Admin Analytics Fix**: Now properly calculates MRR from all subscription types
-- **Admin Payments Fix**: Shows all payments including Stripe/Razorpay
-- **Google OAuth (Emergent Auth)**: Complete social login with Google Sign-In on login/signup pages
-
-### Upcoming Tasks (P0-P1)
-1. PayPal Integration: Backend routes created, need frontend integration
-2. Invoice Generation: Auto-generate PDF invoices
-3. Mobile Responsive Fixes: Optimize for mobile users
-4. Affiliate/Referral System: User referral tracking
-
-### Future/Backlog (P2-P3)
-- Multi-language Support (i18n)
-- Content Calendar with AI suggestions
-- Hashtag Research Tool
-- Team/Agency Accounts
-- White-label Solution
-- Public API
-
----
-
-## Technical Architecture
-
-### Frontend
-- React with React Router
-- Tailwind CSS + shadcn/ui components
-- Context API (AuthContext, SiteSettingsContext)
-
-### Backend
-- FastAPI with async MongoDB (Motor)
-- JWT authentication with role-based access
-- Rate limiting middleware
-- LLM integration via Emergent LLM Key
-
-### Key Integrations
-- **Stripe:** Payment processing (USD, EUR, etc.)
-- **Razorpay:** Payment processing (INR)
-- **OpenAI GPT-5.2:** AI analysis (via Emergent)
-- **Claude Sonnet 4.5:** AI fallback (via Emergent)
-- **Instagram Graph API:** OAuth flow (code ready, pending deployment)
+```
+/app
+├── backend
+│   ├── routes/
+│   │   ├── subscription_renewals.py (NEW)
+│   │   ├── refund_management.py (NEW)
+│   │   ├── invoices.py (NEW)
+│   │   ├── i18n.py (NEW)
+│   │   ├── admin_charts.py (NEW)
+│   │   ├── auth.py
+│   │   ├── payments.py
+│   │   ├── razorpay_payments.py
+│   │   ├── admin.py
+│   │   ├── admin_analytics.py
+│   │   └── ... (other routes)
+│   ├── server.py
+│   └── tests/
+│       └── test_admin_new_features.py (NEW)
+└── frontend
+    └── src/
+        ├── pages/
+        │   ├── admin/
+        │   │   ├── AdminRefundsManagement.jsx (NEW)
+        │   │   ├── AdminRenewalsManagement.jsx (NEW)
+        │   │   ├── AdminLanguages.jsx (NEW)
+        │   │   ├── AdminChartsPage.jsx (NEW)
+        │   │   └── ... (other admin pages)
+        │   ├── AffiliateDashboard.jsx (NEW)
+        │   └── ... (other pages)
+        └── services/
+            └── api.js (UPDATED with new endpoints)
+```
 
 ---
 
-### Yearly Billing Display Fix ✅ (Jan 30, 2026)
-- Pricing page now shows yearly total: `$492/year` with crossed out original
-- Format: `$41/mo` → `$492/year` (~~$828/year~~)
-- Applied to all plans (Basic, Pro, Enterprise)
+## Key API Endpoints (New)
 
-### Instagram Real Data Integration ✅ (Jan 30, 2026)
-- Added `/api/instagram-api/refresh-data` endpoint for OAuth data refresh
-- Added `/api/instagram-api/account-stats` endpoint for current stats
-- Dashboard "Refresh Data" button for manual data sync
-- OAuth connections fetch real Instagram followers, posts, engagement
-- Manual connections show prompt to connect via OAuth
+### Subscription Renewals
+- `GET /api/subscription-renewals/settings`
+- `PUT /api/subscription-renewals/settings`
+- `GET /api/subscription-renewals/due`
+- `GET /api/subscription-renewals/upcoming-renewals?days=7`
+- `POST /api/subscription-renewals/process/{subscription_id}`
+- `POST /api/subscription-renewals/process-all`
+- `GET /api/subscription-renewals/history`
 
-### Admin Documentation Page ✅ (Jan 30, 2026)
-- New `/admin/docs` route with comprehensive admin guide
-- Covers 20+ features: AI Intelligence, Analytics, Plans, Coupons, etc.
-- Searchable and expandable sections
-- Added to admin sidebar navigation
+### Refund Management
+- `POST /api/refunds/request`
+- `GET /api/refunds/`
+- `GET /api/refunds/{refund_id}`
+- `POST /api/refunds/{refund_id}/approve`
+- `POST /api/refunds/{refund_id}/process`
+- `GET /api/refunds/stats/summary`
 
-### Manual Connection Flow Improvements ✅ (Jan 30, 2026)
-- Smarter stats generation based on username characteristics
-- Auto-generated profile pictures using UI Avatars
-- Display name auto-generated from username
-- New `/api/instagram/sync` endpoint for growth simulation
-- Growth rate: ~60 followers/day baseline with targeting multipliers
-- Dashboard "Refresh Data" now works with manual connections
+### Invoices
+- `GET /api/invoices/payment/{payment_id}?format=html|pdf`
+- `GET /api/invoices/subscription/{subscription_id}`
+- `GET /api/invoices/my-invoices`
+- `GET /api/invoices/admin/all`
 
-### Meta App Review Guide
-For real Instagram API access:
-1. Complete Meta Business Verification
-2. Request `instagram_basic`, `pages_show_list` permissions
-3. Submit app for review with screencast demo
-4. Wait 2-4 weeks for approval
-Note: Only works with Business/Creator Instagram accounts
+### i18n
+- `GET /api/i18n/languages`
+- `GET /api/i18n/translations/{lang}`
+- `GET /api/i18n/settings`
+- `PUT /api/i18n/settings`
+- `PUT /api/i18n/translations/{lang}`
+- `GET /api/i18n/user-preference`
+- `PUT /api/i18n/user-preference?lang={lang}`
+
+### Admin Charts
+- `GET /api/admin/charts/revenue?days=30`
+- `GET /api/admin/charts/users?days=30`
+- `GET /api/admin/charts/traffic?days=30`
+- `GET /api/admin/charts/traffic-sources`
+- `GET /api/admin/charts/top-pages`
+- `GET /api/admin/charts/conversion-funnel`
+- `GET /api/admin/charts/geographic`
+- `GET /api/admin/charts/realtime`
+- `GET /api/admin/charts/dashboard-summary`
+
+---
+
+## Database Collections (New)
+
+- `renewal_payments` - Tracks renewal payment attempts
+- `refunds` - Refund requests and processing
+- `invoices` - Generated invoice records
+- `translations` - Custom translation overrides
+
+---
 
 ## Test Credentials
-- **Admin:** admin@adverlyx.com / Admin123!
-- **User:** demo@user.com / User123!
-- **Test User with AI Data:** aitest1769746586@test.com / Test123!
-- **Admin Portal:** /backman
+
+- **Admin:** `admin@adverlyx.com` / `Admin123!`
+- **User:** `demo@user.com` / `User123!`
+- **Stripe Test Card:** `4242 4242 4242 4242` | `12/28` | `123`
 
 ---
 
-## Key API Endpoints
+## Pending / Backlog
 
-### Public
-- `GET /api/public/settings` - Platform settings
-- `GET /api/public/plans` - Pricing plans
-- `GET /api/public/localized-pricing` - Localized prices
+### P0 - Critical
+- [ ] Google Sign-In on live server (needs user verification)
 
-### Authentication
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User login
-- `POST /api/auth/request-deletion` - GDPR data deletion
+### P1 - High Priority
+- [ ] PayPal integration
+- [ ] Instagram OAuth live testing
+- [ ] Email deliverability (SPF/DKIM/DMARC)
+- [ ] Mobile responsive improvements
+- [ ] Google Analytics integration for real traffic data
 
-### Payments
-- `POST /api/payments/checkout/session` - Stripe checkout
-- `POST /api/payments/coupon/validate` - Validate coupon code
-- `POST /api/payments/razorpay/create-order` - Razorpay order
+### P2 - Medium Priority
+- [ ] Real Instagram Growth Engine API connection
+- [ ] Automated subscription renewal scheduler (cron job)
+- [ ] Export functionality for analytics
+- [ ] Advanced reporting and insights
 
-### Instagram
-- `POST /api/instagram/connect` - Manual connection
-- `GET /api/instagram-api/oauth/authorize` - Start OAuth flow
-- `GET /api/instagram-api/oauth/callback` - OAuth callback
-
-### Admin
-- `/api/admin/settings/*` - Platform settings CRUD
-- `/api/admin/settings/email` - Email/SMTP settings (GET/PUT)
-- `/api/admin/settings/email/test` - Send test email (POST)
-- `/api/admin/plans/*` - Plan management
-- `/api/admin/analytics/*` - Platform analytics
-- `/api/admin/ai/*` - AI Intelligence endpoints
-- `/api/admin/coupons/*` - Coupon management
+### P3 - Future
+- [ ] Native mobile app
+- [ ] TikTok/YouTube/Twitter expansion
+- [ ] White-label solution
+- [ ] API for third-party integrations
 
 ---
 
-## Environment Variables
+## Notes
 
-### Backend (.env)
-- `MONGO_URL` - MongoDB connection string
-- `DB_NAME` - Database name
-- `STRIPE_API_KEY` - Stripe secret key
-- `RAZORPAY_KEY_ID/SECRET` - Razorpay credentials
-- `EMERGENT_LLM_KEY` - Universal LLM key
-- `INSTAGRAM_APP_ID` - Facebook App ID (for OAuth)
-- `INSTAGRAM_APP_SECRET` - Facebook App Secret
-- `INSTAGRAM_REDIRECT_URI` - OAuth callback URL
+1. **Traffic Data:** Admin charts currently use simulated traffic data. To get real data, integrate with Google Analytics API.
 
-### Frontend (.env)
-- `REACT_APP_BACKEND_URL` - Backend API URL
+2. **PDF Generation:** WeasyPrint is used for PDF generation. It's optional - if not available, HTML invoices are returned instead.
+
+3. **i18n:** Frontend translation integration pending. Backend provides all translation strings via API.
+
+---
+
+*Last Updated: February 1, 2025*
