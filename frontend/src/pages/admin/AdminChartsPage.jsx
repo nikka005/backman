@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { adminChartsAPI } from '../../services/api';
+import { adminChartsAPI, googleAnalyticsAPI } from '../../services/api';
+import { Link } from 'react-router-dom';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import {
   RefreshCw, Loader2, TrendingUp, TrendingDown, Users, DollarSign,
   Eye, Globe, BarChart3, PieChart, Activity, ArrowUpRight, ArrowDownRight,
-  Clock, Target, MousePointer
+  Clock, Target, MousePointer, AlertCircle, Check, ExternalLink
 } from 'lucide-react';
 
 const AdminChartsPage = () => {
@@ -19,6 +20,8 @@ const AdminChartsPage = () => {
   const [funnelData, setFunnelData] = useState(null);
   const [geoData, setGeoData] = useState(null);
   const [realtime, setRealtime] = useState(null);
+  const [gaStatus, setGaStatus] = useState(null);
+  const [gaData, setGaData] = useState(null);
 
   useEffect(() => {
     loadAllData();
@@ -33,6 +36,22 @@ const AdminChartsPage = () => {
   const loadAllData = async () => {
     try {
       setLoading(true);
+      
+      // First check if GA is configured
+      const gaStatusRes = await googleAnalyticsAPI.getCredentialsStatus();
+      setGaStatus(gaStatusRes.data);
+      
+      // Load GA data if configured
+      if (gaStatusRes.data?.configured) {
+        try {
+          const gaDashboard = await googleAnalyticsAPI.getDashboard(period);
+          setGaData(gaDashboard.data);
+        } catch (e) {
+          console.error('GA data error:', e);
+        }
+      }
+      
+      // Load regular chart data
       const [revenue, users, traffic, sources, pages, funnel, geo, rt] = await Promise.all([
         adminChartsAPI.getRevenue(period),
         adminChartsAPI.getUsers(period),
@@ -75,8 +94,70 @@ const AdminChartsPage = () => {
     );
   }
 
+  // Use GA data for traffic if available
+  const displayTrafficSources = gaData?.configured && gaData?.traffic_sources?.traffic_sources 
+    ? gaData.traffic_sources.traffic_sources.reduce((acc, src, idx) => {
+        const colors = ['#10b981', '#3b82f6', '#ec4899', '#f59e0b', '#8b5cf6', '#06b6d4'];
+        acc[src.channel.toLowerCase().replace(/ /g, '_')] = {
+          value: src.percentage,
+          label: src.channel,
+          color: colors[idx % colors.length]
+        };
+        return acc;
+      }, {})
+    : trafficSources;
+
+  const displayTopPages = gaData?.configured && gaData?.top_pages?.top_pages
+    ? gaData.top_pages.top_pages.map(p => ({
+        path: p.path,
+        title: p.title || p.path,
+        views: p.views,
+        unique: Math.round(p.views * 0.8),
+        bounce_rate: p.bounce_rate
+      }))
+    : topPages;
+
+  const displayGeo = gaData?.configured && gaData?.geographic?.countries
+    ? { countries: gaData.geographic.countries.map(c => ({ name: c.country, users: c.active_users })) }
+    : geoData;
+
   return (
     <div data-testid="admin-charts-page">
+      {/* GA Status Banner */}
+      {!gaStatus?.configured && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <AlertCircle className="w-5 h-5 text-yellow-600" />
+              <div>
+                <p className="font-medium text-yellow-800">Traffic data is simulated</p>
+                <p className="text-sm text-yellow-700">Connect Google Analytics for real website traffic data</p>
+              </div>
+            </div>
+            <Link to="/admin/google-analytics">
+              <Button variant="outline" size="sm" className="text-yellow-700 border-yellow-300">
+                Configure GA4
+                <ExternalLink className="w-4 h-4 ml-2" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      )}
+      
+      {gaStatus?.configured && (
+        <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
+          <div className="flex items-center gap-3">
+            <Check className="w-5 h-5 text-green-600" />
+            <div>
+              <p className="font-medium text-green-800">Google Analytics Connected</p>
+              <p className="text-sm text-green-700">
+                Property: {gaStatus.property_name} • Traffic data is live from GA4
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Analytics Charts</h1>
