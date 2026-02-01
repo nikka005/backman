@@ -258,8 +258,8 @@ async def generate_content_recommendations(account: dict, targeting: dict) -> Li
     """Generate AI-powered content recommendations."""
     recommendations = []
     
-    niche = targeting.get("niche", "lifestyle") if targeting else "lifestyle"
-    hashtags = targeting.get("hashtags", []) if targeting else []
+    niche = (targeting.get("niche") if targeting else None) or "lifestyle"
+    hashtags = (targeting.get("hashtags") if targeting else None) or []
     
     # Best posting times by day
     best_times = {
