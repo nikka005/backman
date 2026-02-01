@@ -492,49 +492,172 @@ async def check_deletion_status(confirmation_code: str):
 
 
 
-# ============== Google OAuth (Emergent Auth) ==============
-# REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
+# ============== Google OAuth (Admin Panel Credentials) ==============
 
 import httpx
 
-class GoogleSessionRequest(BaseModel):
-    session_id: str
+class GoogleAuthRequest(BaseModel):
+    code: str
+    redirect_uri: str
 
 
-@router.post("/google/session")
-async def process_google_session(request: GoogleSessionRequest):
-    """
-    Process Google OAuth session from Emergent Auth.
-    Exchange session_id for user data and create/update user.
-    """
-    try:
-        # Call Emergent Auth API to get user data
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            response = await client.get(
-                "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data",
-                headers={"X-Session-ID": request.session_id}
-            )
-            
-            if response.status_code != 200:
-                logger.error(f"Emergent Auth error: {response.status_code} - {response.text}")
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Invalid or expired session"
-                )
-            
-            google_data = response.json()
-    except httpx.RequestError as e:
-        logger.error(f"Failed to connect to Emergent Auth: {e}")
+class GoogleTokenRequest(BaseModel):
+    id_token: str
+
+
+async def get_google_credentials():
+    """Get Google OAuth credentials from admin panel (feature_auth collection)."""
+    auth_config = await db.feature_auth.find_one({"key": "feature_google_login"}, {"_id": 0})
+    if not auth_config or not auth_config.get("enabled"):
+        return None, None
+    
+    credentials = auth_config.get("credentials", {})
+    client_id = credentials.get("client_id")
+    client_secret = credentials.get("client_secret")
+    
+    return client_id, client_secret
+
+
+@router.get("/google/config")
+async def get_google_auth_config():
+    """Get Google OAuth client ID for frontend (public endpoint)."""
+    client_id, _ = await get_google_credentials()
+    
+    if not client_id:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Authentication service unavailable"
+            detail="Google login not configured. Please contact admin."
         )
     
+    return {"client_id": client_id}
+
+
+@router.post("/google/callback")
+async def google_oauth_callback(auth_request: GoogleAuthRequest):
+    """
+    Exchange Google authorization code for tokens and create/update user.
+    This is the server-side OAuth flow.
+    """
+    client_id, client_secret = await get_google_credentials()
+    
+    if not client_id or not client_secret:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Google login not configured"
+        )
+    
+    try:
+        # Exchange code for tokens
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            token_response = await client.post(
+                "https://oauth2.googleapis.com/token",
+                data={
+                    "code": auth_request.code,
+                    "client_id": client_id,
+                    "client_secret": client_secret,
+                    "redirect_uri": auth_request.redirect_uri,
+                    "grant_type": "authorization_code"
+                }
+            )
+            
+            if token_response.status_code != 200:
+                logger.error(f"Google token error: {token_response.text}")
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Failed to exchange authorization code"
+                )
+            
+            tokens = token_response.json()
+            access_token = tokens.get("access_token")
+            id_token = tokens.get("id_token")
+            
+            # Get user info
+            userinfo_response = await client.get(
+                "https://www.googleapis.com/oauth2/v2/userinfo",
+                headers={"Authorization": f"Bearer {access_token}"}
+            )
+            
+            if userinfo_response.status_code != 200:
+                logger.error(f"Google userinfo error: {userinfo_response.text}")
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Failed to get user information"
+                )
+            
+            google_data = userinfo_response.json()
+            
+    except httpx.RequestError as e:
+        logger.error(f"Google OAuth request error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Failed to connect to Google"
+        )
+    
+    return await create_or_update_google_user(google_data)
+
+
+@router.post("/google/token")
+async def google_token_signin(token_request: GoogleTokenRequest):
+    """
+    Verify Google ID token and create/update user.
+    This is for client-side (popup) OAuth flow.
+    """
+    client_id, _ = await get_google_credentials()
+    
+    if not client_id:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Google login not configured"
+        )
+    
+    try:
+        # Verify ID token with Google
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            verify_response = await client.get(
+                f"https://oauth2.googleapis.com/tokeninfo?id_token={token_request.id_token}"
+            )
+            
+            if verify_response.status_code != 200:
+                logger.error(f"Google token verification error: {verify_response.text}")
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid Google token"
+                )
+            
+            token_data = verify_response.json()
+            
+            # Verify the token is for our app
+            if token_data.get("aud") != client_id:
+                logger.error(f"Token audience mismatch: {token_data.get('aud')} != {client_id}")
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Token not issued for this application"
+                )
+            
+            google_data = {
+                "id": token_data.get("sub"),
+                "email": token_data.get("email"),
+                "name": token_data.get("name"),
+                "picture": token_data.get("picture"),
+                "verified_email": token_data.get("email_verified") == "true"
+            }
+            
+    except httpx.RequestError as e:
+        logger.error(f"Google token verification request error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Failed to verify Google token"
+        )
+    
+    return await create_or_update_google_user(google_data)
+
+
+async def create_or_update_google_user(google_data: dict):
+    """Create or update user from Google OAuth data."""
     email = google_data.get("email", "").lower()
     name = google_data.get("name", "")
     picture = google_data.get("picture", "")
     google_id = google_data.get("id", "")
-    session_token = google_data.get("session_token", "")
     
     if not email:
         raise HTTPException(
@@ -589,21 +712,7 @@ async def process_google_session(request: GoogleSessionRequest):
         except Exception as e:
             logger.warning(f"Failed to send welcome email: {e}")
     
-    # Store session in database for session management
-    session_data = {
-        "user_id": user_id,
-        "session_token": session_token,
-        "expires_at": (now + timedelta(days=7)).isoformat(),
-        "created_at": now.isoformat(),
-        "auth_provider": "google"
-    }
-    await db.user_sessions.update_one(
-        {"user_id": user_id},
-        {"$set": session_data},
-        upsert=True
-    )
-    
-    # Generate our own JWT tokens for consistency with existing auth
+    # Generate JWT tokens
     access_token = create_access_token({"user_id": user_id, "email": email, "role": user_doc.get("role", UserRole.USER)})
     refresh_token = create_refresh_token({"user_id": user_id})
     
@@ -627,7 +736,7 @@ async def process_google_session(request: GoogleSessionRequest):
 
 @router.post("/google/logout")
 async def google_logout(current_user: dict = Depends(get_current_user)):
-    """Logout user and invalidate Google session."""
+    """Logout user and invalidate session."""
     user_id = current_user["user_id"]
     
     # Remove session from database
