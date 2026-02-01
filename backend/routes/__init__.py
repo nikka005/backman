@@ -28,6 +28,11 @@ from .growth_tracking import router as growth_tracking_router, init_router as in
 from .scheduler import router as scheduler_router, init_router as init_scheduler
 from .notification_preferences import router as notification_preferences_router, init_router as init_notification_preferences
 from .ai_analytics import router as ai_analytics_router, init_router as init_ai_analytics
+from .subscription_renewals import router as renewals_router, init_router as init_renewals
+from .refund_management import router as refund_router, init_router as init_refunds
+from .invoices import router as invoices_router, init_router as init_invoices
+from .i18n import router as i18n_router, init_router as init_i18n
+from .admin_charts import router as admin_charts_router, init_router as init_admin_charts
 from utils.email import init_email_db
 
 
