@@ -27,7 +27,17 @@ class InstagramStatsResponse(BaseModel):
     engagement_rate: float
     total_followers_gained: int
     followers_this_month: int
+    followers_this_week: int = 0
+    followers_gained_today: int = 0
     growth_percentage: float
+    reach_today: int = 0
+    reach_this_week: int = 0
+    profile_visits_today: int = 0
+    profile_visits_this_week: int = 0
+    impressions_today: int = 0
+    impressions_this_week: int = 0
+    website_clicks_today: int = 0
+    website_clicks_this_week: int = 0
 
 
 @router.post("/connect", response_model=InstagramAccount)
