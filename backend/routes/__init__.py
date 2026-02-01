@@ -33,6 +33,8 @@ from .refund_management import router as refund_router, init_router as init_refu
 from .invoices import router as invoices_router, init_router as init_invoices
 from .i18n import router as i18n_router, init_router as init_i18n
 from .admin_charts import router as admin_charts_router, init_router as init_admin_charts
+from .google_analytics import router as google_analytics_router, init_router as init_google_analytics
+from .growth_engine import router as growth_engine_router, init_router as init_growth_engine
 from utils.email import init_email_db
 
 
