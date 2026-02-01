@@ -255,11 +255,12 @@ class TestAdminChartsTraffic:
         assert response.status_code == 200, f"Failed: {response.text}"
         data = response.json()
         
-        # Verify traffic data structure
-        assert "page_views" in data or "total_page_views" in data
-        assert "is_simulated" in data or "simulated" in data or True  # May not have flag
+        # Verify traffic data structure - data is nested in chart_data and summary
+        assert "chart_data" in data or "summary" in data
+        if "summary" in data:
+            assert "total_page_views" in data["summary"]
         
-        print(f"✓ Traffic Data: {data}")
+        print(f"✓ Traffic Data: total_page_views={data.get('summary', {}).get('total_page_views')}")
     
     def test_get_dashboard_summary(self, admin_token):
         """GET /api/admin/charts/dashboard-summary - Returns dashboard summary"""
