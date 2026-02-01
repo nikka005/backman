@@ -195,6 +195,10 @@ const AdminDashboard = () => {
           <Route path="/rate-limits" element={<AdminRateLimits />} />
           <Route path="/export" element={<AdminExport />} />
           <Route path="/weekly-reports" element={<AdminWeeklyReports />} />
+          <Route path="/refunds" element={<AdminRefundsManagement />} />
+          <Route path="/renewals" element={<AdminRenewalsManagement />} />
+          <Route path="/languages" element={<AdminLanguages />} />
+          <Route path="/charts" element={<AdminChartsPage />} />
           <Route path="/social-links" element={<AdminSocialLinks />} />
           <Route path="/settings" element={<AdminSettings />} />
           <Route path="/docs" element={<AdminDocumentation />} />
