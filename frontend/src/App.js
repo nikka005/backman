@@ -58,6 +58,7 @@ function AppRouter() {
       <Route path="/affiliate" element={<AffiliatePage />} />
       <Route path="/affiliate/dashboard" element={<AffiliateDashboard />} />
       <Route path="/referral" element={<ReferralPage />} />
+      <Route path="/growth" element={<GrowthEnginePage />} />
       <Route path="/help" element={<HelpPage />} />
       {/* Legal Pages */}
       <Route path="/privacy" element={<PrivacyPolicyPage />} />
