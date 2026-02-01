@@ -475,4 +475,37 @@ export const adminChartsAPI = {
   getDashboardSummary: () => api.get('/admin/charts/dashboard-summary'),
 };
 
+// Google Analytics API
+export const googleAnalyticsAPI = {
+  getCredentialsStatus: () => api.get('/google-analytics/credentials/status'),
+  uploadCredentials: (formData) => api.post('/google-analytics/credentials/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  deleteCredentials: () => api.delete('/google-analytics/credentials'),
+  getPageViews: (days = 30) => api.get('/google-analytics/data/page-views', { params: { days } }),
+  getSessionsUsers: (days = 30) => api.get('/google-analytics/data/sessions-users', { params: { days } }),
+  getBounceRate: (days = 30) => api.get('/google-analytics/data/bounce-rate', { params: { days } }),
+  getTrafficSources: (days = 30) => api.get('/google-analytics/data/traffic-sources', { params: { days } }),
+  getGeographic: (days = 30) => api.get('/google-analytics/data/geographic', { params: { days } }),
+  getTopPages: (days = 30, limit = 10) => api.get('/google-analytics/data/top-pages', { params: { days, limit } }),
+  getDashboard: (days = 30) => api.get('/google-analytics/data/dashboard', { params: { days } }),
+};
+
+// Growth Engine API
+export const growthEngineAPI = {
+  getConfig: () => api.get('/growth-engine/config'),
+  updateConfig: (config) => api.put('/growth-engine/config', config),
+  startCampaign: (campaign) => api.post('/growth-engine/campaigns/start', campaign),
+  pauseCampaign: (campaignId) => api.post(`/growth-engine/campaigns/${campaignId}/pause`),
+  resumeCampaign: (campaignId) => api.post(`/growth-engine/campaigns/${campaignId}/resume`),
+  stopCampaign: (campaignId) => api.delete(`/growth-engine/campaigns/${campaignId}`),
+  getCampaigns: () => api.get('/growth-engine/campaigns'),
+  getCampaign: (campaignId) => api.get(`/growth-engine/campaigns/${campaignId}`),
+  getCampaignStats: (campaignId) => api.get(`/growth-engine/campaigns/${campaignId}/stats`),
+  // Admin
+  getAllCampaigns: (status, limit = 50) => api.get('/growth-engine/admin/all-campaigns', { params: { status, limit } }),
+  getEngineStats: () => api.get('/growth-engine/admin/stats'),
+  executeBatch: () => api.post('/growth-engine/admin/execute-batch'),
+};
+
 export default api;
