@@ -315,7 +315,7 @@ async def generate_content_recommendations(account: dict, targeting: dict) -> Li
             type=idea["type"],
             topic=idea["topic"],
             best_time=f"{day} {best_times[day]}",
-            hashtags=hashtags[:10] if hashtags else [f"#{niche}", "#instagood", "#viral"],
+            hashtags=hashtags[:10] if hashtags else [f"#{niche.lower().replace(' ', '')}", "#instagood", "#viral"],
             caption_suggestion=idea["caption"]
         )
         recommendations.append(rec)
