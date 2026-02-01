@@ -351,39 +351,50 @@ Navigate to: **Admin Panel → Google Analytics**
       icon: Sliders,
       title: 'Growth Engine',
       content: `
-## Instagram Growth Engine
+## Adverlyx Growth Engine
 
-AI-powered Instagram growth automation.
+100% Custom-built internal Instagram growth automation system.
 
 ### Access
 Navigate to: **Admin Panel → Growth Engine**
 
 ### Features
 - Automated follow/unfollow
-- Like and comment automation
+- Like and comment automation  
+- Story viewing automation
 - Hashtag targeting
 - Location targeting
 - Competitor audience targeting
+- Account quality analysis
 
-### Settings
-- **API Provider**: Internal or third-party
-- **Daily Limits**: Follow, Unfollow, Like, Comment
+### Engine Settings
+- **Engagement Mode**: Conservative, Balanced, Aggressive
 - **Targeting Accuracy**: Low, Medium, High
+- **Activity Hours**: Set active hours (e.g., 8:00 - 22:00)
+- **Rest Between Actions**: Seconds between each action
+- **Auto-Unfollow Days**: Days before unfollowing non-followers
+- **Max Following Ratio**: Prevent following too many accounts
 
-### Campaign Management
-- Start/pause/stop campaigns
-- View campaign statistics
-- Monitor daily actions
-- Batch execute actions
-
-### Daily Limits (Recommended)
-- Follows: 200/day
+### Daily Limits (Safety)
+- Follows: 200/day (adjustable)
 - Unfollows: 100/day
 - Likes: 500/day
 - Comments: 50/day
+- Story Views: 300/day
 
-### Safety
-Limits are set to keep accounts safe from Instagram restrictions.
+### Campaign Management
+- Start/Pause/Stop campaigns
+- View campaign statistics
+- Monitor daily actions
+- Batch execute growth cycles
+
+### How It Works
+1. User connects Instagram account
+2. User sets targeting (hashtags, locations, competitors)
+3. Engine finds target accounts
+4. Analyzes account quality
+5. Executes growth actions
+6. Tracks results and optimizes
       `
     },
     {
