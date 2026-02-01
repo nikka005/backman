@@ -107,5 +107,10 @@ all_routers = [
     growth_tracking_router,
     scheduler_router,
     notification_preferences_router,
-    ai_analytics_router
+    ai_analytics_router,
+    renewals_router,
+    refund_router,
+    invoices_router,
+    i18n_router,
+    admin_charts_router
 ]
