@@ -54,28 +54,38 @@ function AppRouter() {
       <Route path="/how-it-works" element={<HowItWorksPage />} />
       <Route path="/pricing" element={<PricingPage />} />
       <Route path="/checkout" element={<CheckoutPage />} />
-              <Route path="/case-studies" element={<CaseStudiesPage />} />
-              <Route path="/faq" element={<FAQPage />} />
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/contact" element={<ContactPage />} />
-              <Route path="/payment/success" element={<PaymentSuccessPage />} />
-              <Route path="/connect-instagram" element={<ConnectInstagramPage />} />
-              {/* Partner Programs */}
-              <Route path="/affiliate" element={<AffiliatePage />} />
-              <Route path="/referral" element={<ReferralPage />} />
-              <Route path="/help" element={<HelpPage />} />
-              {/* Legal Pages */}
-              <Route path="/privacy" element={<PrivacyPolicyPage />} />
-              <Route path="/terms" element={<TermsOfServicePage />} />
-              <Route path="/refund" element={<RefundPolicyPage />} />
-              <Route path="/cookies" element={<CookiePolicyPage />} />
-              <Route path="/data-deletion" element={<DataDeletionPage />} />
-              {/* Admin Routes */}
-              <Route path="/backman" element={<AdminLoginPage />} />
-              <Route path="/admin/*" element={<AdminDashboard />} />
-              {/* Catch-all route */}
-              <Route path="*" element={<HomePage />} />
-            </Routes>
+      <Route path="/case-studies" element={<CaseStudiesPage />} />
+      <Route path="/faq" element={<FAQPage />} />
+      <Route path="/dashboard" element={<DashboardPage />} />
+      <Route path="/contact" element={<ContactPage />} />
+      <Route path="/payment/success" element={<PaymentSuccessPage />} />
+      <Route path="/connect-instagram" element={<ConnectInstagramPage />} />
+      {/* Partner Programs */}
+      <Route path="/affiliate" element={<AffiliatePage />} />
+      <Route path="/referral" element={<ReferralPage />} />
+      <Route path="/help" element={<HelpPage />} />
+      {/* Legal Pages */}
+      <Route path="/privacy" element={<PrivacyPolicyPage />} />
+      <Route path="/terms" element={<TermsOfServicePage />} />
+      <Route path="/refund" element={<RefundPolicyPage />} />
+      <Route path="/cookies" element={<CookiePolicyPage />} />
+      <Route path="/data-deletion" element={<DataDeletionPage />} />
+      {/* Admin Routes */}
+      <Route path="/backman" element={<AdminLoginPage />} />
+      <Route path="/admin/*" element={<AdminDashboard />} />
+      {/* Catch-all route */}
+      <Route path="*" element={<HomePage />} />
+    </Routes>
+  );
+}
+
+function App() {
+  return (
+    <div className="App">
+      <SiteSettingsProvider>
+        <AuthProvider>
+          <BrowserRouter>
+            <AppRouter />
             {/* Mobile Bottom Navigation */}
             <MobileNav />
           </BrowserRouter>
