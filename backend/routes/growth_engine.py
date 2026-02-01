@@ -65,11 +65,70 @@ class GrowthAction(BaseModel):
 # ============== Growth Engine Service ==============
 
 class GrowthEngineService:
-    """Service to manage Instagram growth activities."""
+    """Internal Instagram Growth Engine Service - 100% Custom Built."""
     
     def __init__(self, config: dict):
         self.config = config
-        self.provider = config.get("api_provider", "internal")
+        self.daily_follow_limit = config.get("daily_follow_limit", 200)
+        self.daily_like_limit = config.get("daily_like_limit", 500)
+        self.targeting_accuracy = config.get("targeting_accuracy", "high")
+    
+    async def find_target_accounts(self, campaign: dict) -> list:
+        """Find target accounts based on campaign settings."""
+        targets = []
+        
+        # Search by hashtags
+        for hashtag in campaign.get("target_hashtags", []):
+            # In production: Use Instagram API to get posts with hashtag
+            # Then extract user accounts from those posts
+            targets.append({
+                "username": f"user_from_{hashtag}_{random.randint(1000, 9999)}",
+                "source": "hashtag",
+                "source_value": hashtag
+            })
+        
+        # Search by competitor followers
+        for competitor in campaign.get("competitor_accounts", []):
+            # In production: Get followers of competitor accounts
+            targets.append({
+                "username": f"follower_of_{competitor}_{random.randint(1000, 9999)}",
+                "source": "competitor",
+                "source_value": competitor
+            })
+        
+        # Search by location
+        for location in campaign.get("target_locations", []):
+            targets.append({
+                "username": f"user_in_{location}_{random.randint(1000, 9999)}",
+                "source": "location",
+                "source_value": location
+            })
+        
+        return targets
+    
+    async def analyze_account(self, username: str) -> dict:
+        """Analyze if account is worth following."""
+        # In production: Check account quality metrics
+        return {
+            "username": username,
+            "is_private": random.choice([True, False]),
+            "followers": random.randint(100, 10000),
+            "following": random.randint(50, 5000),
+            "posts": random.randint(10, 500),
+            "engagement_rate": round(random.uniform(1, 10), 2),
+            "is_bot": False,
+            "quality_score": random.randint(60, 100)
+        }
+    
+    async def should_follow(self, account_analysis: dict) -> bool:
+        """Determine if account should be followed based on quality."""
+        if account_analysis.get("is_bot"):
+            return False
+        if account_analysis.get("quality_score", 0) < 50:
+            return False
+        if account_analysis.get("followers", 0) < 50:
+            return False
+        return True
     
     async def start_campaign(self, campaign: dict, user_id: str) -> dict:
         """Start a growth campaign for a user."""
