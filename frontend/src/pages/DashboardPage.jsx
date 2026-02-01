@@ -1005,39 +1005,37 @@ const DashboardPage = () => {
                     <div className="grid md:grid-cols-4 gap-4">
                       <div className="p-4 bg-gradient-to-r from-pink-50 to-orange-50 rounded-xl">
                         <p className="text-sm text-gray-500">Total Followers Gained</p>
-                        <p className="text-2xl font-bold text-gray-900">{(stats.total_followers_gained || 0).toLocaleString()}</p>
+                        <p className="text-2xl font-bold text-gray-900">{(displayStats.total_followers_gained || 0).toLocaleString()}</p>
                       </div>
                       <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl">
                         <p className="text-sm text-gray-500">This Month</p>
-                        <p className="text-2xl font-bold text-gray-900">{(stats.followers_this_month || 0).toLocaleString()}</p>
+                        <p className="text-2xl font-bold text-gray-900">{(displayStats.followers_this_month || 0).toLocaleString()}</p>
                       </div>
                       <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl">
                         <p className="text-sm text-gray-500">Engagement Rate</p>
-                        <p className="text-2xl font-bold text-gray-900">{stats.engagement_rate || 0}%</p>
+                        <p className="text-2xl font-bold text-gray-900">{displayStats.engagement_rate || 0}%</p>
                       </div>
                       <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl">
-                        <p className="text-sm text-gray-500">Reach</p>
-                        <p className="text-2xl font-bold text-gray-900">{instagramInsights?.reach ? `${(instagramInsights.reach / 1000).toFixed(1)}K` : '—'}</p>
+                        <p className="text-sm text-gray-500">Reach (Today)</p>
+                        <p className="text-2xl font-bold text-gray-900">{displayStats.reach > 0 ? (displayStats.reach >= 1000 ? `${(displayStats.reach / 1000).toFixed(1)}K` : displayStats.reach) : '—'}</p>
                       </div>
                     </div>
                     
                     {/* Additional Instagram Metrics */}
-                    {instagramInsights && (
-                      <div className="grid md:grid-cols-3 gap-4">
-                        <div className="p-4 border border-gray-100 rounded-xl">
-                          <p className="text-sm text-gray-500">Impressions</p>
-                          <p className="text-xl font-bold text-gray-900">{instagramInsights.impressions?.toLocaleString() || '—'}</p>
-                        </div>
-                        <div className="p-4 border border-gray-100 rounded-xl">
-                          <p className="text-sm text-gray-500">Profile Views</p>
-                          <p className="text-xl font-bold text-gray-900">{instagramInsights.profile_views?.toLocaleString() || '—'}</p>
-                        </div>
-                        <div className="p-4 border border-gray-100 rounded-xl">
-                          <p className="text-sm text-gray-500">Website Clicks</p>
-                          <p className="text-xl font-bold text-gray-900">{instagramInsights.website_clicks?.toLocaleString() || '—'}</p>
-                        </div>
+                    <div className="grid md:grid-cols-3 gap-4">
+                      <div className="p-4 border border-gray-100 rounded-xl">
+                        <p className="text-sm text-gray-500">Impressions (Today)</p>
+                        <p className="text-xl font-bold text-gray-900">{displayStats.impressions > 0 ? displayStats.impressions.toLocaleString() : '—'}</p>
                       </div>
-                    )}
+                      <div className="p-4 border border-gray-100 rounded-xl">
+                        <p className="text-sm text-gray-500">Profile Views (Today)</p>
+                        <p className="text-xl font-bold text-gray-900">{displayStats.profileVisits > 0 ? displayStats.profileVisits.toLocaleString() : '—'}</p>
+                      </div>
+                      <div className="p-4 border border-gray-100 rounded-xl">
+                        <p className="text-sm text-gray-500">Website Clicks (Today)</p>
+                        <p className="text-xl font-bold text-gray-900">{displayStats.website_clicks > 0 ? displayStats.website_clicks.toLocaleString() : '—'}</p>
+                      </div>
+                    </div>
                   </div>
                 ) : (
                   <div className="text-center py-8">
