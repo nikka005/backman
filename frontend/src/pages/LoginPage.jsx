@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -6,6 +6,8 @@ import { Label } from '../components/ui/label';
 import { Checkbox } from '../components/ui/checkbox';
 import { Eye, EyeOff, Mail, Lock, ChevronRight, Sparkles, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { authAPI } from '../services/api';
+import { toast } from 'sonner';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -13,9 +15,28 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [googleClientId, setGoogleClientId] = useState(null);
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    }
+    // Load Google client ID from backend
+    loadGoogleConfig();
+  }, [isAuthenticated, navigate]);
+
+  const loadGoogleConfig = async () => {
+    try {
+      const response = await authAPI.getGoogleConfig();
+      setGoogleClientId(response.data.client_id);
+    } catch (error) {
+      console.log('Google login not configured');
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
