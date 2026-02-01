@@ -86,7 +86,11 @@ const PricingSection = () => {
   };
 
   const getFeatures = (plan) => {
-    if (plan.features && Array.isArray(plan.features)) {
+    // Check feature_list first (from database), then features array
+    if (plan.feature_list && Array.isArray(plan.feature_list) && plan.feature_list.length > 0) {
+      return plan.feature_list;
+    }
+    if (plan.features && Array.isArray(plan.features) && plan.features.length > 0) {
       return plan.features;
     }
     // Default features based on plan type
