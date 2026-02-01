@@ -390,9 +390,10 @@ const AdminChartsPage = () => {
           <h3 className="text-lg font-semibold mb-6 flex items-center gap-2">
             <MousePointer className="w-5 h-5 text-blue-500" />
             Top Pages
+            {gaData?.configured && <Badge className="bg-green-100 text-green-700 text-xs ml-2">Live GA4</Badge>}
           </h3>
           <div className="space-y-3">
-            {topPages.map((page, idx) => (
+            {displayTopPages.map((page, idx) => (
               <div key={page.path} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                 <span className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium">
                   {idx + 1}
@@ -415,10 +416,11 @@ const AdminChartsPage = () => {
           <h3 className="text-lg font-semibold mb-6 flex items-center gap-2">
             <Globe className="w-5 h-5 text-green-500" />
             Geographic Distribution
+            {gaData?.configured && <Badge className="bg-green-100 text-green-700 text-xs ml-2">Live GA4</Badge>}
           </h3>
           <div className="space-y-3">
-            {geoData?.countries?.map((country, idx) => {
-              const total = geoData.countries.reduce((sum, c) => sum + c.users, 0);
+            {displayGeo?.countries?.map((country, idx) => {
+              const total = displayGeo.countries.reduce((sum, c) => sum + c.users, 0);
               const percentage = ((country.users / total) * 100).toFixed(1);
               return (
                 <div key={country.name} className="flex items-center gap-3">
