@@ -99,6 +99,504 @@ Powered by GPT-5.2 and Claude Sonnet 4.5 for intelligent decision support.
       `
     },
     {
+      id: 'charts-traffic',
+      icon: PieChart,
+      title: 'Charts & Traffic Analytics',
+      content: `
+## Charts & Traffic Analytics (NEW)
+
+Real-time visual analytics dashboard with comprehensive charts.
+
+### Access
+Navigate to: **Admin Panel → Charts & Traffic**
+URL: \`/admin/charts\`
+
+### Features
+
+#### Real-time Stats Bar
+- Current visitors online
+- Active users (last 1 hour)
+- Recent signups
+- Page views (last hour)
+- Revenue (last hour)
+
+#### Revenue Chart
+- Daily revenue trend (7/30/90 days)
+- Growth percentage calculation
+- Bar chart visualization
+- Hover for daily details
+
+#### User Growth Chart
+- New users over time
+- Cumulative user growth
+- Line chart visualization
+
+#### Traffic Chart
+- Page views trend
+- Unique visitors
+- Area chart visualization
+
+#### Traffic Sources
+- Organic Search: % from search engines
+- Direct: Direct URL visits
+- Social: From social media
+- Referral: From other websites
+- Paid: From advertisements
+
+#### Top Pages
+- Most visited pages
+- Bounce rate per page
+- Page view counts
+
+#### Conversion Funnel
+- Visitors → Sign Ups → Trials → Paid
+- Conversion rates at each stage
+- Visual funnel representation
+
+#### Geographic Distribution
+- Users by country
+- Visual percentage bars
+
+### API Commands
+\`\`\`bash
+# Get revenue data (30 days)
+GET /api/admin/charts/revenue?days=30
+
+# Get user growth data
+GET /api/admin/charts/users?days=30
+
+# Get traffic data
+GET /api/admin/charts/traffic?days=30
+
+# Get traffic sources
+GET /api/admin/charts/traffic-sources
+
+# Get top pages
+GET /api/admin/charts/top-pages?limit=10
+
+# Get conversion funnel
+GET /api/admin/charts/conversion-funnel?days=30
+
+# Get geographic data
+GET /api/admin/charts/geographic
+
+# Get realtime stats
+GET /api/admin/charts/realtime
+
+# Get full dashboard summary
+GET /api/admin/charts/dashboard-summary
+\`\`\`
+
+### Note
+Traffic data is currently simulated for demo purposes. For real data, integrate Google Analytics API.
+      `
+    },
+    {
+      id: 'refund-management',
+      icon: DollarSign,
+      title: 'Refund Management',
+      content: `
+## Refund Management System (NEW)
+
+Complete refund workflow with approval process.
+
+### Access
+Navigate to: **Admin Panel → Refunds**
+URL: \`/admin/refunds\`
+
+### Dashboard Stats
+- **Pending**: Refunds awaiting review
+- **Processed**: Successfully processed refunds
+- **Total Refunded**: Lifetime refund amount
+- **Refund Rate**: % of payments refunded
+
+### Workflow
+
+#### 1. Customer Creates Request
+\`\`\`bash
+POST /api/refunds/request
+{
+  "payment_id": "pay_xxx",
+  "amount": 49.00,  // optional (null = full refund)
+  "reason": "Not satisfied with service",
+  "refund_type": "full"  // or "partial"
+}
+\`\`\`
+
+#### 2. Admin Reviews Request
+- View refund details
+- See original payment info
+- Check user history
+
+#### 3. Admin Approves/Rejects
+\`\`\`bash
+POST /api/refunds/{refund_id}/approve
+{
+  "approved": true,
+  "admin_notes": "Valid request, approved"
+}
+\`\`\`
+
+#### 4. Process Approved Refund
+\`\`\`bash
+POST /api/refunds/{refund_id}/process
+\`\`\`
+
+### Features
+- **Full Refunds**: 100% of payment amount
+- **Partial Refunds**: Custom amount
+- **Auto-cancellation**: Subscription cancelled on full refund
+- **Email Notifications**: Customer notified at each step
+- **Audit Trail**: Full history of actions
+
+### API Commands
+\`\`\`bash
+# Get all refunds
+GET /api/refunds/
+
+# Get refunds by status
+GET /api/refunds/?status=pending
+
+# Get refund statistics
+GET /api/refunds/stats/summary
+
+# Get single refund details
+GET /api/refunds/{refund_id}
+\`\`\`
+
+### Statuses
+- \`pending\`: Awaiting admin review
+- \`approved\`: Approved, ready to process
+- \`rejected\`: Request denied
+- \`processed\`: Refund completed
+- \`failed\`: Processing error
+      `
+    },
+    {
+      id: 'subscription-renewals',
+      icon: RefreshCw,
+      title: 'Subscription Renewals',
+      content: `
+## Automated Subscription Renewals (NEW)
+
+Manage automatic subscription renewals and retry logic.
+
+### Access
+Navigate to: **Admin Panel → Renewals**
+URL: \`/admin/renewals\`
+
+### Dashboard Tabs
+
+#### Due Now
+Subscriptions that need immediate renewal processing.
+
+#### Upcoming
+Subscriptions renewing in the next 7-14 days.
+
+#### History
+Past renewal payment attempts and results.
+
+### Settings
+Click **Settings** button to configure:
+
+- **Auto-Renewal Enabled**: Toggle automatic processing
+- **Max Retry Attempts**: Failed payment retries (default: 3)
+- **Retry Interval**: Days between retries (default: 1)
+- **Grace Period**: Days before cancellation (default: 7)
+- **Reminder Days**: When to send reminders [7, 3, 1]
+
+### Actions
+
+#### Process Single Renewal
+\`\`\`bash
+POST /api/subscription-renewals/process/{subscription_id}
+\`\`\`
+
+#### Process All Due Renewals
+\`\`\`bash
+POST /api/subscription-renewals/process-all
+\`\`\`
+
+### API Commands
+\`\`\`bash
+# Get renewal settings
+GET /api/subscription-renewals/settings
+
+# Update renewal settings
+PUT /api/subscription-renewals/settings
+{
+  "auto_renewal_enabled": true,
+  "max_retry_attempts": 3,
+  "grace_period_days": 7
+}
+
+# Get due renewals
+GET /api/subscription-renewals/due
+
+# Get upcoming renewals (next 7 days)
+GET /api/subscription-renewals/upcoming-renewals?days=7
+
+# Get renewal history
+GET /api/subscription-renewals/history?limit=50
+\`\`\`
+
+### Email Notifications
+- **Renewal Success**: Confirmation with amount charged
+- **Renewal Reminder**: X days before renewal
+- **Payment Failed**: Prompt to update payment method
+- **Subscription Cancelled**: After grace period expires
+      `
+    },
+    {
+      id: 'multilanguage',
+      icon: Globe,
+      title: 'Multi-language (i18n)',
+      content: `
+## Multi-language Support (NEW)
+
+Internationalization system for the platform.
+
+### Access
+Navigate to: **Admin Panel → Languages**
+URL: \`/admin/languages\`
+
+### Supported Languages
+14 languages available:
+- English (en) - Default
+- Spanish (es) - Español
+- French (fr) - Français
+- German (de) - Deutsch
+- Portuguese (pt) - Português
+- Italian (it) - Italiano
+- Dutch (nl) - Nederlands
+- Russian (ru) - Русский
+- Japanese (ja) - 日本語
+- Korean (ko) - 한국어
+- Chinese (zh) - 中文
+- Arabic (ar) - العربية (RTL)
+- Hindi (hi) - हिन्दी
+- Turkish (tr) - Türkçe
+
+### Settings Panel
+- **Default Language**: Primary site language
+- **Auto-Detect**: Detect from browser headers
+- **Enabled Languages**: Toggle languages on/off
+
+### Translation Editor
+- Search translations by key or value
+- Edit translations inline
+- Categories: nav, hero, pricing, auth, dashboard, common, errors, footer
+
+### API Commands
+\`\`\`bash
+# Get all supported languages
+GET /api/i18n/languages
+
+# Get translations for a language
+GET /api/i18n/translations/es
+
+# Get language settings
+GET /api/i18n/settings
+
+# Update language settings
+PUT /api/i18n/settings
+{
+  "default_language": "en",
+  "enabled_languages": ["en", "es", "fr"],
+  "auto_detect": true
+}
+
+# Update all translations for a language
+PUT /api/i18n/translations/es
+{
+  "nav.home": "Inicio",
+  "nav.pricing": "Precios"
+}
+
+# Update single translation
+POST /api/i18n/translations/es/key
+{
+  "key": "nav.home",
+  "value": "Inicio"
+}
+
+# Get user's language preference
+GET /api/i18n/user-preference
+
+# Set user's language preference
+PUT /api/i18n/user-preference?lang=es
+
+# Auto-detect language from headers
+GET /api/i18n/detect
+\`\`\`
+
+### Translation Keys Structure
+\`\`\`
+nav.*        - Navigation items
+hero.*       - Hero section text
+pricing.*    - Pricing page
+auth.*       - Login/signup forms
+dashboard.*  - Dashboard labels
+common.*     - Buttons, actions
+error.*      - Error messages
+footer.*     - Footer links
+\`\`\`
+      `
+    },
+    {
+      id: 'invoices',
+      icon: FileText,
+      title: 'Invoice Generation',
+      content: `
+## PDF Invoice Generation (NEW)
+
+Generate professional invoices for payments.
+
+### Features
+- Professional HTML invoice layout
+- PDF download option (requires WeasyPrint)
+- Automatic invoice numbering
+- Customer and payment details
+- Company branding
+
+### Invoice Contents
+- Invoice number (INV-YYYYMM-XXXXX)
+- Customer name and email
+- Payment date
+- Plan name and billing cycle
+- Amount breakdown
+- Payment method used
+
+### API Commands
+
+#### Get Invoice for Payment
+\`\`\`bash
+# HTML format
+GET /api/invoices/payment/{payment_id}
+
+# PDF format
+GET /api/invoices/payment/{payment_id}?format=pdf
+\`\`\`
+
+#### Get Invoice for Subscription
+\`\`\`bash
+GET /api/invoices/subscription/{subscription_id}
+GET /api/invoices/subscription/{subscription_id}?format=pdf
+\`\`\`
+
+#### User's Invoices
+\`\`\`bash
+# Get all my invoices
+GET /api/invoices/my-invoices?limit=20
+\`\`\`
+
+#### Admin: All Invoices
+\`\`\`bash
+# Get all platform invoices
+GET /api/invoices/admin/all?limit=50&skip=0
+\`\`\`
+
+#### Generate and Store Invoice
+\`\`\`bash
+POST /api/invoices/generate/{payment_id}
+\`\`\`
+
+### Response Format
+\`\`\`json
+{
+  "invoices": [
+    {
+      "id": "pay_xxx",
+      "invoice_number": "INV-202502-ABCD1234",
+      "date": "2025-02-01T...",
+      "amount": 49.00,
+      "currency": "usd",
+      "plan": "Pro",
+      "status": "Paid"
+    }
+  ]
+}
+\`\`\`
+      `
+    },
+    {
+      id: 'affiliate-dashboard',
+      icon: TrendingUp,
+      title: 'Affiliate Dashboard',
+      content: `
+## Affiliate Dashboard (NEW)
+
+User-facing partner program dashboard.
+
+### Access
+URL: \`/affiliate/dashboard\`
+Also accessible from user dashboard.
+
+### Tabs
+
+#### Overview
+- Referral link (copy/share)
+- Quick stats cards
+- Program comparison
+
+#### Referral Program (All Users)
+- Share link, earn $10 credit
+- Friends get 20% off
+- No limit on referrals
+- Track referrals and rewards
+
+#### Affiliate Program (Approved Only)
+- 20% commission on all sales
+- 30-day cookie duration
+- $50 minimum payout
+- Monthly payout schedule
+
+### Stats Displayed
+- Total Referrals
+- Successful Referrals
+- Pending Rewards
+- Total Earned
+
+### Affiliate Stats (Approved Affiliates)
+- Total Clicks
+- Signups
+- Conversions
+- Total Earnings
+- Pending Earnings
+- Paid Out
+
+### API Commands
+\`\`\`bash
+# Get referral info
+GET /api/programs/referral/info
+
+# Get affiliate dashboard (if approved)
+GET /api/programs/affiliate/dashboard
+
+# Get affiliate program info
+GET /api/programs/affiliate/info
+
+# Apply for affiliate program
+POST /api/programs/affiliate/apply
+{
+  "website": "https://example.com",
+  "social_following": 10000,
+  "promotion_methods": ["Instagram", "YouTube"]
+}
+\`\`\`
+
+### Referral Link Format
+\`https://adverlyx.com/?ref={referral_code}\`
+
+### How It Works
+1. User shares their referral link
+2. Friend signs up using the link
+3. Friend subscribes to a paid plan
+4. User receives $10 credit
+5. Friend gets 20% off first month
+      `
+    },
+    {
       id: 'analytics',
       icon: BarChart3,
       title: 'Analytics',
