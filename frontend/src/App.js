@@ -55,6 +55,7 @@ function AppRouter() {
       <Route path="/connect-instagram" element={<ConnectInstagramPage />} />
       {/* Partner Programs */}
       <Route path="/affiliate" element={<AffiliatePage />} />
+      <Route path="/affiliate/dashboard" element={<AffiliateDashboard />} />
       <Route path="/referral" element={<ReferralPage />} />
       <Route path="/help" element={<HelpPage />} />
       {/* Legal Pages */}
