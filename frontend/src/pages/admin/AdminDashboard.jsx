@@ -32,6 +32,10 @@ import AdminSubscriptionsManagement from './AdminSubscriptionsManagement';
 import AdminPaymentsManagement from './AdminPaymentsManagement';
 import AdminTicketsManagement from './AdminTicketsManagement';
 import AdminWeeklyReports from './AdminWeeklyReports';
+import AdminRefundsManagement from './AdminRefundsManagement';
+import AdminRenewalsManagement from './AdminRenewalsManagement';
+import AdminLanguages from './AdminLanguages';
+import AdminChartsPage from './AdminChartsPage';
 
 const AdminDashboard = () => {
   const { user, logout, isAuthenticated, loading: authLoading } = useAuth();
