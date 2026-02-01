@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="14" skipped="0" tests="24" time="2.392" timestamp="2026-02-01T07:25:07.341829+00:00" hostname="agent-env-6d3c0e6a-4241-4539-ae99-c3033675ac54"><testcase classname="tests.test_admin_new_features.TestSubscriptionRenewals" name="test_get_renewal_settings_admin" time="0.361" /><testcase classname="tests.test_admin_new_features.TestSubscriptionRenewals" name="test_get_renewal_settings_forbidden_for_user" time="0.301" /><testcase classname="tests.test_admin_new_features.TestSubscriptionRenewals" name="test_get_upcoming_renewals" time="0.297" /><testcase classname="tests.test_admin_new_features.TestSubscriptionRenewals" name="test_get_due_renewals" time="0.300" /><testcase classname="tests.test_admin_new_features.TestSubscriptionRenewals" name="test_get_renewal_history" time="0.293" /><testcase classname="tests.test_admin_new_features.TestRefundManagement" name="test_get_refunds_list_admin" time="0.032"><failure message="AssertionError: Admin login failed&#10;assert None is not None">tests/test_admin_new_features.py:145: in test_get_refunds_list_admin
+    assert token is not None, "Admin login failed"
+E   AssertionError: Admin login failed
+E   assert None is not None</failure></testcase><testcase classname="tests.test_admin_new_features.TestRefundManagement" name="test_get_refund_stats_admin" time="0.032"><failure message="AssertionError: Admin login failed&#10;assert None is not None">tests/test_admin_new_features.py:166: in test_get_refund_stats_admin
+    assert token is not None, "Admin login failed"
+E   AssertionError: Admin login failed
+E   assert None is not None</failure></testcase><testcase classname="tests.test_admin_new_features.TestRefundManagement" name="test_get_refund_stats_forbidden_for_user" time="0.035"><failure message="AssertionError: User login failed&#10;assert None is not None">tests/test_admin_new_features.py:186: in test_get_refund_stats_forbidden_for_user
+    assert token is not None, "User login failed"
+E   AssertionError: User login failed
+E   assert None is not None</failure></testcase><testcase classname="tests.test_admin_new_features.TestInvoices" name="test_get_my_invoices_user" time="0.030"><failure message="AssertionError: User login failed&#10;assert None is not None">tests/test_admin_new_features.py:205: in test_get_my_invoices_user
+    assert token is not None, "User login failed"
+E   AssertionError: User login failed
+E   assert None is not None</failure></testcase><testcase classname="tests.test_admin_new_features.TestInvoices" name="test_get_all_invoices_admin" time="0.031"><failure message="AssertionError: Admin login failed&#10;assert None is not None">tests/test_admin_new_features.py:221: in test_get_all_invoices_admin
+    assert token is not None, "Admin login failed"
+E   AssertionError: Admin login failed
+E   assert None is not None</failure></testcase><testcase classname="tests.test_admin_new_features.TestInvoices" name="test_get_all_invoices_forbidden_for_user" time="0.030"><failure message="AssertionError: User login failed&#10;assert None is not None">tests/test_admin_new_features.py:238: in test_get_all_invoices_forbidden_for_user
+    assert token is not None, "User login failed"
+E   AssertionError: User login failed
+E   assert None is not None</failure></testcase><testcase classname="tests.test_admin_new_features.TestI18n" name="test_get_supported_languages" time="0.074" /><testcase classname="tests.test_admin_new_features.TestI18n" name="test_get_spanish_translations" time="0.040" /><testcase classname="tests.test_admin_new_features.TestI18n" name="test_get_english_translations" time="0.038" /><testcase classname="tests.test_admin_new_features.TestI18n" name="test_get_unsupported_language" time="0.034" /><testcase classname="tests.test_admin_new_features.TestI18n" name="test_get_language_settings" time="0.033" /><testcase classname="tests.test_admin_new_features.TestAdminCharts" name="test_get_revenue_chart" time="0.032"><failure message="AssertionError: Admin login failed&#10;assert None is not None">tests/test_admin_new_features.py:326: in test_get_revenue_chart
+    assert token is not None, "Admin login failed"
+E   AssertionError: Admin login failed
+E   assert None is not None</failure></testcase><testcase classname="tests.test_admin_new_features.TestAdminCharts" name="test_get_users_chart" time="0.032"><failure message="AssertionError: Admin login failed&#10;assert None is not None">tests/test_admin_new_features.py:345: in test_get_users_chart
+    assert token is not None, "Admin login failed"
+E   AssertionError: Admin login failed
+E   assert None is not None</failure></testcase><testcase classname="tests.test_admin_new_features.TestAdminCharts" name="test_get_traffic_chart" time="0.033"><failure message="AssertionError: Admin login failed&#10;assert None is not None">tests/test_admin_new_features.py:364: in test_get_traffic_chart
+    assert token is not None, "Admin login failed"
+E   AssertionError: Admin login failed
+E   assert None is not None</failure></testcase><testcase classname="tests.test_admin_new_features.TestAdminCharts" name="test_get_traffic_sources" time="0.032"><failure message="AssertionError: Admin login failed&#10;assert None is not None">tests/test_admin_new_features.py:383: in test_get_traffic_sources
+    assert token is not None, "Admin login failed"
+E   AssertionError: Admin login failed
+E   assert None is not None</failure></testcase><testcase classname="tests.test_admin_new_features.TestAdminCharts" name="test_get_conversion_funnel" time="0.033"><failure message="AssertionError: Admin login failed&#10;assert None is not None">tests/test_admin_new_features.py:400: in test_get_conversion_funnel
+    assert token is not None, "Admin login failed"
+E   AssertionError: Admin login failed
+E   assert None is not None</failure></testcase><testcase classname="tests.test_admin_new_features.TestAdminCharts" name="test_get_realtime_stats" time="0.039"><failure message="AssertionError: Admin login failed&#10;assert None is not None">tests/test_admin_new_features.py:419: in test_get_realtime_stats
+    assert token is not None, "Admin login failed"
+E   AssertionError: Admin login failed
+E   assert None is not None</failure></testcase><testcase classname="tests.test_admin_new_features.TestAdminCharts" name="test_get_dashboard_summary" time="0.033"><failure message="AssertionError: Admin login failed&#10;assert None is not None">tests/test_admin_new_features.py:437: in test_get_dashboard_summary
+    assert token is not None, "Admin login failed"
+E   AssertionError: Admin login failed
+E   assert None is not None</failure></testcase><testcase classname="tests.test_admin_new_features.TestAdminCharts" name="test_charts_forbidden_for_user" time="0.032"><failure message="AssertionError: User login failed&#10;assert None is not None">tests/test_admin_new_features.py:458: in test_charts_forbidden_for_user
+    assert token is not None, "User login failed"
+E   AssertionError: User login failed
+E   assert None is not None</failure></testcase></testsuite></testsuites>
