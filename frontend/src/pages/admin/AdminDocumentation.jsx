@@ -312,6 +312,81 @@ URL: /affiliate/dashboard (for users)
       `
     },
     {
+      id: 'google-analytics',
+      icon: BarChart3,
+      title: 'Google Analytics',
+      content: `
+## Google Analytics Integration
+
+Connect GA4 for real website traffic data.
+
+### Access
+Navigate to: **Admin Panel → Google Analytics**
+
+### Setup Steps
+1. Go to Google Cloud Console
+2. Enable Google Analytics Data API
+3. Create a Service Account
+4. Download JSON key file
+5. Add service account to GA4 with Viewer role
+6. Upload JSON key in admin panel
+
+### Data Available
+- Page Views
+- Unique Users
+- Sessions
+- Bounce Rate
+- Traffic Sources
+- Top Pages
+- Geographic Distribution
+
+### Requirements
+- GA4 Property (not Universal Analytics)
+- Service Account with Viewer access
+- Google Analytics Data API enabled
+      `
+    },
+    {
+      id: 'growth-engine',
+      icon: Sliders,
+      title: 'Growth Engine',
+      content: `
+## Instagram Growth Engine
+
+AI-powered Instagram growth automation.
+
+### Access
+Navigate to: **Admin Panel → Growth Engine**
+
+### Features
+- Automated follow/unfollow
+- Like and comment automation
+- Hashtag targeting
+- Location targeting
+- Competitor audience targeting
+
+### Settings
+- **API Provider**: Internal or third-party
+- **Daily Limits**: Follow, Unfollow, Like, Comment
+- **Targeting Accuracy**: Low, Medium, High
+
+### Campaign Management
+- Start/pause/stop campaigns
+- View campaign statistics
+- Monitor daily actions
+- Batch execute actions
+
+### Daily Limits (Recommended)
+- Follows: 200/day
+- Unfollows: 100/day
+- Likes: 500/day
+- Comments: 50/day
+
+### Safety
+Limits are set to keep accounts safe from Instagram restrictions.
+      `
+    },
+    {
       id: 'analytics',
       icon: BarChart3,
       title: 'Analytics',
