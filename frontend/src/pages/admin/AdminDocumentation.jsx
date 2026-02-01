@@ -109,6 +109,11 @@ Visual analytics dashboard with real-time statistics.
 ### Access
 Navigate to: **Admin Panel → Charts & Traffic**
 
+### Google Analytics Integration
+- **Yellow Banner**: "Traffic data is simulated" - GA4 not configured
+- **Green Banner**: "Google Analytics Connected" - Using real data
+- **Configure GA4**: Click link to setup Google Analytics
+
 ### Features
 
 #### Real-time Stats
@@ -127,11 +132,21 @@ Navigate to: **Admin Panel → Charts & Traffic**
 - **Geographic**: Users by country
 - **Top Pages**: Most visited pages with bounce rate
 
+### Data Sources
+| Chart | Without GA4 | With GA4 |
+|-------|-------------|----------|
+| Revenue | Real (from payments) | Real |
+| User Growth | Real (from users) | Real |
+| Traffic | Simulated | Real GA4 data |
+| Traffic Sources | Simulated | Real GA4 data |
+| Top Pages | Simulated | Real GA4 data |
+| Geographic | Simulated | Real GA4 data |
+
 ### Time Periods
 Select 7 days, 30 days, or 90 days for chart data.
 
-### Note
-Traffic data is simulated for demo. Integrate Google Analytics for real data.
+### Live GA4 Badge
+Charts using real Google Analytics data show a green "Live GA4" badge.
       `
     },
     {
