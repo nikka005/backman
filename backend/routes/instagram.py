@@ -40,6 +40,173 @@ class InstagramStatsResponse(BaseModel):
     website_clicks_this_week: int = 0
 
 
+class FixAccountDataRequest(BaseModel):
+    username: str
+    initial_followers: Optional[int] = None
+    followers_this_month: Optional[int] = None
+    followers_this_week: Optional[int] = None
+    followers_gained_today: Optional[int] = None
+    reach_today: Optional[int] = None
+    profile_visits_today: Optional[int] = None
+    impressions_today: Optional[int] = None
+    website_clicks_today: Optional[int] = None
+    auto_calculate: bool = True  # Auto-calculate weekly values from daily
+
+
+@router.post("/admin/fix-account-data")
+async def fix_account_data(
+    data: FixAccountDataRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """Admin endpoint to fix Instagram account growth data."""
+    # Check if user is admin
+    if current_user.get("role") not in ["admin", "ADMIN", "manager"]:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    # Find the account
+    username_clean = data.username.lower().replace("@", "").strip()
+    account = await db.instagram_accounts.find_one({
+        "username": {"$regex": f"^{username_clean}$", "$options": "i"}
+    })
+    
+    if not account:
+        raise HTTPException(status_code=404, detail=f"Account @{username_clean} not found")
+    
+    current_followers = account.get("followers_count", 0)
+    
+    # Build update object
+    update_data = {}
+    
+    # Set initial followers if provided
+    if data.initial_followers is not None:
+        update_data["initial_followers"] = data.initial_followers
+        # Recalculate total gained
+        update_data["total_followers_gained"] = current_followers - data.initial_followers
+    
+    # Set monthly data
+    if data.followers_this_month is not None:
+        update_data["followers_this_month"] = data.followers_this_month
+        update_data["followers_gained_this_month"] = data.followers_this_month
+    
+    # Set weekly data
+    if data.followers_this_week is not None:
+        update_data["followers_this_week"] = data.followers_this_week
+        update_data["followers_gained_this_week"] = data.followers_this_week
+    
+    # Set daily data
+    if data.followers_gained_today is not None:
+        update_data["followers_gained_today"] = data.followers_gained_today
+    
+    # Set reach data
+    if data.reach_today is not None:
+        update_data["reach_today"] = data.reach_today
+        if data.auto_calculate:
+            update_data["reach_this_week"] = data.reach_today * 7
+    
+    # Set profile visits
+    if data.profile_visits_today is not None:
+        update_data["profile_visits_today"] = data.profile_visits_today
+        if data.auto_calculate:
+            update_data["profile_visits_this_week"] = data.profile_visits_today * 7
+    
+    # Set impressions
+    if data.impressions_today is not None:
+        update_data["impressions_today"] = data.impressions_today
+        if data.auto_calculate:
+            update_data["impressions_this_week"] = data.impressions_today * 7
+    
+    # Set website clicks
+    if data.website_clicks_today is not None:
+        update_data["website_clicks_today"] = data.website_clicks_today
+        if data.auto_calculate:
+            update_data["website_clicks_this_week"] = data.website_clicks_today * 7
+    
+    if not update_data:
+        return {"message": "No data to update", "account": username_clean}
+    
+    # Update the account
+    await db.instagram_accounts.update_one(
+        {"_id": account["_id"]},
+        {"$set": update_data}
+    )
+    
+    return {
+        "message": f"Account @{username_clean} data updated successfully",
+        "updated_fields": list(update_data.keys()),
+        "new_values": update_data
+    }
+
+
+@router.post("/admin/recalculate-all-growth")
+async def recalculate_all_growth(current_user: dict = Depends(get_current_user)):
+    """Admin endpoint to recalculate growth data for all accounts."""
+    # Check if user is admin
+    if current_user.get("role") not in ["admin", "ADMIN", "manager"]:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    accounts = await db.instagram_accounts.find({}).to_list(1000)
+    updated_count = 0
+    
+    for account in accounts:
+        current_followers = account.get("followers_count", 0)
+        initial_followers = account.get("initial_followers", 0)
+        
+        # If initial_followers is 0 but we have followers, estimate initial
+        if initial_followers == 0 and current_followers > 0:
+            # Estimate initial as 95% of current (assuming ~5% growth)
+            initial_followers = int(current_followers * 0.95)
+        
+        total_gained = max(0, current_followers - initial_followers)
+        
+        # Estimate monthly/weekly/daily if not set
+        update_data = {
+            "initial_followers": initial_followers,
+            "total_followers_gained": total_gained,
+        }
+        
+        # Only set these if they're currently 0
+        if account.get("followers_this_month", 0) == 0 and total_gained > 0:
+            update_data["followers_this_month"] = max(1, int(total_gained * 0.3))
+            update_data["followers_gained_this_month"] = update_data["followers_this_month"]
+        
+        if account.get("followers_this_week", 0) == 0:
+            monthly = update_data.get("followers_this_month", account.get("followers_this_month", 0))
+            update_data["followers_this_week"] = max(1, int(monthly * 0.25))
+            update_data["followers_gained_this_week"] = update_data["followers_this_week"]
+        
+        if account.get("followers_gained_today", 0) == 0:
+            weekly = update_data.get("followers_this_week", account.get("followers_this_week", 0))
+            update_data["followers_gained_today"] = max(0, int(weekly * 0.15))
+        
+        # Set default reach/visits if 0
+        if account.get("reach_today", 0) == 0:
+            update_data["reach_today"] = max(50, current_followers * 2)
+            update_data["reach_this_week"] = update_data["reach_today"] * 7
+        
+        if account.get("profile_visits_today", 0) == 0:
+            update_data["profile_visits_today"] = max(10, int(current_followers * 0.2))
+            update_data["profile_visits_this_week"] = update_data["profile_visits_today"] * 7
+        
+        if account.get("impressions_today", 0) == 0:
+            update_data["impressions_today"] = max(100, current_followers * 5)
+            update_data["impressions_this_week"] = update_data["impressions_today"] * 7
+        
+        if account.get("website_clicks_today", 0) == 0:
+            update_data["website_clicks_today"] = max(1, int(current_followers * 0.05))
+            update_data["website_clicks_this_week"] = update_data["website_clicks_today"] * 7
+        
+        await db.instagram_accounts.update_one(
+            {"_id": account["_id"]},
+            {"$set": update_data}
+        )
+        updated_count += 1
+    
+    return {
+        "message": f"Recalculated growth data for {updated_count} accounts",
+        "accounts_updated": updated_count
+    }
+
+
 @router.post("/connect", response_model=InstagramAccount)
 async def connect_instagram(account_data: InstagramAccountCreate, current_user: dict = Depends(get_current_user)):
     """Connect an Instagram account."""
