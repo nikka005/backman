@@ -261,8 +261,18 @@ async def get_instagram_stats(current_user: dict = Depends(get_current_user)):
         posts_count=account_doc.get('posts_count', 0),
         engagement_rate=account_doc.get('engagement_rate', 0.0),
         total_followers_gained=account_doc.get('total_followers_gained', 0),
-        followers_this_month=account_doc.get('followers_this_month', 0),
-        growth_percentage=round(growth_percentage, 2)
+        followers_this_month=account_doc.get('followers_this_month', 0) or account_doc.get('followers_gained_this_month', 0),
+        followers_this_week=account_doc.get('followers_this_week', 0) or account_doc.get('followers_gained_this_week', 0),
+        followers_gained_today=account_doc.get('followers_gained_today', 0),
+        growth_percentage=round(growth_percentage, 2),
+        reach_today=account_doc.get('reach_today', 0),
+        reach_this_week=account_doc.get('reach_this_week', 0),
+        profile_visits_today=account_doc.get('profile_visits_today', 0),
+        profile_visits_this_week=account_doc.get('profile_visits_this_week', 0),
+        impressions_today=account_doc.get('impressions_today', 0),
+        impressions_this_week=account_doc.get('impressions_this_week', 0),
+        website_clicks_today=account_doc.get('website_clicks_today', 0),
+        website_clicks_this_week=account_doc.get('website_clicks_this_week', 0)
     )
 
 
