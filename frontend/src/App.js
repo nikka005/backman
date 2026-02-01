@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import './App.css';
 import { AuthProvider } from './context/AuthContext';
 import { SiteSettingsProvider } from './context/SiteSettingsContext';
@@ -31,22 +31,29 @@ import CookiePolicyPage from './pages/CookiePolicyPage';
 import DataDeletionPage from './pages/DataDeletionPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
+import AuthCallback from './pages/AuthCallback';
 
-function App() {
+// AppRouter component to handle OAuth callback detection
+// REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
+function AppRouter() {
+  const location = useLocation();
+  
+  // Check URL fragment for session_id (OAuth callback) - MUST be synchronous
+  if (location.hash?.includes('session_id=')) {
+    return <AuthCallback />;
+  }
+  
   return (
-    <div className="App">
-      <SiteSettingsProvider>
-        <AuthProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/signup" element={<SignupPage />} />
-              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-              <Route path="/reset-password" element={<ResetPasswordPage />} />
-              <Route path="/how-it-works" element={<HowItWorksPage />} />
-              <Route path="/pricing" element={<PricingPage />} />
-              <Route path="/checkout" element={<CheckoutPage />} />
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<SignupPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
+      <Route path="/how-it-works" element={<HowItWorksPage />} />
+      <Route path="/pricing" element={<PricingPage />} />
+      <Route path="/checkout" element={<CheckoutPage />} />
               <Route path="/case-studies" element={<CaseStudiesPage />} />
               <Route path="/faq" element={<FAQPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
