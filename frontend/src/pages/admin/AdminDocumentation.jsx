@@ -314,87 +314,151 @@ URL: /affiliate/dashboard (for users)
     {
       id: 'google-analytics',
       icon: BarChart3,
-      title: 'Google Analytics',
+      title: 'Google Analytics Integration',
       content: `
 ## Google Analytics Integration
 
-Connect GA4 for real website traffic data.
+Connect GA4 for real website traffic data in your admin dashboard.
 
 ### Access
 Navigate to: **Admin Panel → Google Analytics**
 
-### Setup Steps
-1. Go to Google Cloud Console
-2. Enable Google Analytics Data API
-3. Create a Service Account
-4. Download JSON key file
-5. Add service account to GA4 with Viewer role
-6. Upload JSON key in admin panel
+### Current Status
+- ⚠️ **Not Configured**: Traffic data in Charts & Traffic page shows SIMULATED data
+- ✅ **Configured**: Real-time data from your GA4 property
 
-### Data Available
-- Page Views
-- Unique Users
-- Sessions
-- Bounce Rate
-- Traffic Sources
-- Top Pages
-- Geographic Distribution
+### Setup Steps
+1. Go to [Google Cloud Console](https://console.cloud.google.com)
+2. Create a new project or select existing
+3. Enable **Google Analytics Data API**
+4. Go to IAM & Admin → Service Accounts
+5. Create a Service Account (e.g., "adverlyx-ga-reader")
+6. Download JSON key file
+7. Go to your GA4 property → Admin → Property Access Management
+8. Add the service account email with **Viewer** role
+9. Upload JSON key in Adverlyx Admin Panel
+
+### Configuration Fields
+- **GA4 Property ID**: Your property ID (e.g., "properties/123456789")
+- **Property Name**: Friendly name for identification
+- **Service Account JSON**: The downloaded credentials file
+
+### Data Available (When Configured)
+- **Real-time**: Current visitors, page views/hour
+- **Traffic Sources**: Organic, Direct, Social, Referral breakdown
+- **Top Pages**: Most visited pages with bounce rates
+- **Geographic**: Users by country
+- **User Metrics**: Sessions, new users, returning users
+
+### Integration with Charts
+Once configured, the **Charts & Traffic** page will:
+- Show green "Google Analytics Connected" banner
+- Display "Live GA4" badges on charts using real data
+- Remove the yellow "simulated data" warning
 
 ### Requirements
-- GA4 Property (not Universal Analytics)
+- GA4 Property (Universal Analytics not supported)
 - Service Account with Viewer access
 - Google Analytics Data API enabled
+- Valid JSON credentials file
+
+### Troubleshooting
+- **"Invalid credentials"**: Re-download JSON from Google Cloud
+- **"Permission denied"**: Ensure service account has Viewer role in GA4
+- **"API not enabled"**: Enable Analytics Data API in Cloud Console
       `
     },
     {
       id: 'growth-engine',
       icon: Sliders,
-      title: 'Growth Engine',
+      title: 'Growth Engine (Safe Mode)',
       content: `
-## Adverlyx Growth Engine
+## Adverlyx Growth Engine - Safe Mode
 
-100% Custom-built internal Instagram growth automation system.
+100% Custom-built Instagram growth system using a **safe, compliant approach**.
+
+### ⚠️ Important: Safe Approach
+This Growth Engine does NOT automate actions on Instagram. Instead, it:
+1. **Analyzes** your account using Instagram Graph API (read-only)
+2. **Suggests** target accounts using AI
+3. **You engage** manually on Instagram
+
+This approach is 100% safe and compliant with Instagram's Terms of Service.
 
 ### Access
-Navigate to: **Admin Panel → Growth Engine**
-
-### Features
-- Automated follow/unfollow
-- Like and comment automation  
-- Story viewing automation
-- Hashtag targeting
-- Location targeting
-- Competitor audience targeting
-- Account quality analysis
-
-### Engine Settings
-- **Engagement Mode**: Conservative, Balanced, Aggressive
-- **Targeting Accuracy**: Low, Medium, High
-- **Activity Hours**: Set active hours (e.g., 8:00 - 22:00)
-- **Rest Between Actions**: Seconds between each action
-- **Auto-Unfollow Days**: Days before unfollowing non-followers
-- **Max Following Ratio**: Prevent following too many accounts
-
-### Daily Limits (Safety)
-- Follows: 200/day (adjustable)
-- Unfollows: 100/day
-- Likes: 500/day
-- Comments: 50/day
-- Story Views: 300/day
-
-### Campaign Management
-- Start/Pause/Stop campaigns
-- View campaign statistics
-- Monitor daily actions
-- Batch execute growth cycles
+- **Admin**: Admin Panel → Growth Engine
+- **Users**: Dashboard → Growth Engine (requires subscription)
 
 ### How It Works
-1. User connects Instagram account
-2. User sets targeting (hashtags, locations, competitors)
-3. Engine finds target accounts
-4. Analyzes account quality
-5. Executes growth actions
-6. Tracks results and optimizes
+
+#### 1. Analytics (Instagram Graph API)
+- Connect Instagram Business/Creator account via OAuth
+- View follower growth trends
+- Track engagement rates
+- Monitor profile visits and reach
+
+#### 2. AI-Powered Targeting
+- Enter target hashtags, niches, and competitor accounts
+- AI analyzes your criteria
+- Generates smart suggestions for accounts to engage with
+- Prioritizes high-quality targets
+
+#### 3. Manual Engagement
+- Review AI suggestions in the dashboard
+- Go to Instagram and engage manually
+- Like posts, leave genuine comments, follow accounts
+- Log your actions to track effectiveness
+
+### Admin Panel Features
+
+#### Stats Dashboard
+- Active Campaigns: Currently running campaigns
+- Total Campaigns: All campaigns created
+- AI Suggestions: Total suggestions generated
+- Manual Actions: User-logged engagements
+
+#### AI Targeting Configuration
+- **Daily Suggestions**: Number of suggestions per day (default: 50)
+- **Targeting Accuracy**: Low/Medium/High quality filtering
+- **Min Followers**: Minimum follower count (default: 100)
+- **Max Followers**: Maximum follower count (default: 50,000)
+- **Exclude Private**: Skip private accounts
+- **Exclude Business**: Skip business accounts
+
+#### Campaign Management
+- View all user campaigns
+- Monitor campaign status (active/paused)
+- See targeting criteria and stats
+- Batch operations for admin
+
+### User Flow
+
+1. **Create Campaign**: Enter Instagram username and targeting criteria
+2. **Set Targeting**: Add hashtags, niches, locations, competitors
+3. **Get Suggestions**: Click "Get AI Suggestions" button
+4. **Manual Engage**: Review suggestions and engage on Instagram
+5. **Log Actions**: Record follows, likes, comments in the app
+6. **Track Results**: Monitor growth over time
+
+### AI Suggestion Format
+Each suggestion includes:
+- **Account Type**: Category of accounts to target
+- **Search Strategy**: How to find these accounts
+- **Hashtags to Explore**: Relevant hashtags to browse
+- **Engagement Tip**: Best practice for engaging
+- **Priority**: High/Medium/Low importance
+
+### Why Safe Mode?
+- ✅ No risk of Instagram ban
+- ✅ Compliant with Instagram ToS
+- ✅ Builds genuine engagement
+- ✅ Better long-term results
+- ✅ No automation detection risk
+
+### Requirements
+- Active Adverlyx subscription
+- Instagram Business or Creator account (for analytics)
+- Manual engagement on Instagram app
       `
     },
     {
