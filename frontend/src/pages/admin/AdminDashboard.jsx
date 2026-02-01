@@ -8,7 +8,8 @@ import {
   LayoutDashboard, Users, CreditCard, MessageSquare,
   Bell, Settings, LogOut, DollarSign,
   Loader2, RefreshCw, Package, Grid3X3, BarChart3, Megaphone, Sliders,
-  Mail, Shield, Download, Brain, Gift, Share2, Tag, Book, Server, Instagram, FileText, Zap
+  Mail, Shield, Download, Brain, Gift, Share2, Tag, Book, Server, Instagram, FileText, Zap,
+  ChevronDown, ChevronRight, Globe
 } from 'lucide-react';
 import AdminSettings from './AdminSettings';
 import AdminPlans from './AdminPlans';
@@ -45,6 +46,15 @@ const AdminDashboard = () => {
   const location = useLocation();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [expandedGroups, setExpandedGroups] = useState(['analytics', 'billing']);
+
+  const toggleGroup = (groupId) => {
+    setExpandedGroups(prev => 
+      prev.includes(groupId) 
+        ? prev.filter(g => g !== groupId) 
+        : [...prev, groupId]
+    );
+  };
 
   useEffect(() => {
     if (!authLoading) {
@@ -75,36 +85,85 @@ const AdminDashboard = () => {
     navigate('/backman');
   };
 
-  const navItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
-    { icon: Brain, label: 'AI Intelligence', path: '/admin/ai' },
-    { icon: BarChart3, label: 'Analytics', path: '/admin/analytics' },
-    { icon: BarChart3, label: 'Charts & Traffic', path: '/admin/charts' },
-    { icon: BarChart3, label: 'Google Analytics', path: '/admin/google-analytics' },
-    { icon: Zap, label: 'Growth Engine', path: '/admin/growth-engine' },
-    { icon: Megaphone, label: 'Promotions', path: '/admin/promotions' },
-    { icon: Gift, label: 'Partner Programs', path: '/admin/programs' },
-    { icon: Users, label: 'Users', path: '/admin/users' },
-    { icon: Package, label: 'Plans', path: '/admin/plans' },
-    { icon: Grid3X3, label: 'Feature Matrix', path: '/admin/feature-matrix' },
-    { icon: Sliders, label: 'Feature Manager', path: '/admin/features' },
-    { icon: CreditCard, label: 'Subscriptions', path: '/admin/subscriptions' },
-    { icon: DollarSign, label: 'Payments', path: '/admin/payments' },
-    { icon: DollarSign, label: 'Refunds', path: '/admin/refunds' },
-    { icon: RefreshCw, label: 'Renewals', path: '/admin/renewals' },
-    { icon: Tag, label: 'Coupons', path: '/admin/coupons' },
-    { icon: Instagram, label: 'Instagram Accounts', path: '/admin/instagram' },
-    { icon: MessageSquare, label: 'Support Tickets', path: '/admin/tickets' },
-    { icon: Bell, label: 'Notifications', path: '/admin/notifications' },
-    { icon: Mail, label: 'Email Templates', path: '/admin/email-templates' },
-    { icon: Server, label: 'Email Server', path: '/admin/email-settings' },
-    { icon: Shield, label: 'Rate Limits', path: '/admin/rate-limits' },
-    { icon: Download, label: 'Data Export', path: '/admin/export' },
-    { icon: FileText, label: 'Weekly Reports', path: '/admin/weekly-reports' },
-    { icon: Share2, label: 'Social Links', path: '/admin/social-links' },
-    { icon: Settings, label: 'Languages', path: '/admin/languages' },
-    { icon: Settings, label: 'Settings', path: '/admin/settings' },
-    { icon: Book, label: 'Documentation', path: '/admin/docs' },
+  // Organized menu structure with groups
+  const menuGroups = [
+    {
+      id: 'main',
+      label: null, // No header for main items
+      items: [
+        { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
+        { icon: Brain, label: 'AI Intelligence', path: '/admin/ai' },
+      ]
+    },
+    {
+      id: 'analytics',
+      label: 'Analytics & Growth',
+      icon: BarChart3,
+      items: [
+        { icon: BarChart3, label: 'Charts & Traffic', path: '/admin/charts' },
+        { icon: BarChart3, label: 'Analytics', path: '/admin/analytics' },
+        { icon: Globe, label: 'Google Analytics', path: '/admin/google-analytics' },
+        { icon: Zap, label: 'Growth Engine', path: '/admin/growth-engine' },
+        { icon: FileText, label: 'Weekly Reports', path: '/admin/weekly-reports' },
+      ]
+    },
+    {
+      id: 'billing',
+      label: 'Billing & Payments',
+      icon: DollarSign,
+      items: [
+        { icon: CreditCard, label: 'Subscriptions', path: '/admin/subscriptions' },
+        { icon: DollarSign, label: 'Payments', path: '/admin/payments' },
+        { icon: RefreshCw, label: 'Renewals', path: '/admin/renewals' },
+        { icon: DollarSign, label: 'Refunds', path: '/admin/refunds' },
+        { icon: Tag, label: 'Coupons', path: '/admin/coupons' },
+      ]
+    },
+    {
+      id: 'users',
+      label: 'Users & Accounts',
+      icon: Users,
+      items: [
+        { icon: Users, label: 'Users', path: '/admin/users' },
+        { icon: Instagram, label: 'Instagram Accounts', path: '/admin/instagram' },
+        { icon: MessageSquare, label: 'Support Tickets', path: '/admin/tickets' },
+      ]
+    },
+    {
+      id: 'marketing',
+      label: 'Marketing',
+      icon: Megaphone,
+      items: [
+        { icon: Megaphone, label: 'Promotions', path: '/admin/promotions' },
+        { icon: Gift, label: 'Partner Programs', path: '/admin/programs' },
+        { icon: Bell, label: 'Notifications', path: '/admin/notifications' },
+      ]
+    },
+    {
+      id: 'config',
+      label: 'Configuration',
+      icon: Settings,
+      items: [
+        { icon: Package, label: 'Plans', path: '/admin/plans' },
+        { icon: Grid3X3, label: 'Feature Matrix', path: '/admin/feature-matrix' },
+        { icon: Sliders, label: 'Feature Manager', path: '/admin/features' },
+        { icon: Mail, label: 'Email Templates', path: '/admin/email-templates' },
+        { icon: Server, label: 'Email Server', path: '/admin/email-settings' },
+        { icon: Share2, label: 'Social Links', path: '/admin/social-links' },
+        { icon: Globe, label: 'Languages', path: '/admin/languages' },
+      ]
+    },
+    {
+      id: 'system',
+      label: 'System',
+      icon: Shield,
+      items: [
+        { icon: Shield, label: 'Rate Limits', path: '/admin/rate-limits' },
+        { icon: Download, label: 'Data Export', path: '/admin/export' },
+        { icon: Settings, label: 'Settings', path: '/admin/settings' },
+        { icon: Book, label: 'Documentation', path: '/admin/docs' },
+      ]
+    },
   ];
 
   if (authLoading || loading) {
