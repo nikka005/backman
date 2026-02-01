@@ -156,7 +156,7 @@ const PricingSection = () => {
         {/* Pricing Cards */}
         <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {plans.map((plan) => {
-            const isPro = plan.slug === 'pro' || plan.name?.toLowerCase() === 'pro' || plan.popular;
+            const isPro = plan.is_popular || plan.slug === 'pro' || plan.name?.toLowerCase() === 'pro' || plan.popular;
             const monthlyPrice = plan.monthly_price || plan.monthlyPrice || 49;
             const yearlyPrice = plan.yearly_price || plan.yearlyPrice || 29;
             const features = getFeatures(plan);
