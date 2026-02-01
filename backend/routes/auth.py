@@ -541,10 +541,14 @@ async def google_oauth_callback(auth_request: GoogleAuthRequest):
     client_id, client_secret = await get_google_credentials()
     
     if not client_id or not client_secret:
+        logger.error("Google OAuth: Missing client_id or client_secret in database")
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Google login not configured"
         )
+    
+    logger.info(f"Google OAuth: Starting code exchange. Redirect URI: {auth_request.redirect_uri}")
+    logger.info(f"Google OAuth: Client ID starts with: {client_id[:20]}...")
     
     try:
         # Exchange code for tokens
@@ -561,10 +565,13 @@ async def google_oauth_callback(auth_request: GoogleAuthRequest):
             )
             
             if token_response.status_code != 200:
-                logger.error(f"Google token error: {token_response.text}")
+                error_data = token_response.json() if token_response.text else {}
+                error_msg = error_data.get("error_description", error_data.get("error", "Unknown error"))
+                logger.error(f"Google token exchange failed: {token_response.status_code} - {error_msg}")
+                logger.error(f"Google token error details: {token_response.text}")
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Failed to exchange authorization code"
+                    detail=f"Failed to exchange authorization code: {error_msg}"
                 )
             
             tokens = token_response.json()
