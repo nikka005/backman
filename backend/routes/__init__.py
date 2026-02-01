@@ -75,6 +75,8 @@ def init_all_routes(database):
     init_invoices(database)
     init_i18n(database)
     init_admin_charts(database)
+    init_google_analytics(database)
+    init_growth_engine(database)
     # Initialize email service with database
     init_email_db(database)
 
@@ -114,5 +116,7 @@ all_routers = [
     refund_router,
     invoices_router,
     i18n_router,
-    admin_charts_router
+    admin_charts_router,
+    google_analytics_router,
+    growth_engine_router
 ]
