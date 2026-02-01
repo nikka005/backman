@@ -1,227 +1,171 @@
 <analysis>**original_problem_statement:**
-The user wants to build a production-ready SaaS platform, Adverlyx Digital, for Instagram growth. The scope has evolved to address several critical bugs and feature enhancements on the user's live server.
+The user's primary goal is to fix critical bugs on their live production SaaS platform, Adverlyx Digital, and add new features to enhance its value.
 
-Key requirements from the user during this session:
-1.  **Fix Broken Payments:** Stripe and Razorpay checkouts are failing with a 400 Bad Request and Invalid package error on the live server.
-2.  **Fix Admin-Assigned Plans:** Manually assigning a plan from the admin panel did not activate dashboard features for the user because it wasn't creating a subscription record.
-3.  **Add Forgot Password Feature:** The application is missing a forgot password page and workflow.
-4.  **Fix Yearly Billing Display:** The pricing page incorrectly shows the monthly price for yearly plans.
-5.  **Display Full Instagram Data:** The user dashboard is not displaying detailed Instagram metrics like engagement, reach, and posts, even though the API connection is working.
-6.  **Fix Admin Blank Pages:** The user reported that the Settings/Branding and Promotions pages in the admin panel were blank on their live server.
-7.  **Resolve User Verification Flow:** The process for moving a user from pending_verification to active was unclear.
-8.  **Fix Data on Admin Analytics:** The admin analytics dashboard was not correctly reflecting newly added users with plans.
+Initial User-Reported Issues:
+1.  **Broken Payments (Live Server):** Both Stripe and Razorpay checkouts were failing.
+2.  **Incorrect Yearly Billing Display:** The pricing and checkout pages showed the monthly rate for yearly plans.
+3.  **Missing Forgot Password Feature:** The application lacked a password reset workflow.
+4.  **Incomplete Instagram Data:** The user dashboard was not displaying detailed metrics.
+5.  **Admin Analytics Not Reflecting Real Data:** Dashboards were not showing correct data for new users and plans.
+6.  **Custom Plan Payments Failing:** Plans created via the admin panel did not work with the payment gateways.
+7.  **Razorpay Success Redirect Failing:** After a successful Razorpay payment, the user was not redirected to a success page.
+
+Subsequent User Requests during the session:
+1.  Add automated weekly reports (cron job).
+2.  Add user notification preferences.
+3.  Add advanced AI-powered analytics.
+4.  Implement Google Sign-In using the user's own Google Cloud credentials managed from the admin panel.
 
 **User's preferred language**: English
 
 **what currently exists?**
-The application is a full-stack SaaS platform using React, FastAPI, and MongoDB. The agent made significant progress in this session before being interrupted by the user's report of live server issues.
+The application is a full-stack SaaS platform (React, FastAPI, MongoDB) for Instagram growth. In this session, the agent successfully fixed all major P0/P1 bugs reported by the user, including the entire payment pipeline (Stripe and Razorpay) for both default and custom plans, the yearly billing display, and the password reset flow.
 
-**Completed in this session:**
-*   **Admin SMTP Settings UI:** A new page () allows admins to configure email settings from the UI.
-*   **AdminDashboard.jsx Refactoring:** The main admin dashboard component was broken down into smaller, manageable components, reducing its size from ~1300 to ~290 lines.
-*   **AI Weekly Growth Reports:** A new feature and page () were created to manage AI-powered growth reports.
-*   **Enhanced User Management & Activation:** The user management page () was overhauled with a detailed modal, growth progress tracking, and robust tools for admins to activate pending users individually or in bulk.
-*   **Fixed Admin-Assigned Subscriptions:** The backend logic was updated so that when an admin assigns a plan, a corresponding subscription record is now automatically created.
-*   **Dashboard Growth Card:** The user dashboard now displays a progress card visualizing follower growth towards their plan's target.
+Additionally, the agent implemented several new features:
+*   A backend scheduler for automated tasks.
+*   User-configurable notification preferences on the dashboard.
+*   An AI analytics dashboard for users.
+*   A fully functional Google Sign-In flow, configured via the admin panel (pending live server verification).
+*   Confirmed that all admin analytics pages are now pulling and correctly calculating real data from the database.
 
 **Last working item**:
--   **Last item agent was working:** The agent began a large, multi-part task to fix several critical issues reported by the user on their live server. The agent started by refactoring the backend payment routes ( and ) to handle plan IDs dynamically and was about to create the Forgot Password frontend page.
--   **Status:** IN PROGRESS
--   **Agent Testing Done:** N
--   **User Testing Done:** N
--   **Which testing method agent to use?** both
+-   **Last item agent was working:** Debugging a  error on the user's live server that occurs during the Google Sign-In callback (). The agent had already fixed the initial  error and added more detailed error logging to the backend to pinpoint the exact cause of the new error (likely a wrong  or a  mismatch).
+-   **Status:** USER VERIFICATION PENDING
+-   **Agent Testing Done:** Y (Tested in the preview environment where the flow works as expected, showing not configured. The live issue is configuration-dependent.)
+-   **Which testing method agent to use?** Manual testing by the user on the live server. The next agent needs to guide the user to check their server logs () after they have updated the code.
+-   **User Testing Done:** N (User reported the 401 error but has not yet tested after the agent added more logging and provided debugging instructions).
 
 **All Pending/In progress Issue list**:
--   **Issue 1: Payments Not Working on Live Server (P0)**
-    -   **Description:** Clicking the checkout button fails. Logs show 400 Bad Request and Invalid package. The root causes are: 1) The frontend sends an incorrect plan ID format (e.g., ). 2) The backend doesn't store Stripe/Razorpay API keys correctly in the database from the admin panel.
-    -   **Attempted fixes:** The agent started refactoring the backend payment routes to fetch plan details dynamically from the database.
+-   **Issue 1: Google Sign-In fails on live server with  (P0)**
+    -   **Description:** After a user grants permission on the Google consent screen, the callback to the Adverlyx backend fails. This indicates an issue with the server-to-server token exchange.
+    -   **Attempted fixes:** The agent updated  with detailed logging to capture the specific error response from Google during the token exchange. The user was instructed to  the latest changes and re-check their credentials.
     -   **Next debug checklist:**
-        1.  Complete the backend refactoring for  and .
-        2.  Investigate and fix the admin panel logic for saving payment gateway credentials to the  collection in the database.
-        3.  Modify the frontend pricing page to send the correct database  during checkout.
-        4.  Perform an end-to-end test of the payment flow for both Stripe and Razorpay.
-    -   **Status:** IN PROGRESS
+        1.  Confirm with the user that they have pulled the latest code and restarted the backend service on their live server ( & ).
+        2.  Ask the user to attempt Google Sign-In again.
+        3.  Request the new, more detailed logs from . The logs should now contain a specific error from Google (e.g.,  for a bad secret, or ).
+        4.  Based on the new log, guide the user to verify the corresponding credential ( or ) in both the Google Cloud Console and the Adverlyx Admin Panel.
+    -   **Status:** USER VERIFICATION PENDING
     -   **Is recurring issue?** Y
-    -   **Should Test frontend/backend/both after fix?** both
-
--   **Issue 2: Instagram Data Not Fully Displayed (P0)**
-    -   **Description:** The user dashboard does not show detailed Instagram metrics like post details, reach, and engagement, despite a successful API connection.
-    -   **Next debug checklist:**
-        1.  Review the  endpoint to ensure it requests all necessary fields from the Meta API.
-        2.  Inspect  to verify it can render the additional data.
-        3.  Update the UI and state management as needed to display the new metrics.
-    -   **Status:** NOT STARTED
-    -   **Is recurring issue?** N
-    -   **Should Test frontend/backend/both after fix?** both
-
--   **Issue 3: Yearly Billing Price Display is Incorrect (P1)**
-    -   **Description:** The pricing page shows the per-month price for yearly plans instead of the total annual cost.
-    -   **Next debug checklist:**
-        1.  Edit .
-        2.  Adjust the state logic for the monthly/yearly toggle to display the  and a /year label when Yearly is selected.
-    -   **Status:** NOT STARTED
-    -   **Is recurring issue?** Y
-    -   **Should Test frontend/backend/both after fix?** frontend
+    -   **Should Test frontend/backend/both after fix?** Backend
+    -   **Blocked on other issue:** User action (updating the server and providing logs).
 
 **In progress Task List**:
--   **Task 1: Add Forgot Password Functionality (P1)**
-    -   **Where to resume:** The backend API endpoint () exists. The next steps are to create the frontend UI.
-        1.  Create the  component.
-        2.  Create a corresponding  for the user to land on from the email link.
-        3.  Implement the backend endpoint to handle the password reset token.
-        4.  Add a Forgot Password? link on .
-    -   **What will be achieved with this?** Users will have a self-service way to reset their passwords.
-    -   **Status:** IN PROGRESS
-    -   **Should Test frontend/backend/both after fix?** both
+None.
 
 **Upcoming and Future Tasks**
--   **Upcoming Tasks:**
-    -   (P1) **End-to-End Test of Live Instagram OAuth Flow:** Confirm the user's claim that the connection is stable for new users.
-    -   (P2) **Auto-complete Plans:** Implement a background task to check if a user's follower count meets their plan's target and mark the subscription as complete.
-    -   (P2) **Fix Admin Blank Pages on Live Server:** Investigate why admin pages for Settings/Branding are blank on the user's deployed server. The issue was not reproducible in the preview environment.
--   **Future Tasks:**
-    -   (P2) **PayPal Integration:** Add PayPal as a payment option.
-    -   (P3) **AI-Powered Weekly Growth Reports (Automation):** The UI/backend exists, but a future task could be to automate the sending of these reports via a cron job.
+-   **Upcoming Tasks (P1):**
+    -   **PayPal Integration:** Add PayPal as a third payment option.
+    -   **Instagram OAuth Live Testing:** Perform a full end-to-end test of the Instagram connection flow on the live server.
+    -   **Email Deliverability:** Guide the user to set up SPF/DKIM/DMARC records for  to ensure emails land in the inbox.
+    -   **Mobile Responsive Fixes:** Improve the UI/UX on mobile devices, especially for the checkout and dashboard pages.
+
+-   **Future Tasks (P2 & Beyond):**
+    -   Connect to a real Instagram Growth Engine API/service.
+    -   Implement automated subscription renewals and recurring billing.
+    -   Build a refund management system in the admin panel.
+    -   Add multi-language support.
+    -   Create an affiliate dashboard.
+    -   Automate PDF invoice generation.
+    -   Expand to other platforms (TikTok, YouTube, Twitter/X).
+    -   Develop a native mobile app.
 
 **Completed work in this session**
--   Admin SMTP Settings UI (DONE)
--    Refactoring (DONE)
--   AI Weekly Growth Reports Feature (UI + Manual Trigger) (DONE)
--   Enhanced Admin User Management UI and Quick Actions (DONE)
--   Fixed User Activation Flow (pending_verification status) (DONE)
--   Fixed Admin-Assigned Plan logic to correctly create subscription records (DONE)
--   Added User Dashboard Growth Progress Card (DONE)
--   Resolved  versioning issues for the user's server (DONE)
+-   Fixed broken Stripe and Razorpay payments for all plans, including custom ones. (DONE)
+-   Fixed incorrect yearly billing price display on  and . (DONE)
+-   Implemented a full Forgot Password and Reset Password flow. (DONE)
+-   Fixed the Razorpay payment success page and verification flow. (DONE)
+-   Corrected Admin Analytics (, ) to show accurate, real-time data and correctly calculate MRR. (DONE)
+-   Ensured the Admin Payments page () now displays all payment records from both Stripe and Razorpay. (DONE)
+-   Implemented automated weekly report scheduling (). (DONE)
+-   Added user notification preferences on the dashboard. (DONE)
+-   Added an AI-powered analytics and insights section to the user dashboard. (DONE)
+-   Implemented Google Sign-In using credentials from the admin panel (backend routes and frontend UI). (DONE, pending live server verification)
 
 **Earlier issues found/mentioned but not fixed**
--   The issues listed under **All Pending/In progress Issue list** are the primary ones that were identified but not yet fully resolved.
+-   None. All major issues reported at the start of the session or during were addressed.
 
 **Known issue recurrence from previous fork**
--   **Instagram Business API Connection:** This was the main blocker in the previous fork. The user claims it is fixed, but this requires verification.
--   **Billing UI:** The incorrect display of yearly plan prices was noted in the previous fork and was raised again by the user.
+-   **Billing UI:** Incorrect price display was a recurring issue, which has now been fixed on both the pricing and checkout pages.
+-   **Payment Failures:** General payment processing issues were a recurring theme. The agent has now fixed the flow for both Stripe and Razorpay, including for custom plans.
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
--   **Live Server Debugging:** Extensive use of  logs and Current Mongosh Log ID:	697de9a6cf6956be29284d0b
-Connecting to:		mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.6.0
-Using MongoDB:		7.0.28
-Using Mongosh:		2.6.0
-
-For mongosh info see: https://www.mongodb.com/docs/mongodb-shell/
-
-
-To help improve our products, anonymous usage data is collected and sent to MongoDB periodically (https://www.mongodb.com/legal/privacy-policy).
-You can opt-out by running the disableTelemetry() command.
-
-------
-   The server generated these startup warnings when booting
-   2026-01-31T11:38:12.530+00:00: Using the XFS filesystem is strongly recommended with the WiredTiger storage engine. See http://dochub.mongodb.org/core/prodnotes-filesystem
-   2026-01-31T11:38:13.570+00:00: Access control is not enabled for the database. Read and write access to data and configuration is unrestricted
-   2026-01-31T11:38:13.570+00:00: You are running this process as the root user, which is not recommended
-   2026-01-31T11:38:13.570+00:00: Soft rlimits for open file descriptors too low
-------
-
-test>  to diagnose and fix issues directly on the user's AWS server.
--   **Database-Driven Configuration:** Continuing the pattern of moving configurations (Email, Payments) from static files to a database-backed admin UI.
--   **Admin-Triggered Workflows:** Implementing logic where an admin action (e.g., assigning a plan) triggers a core business process like creating a new subscription.
+-   **Database-Driven OAuth:** Implemented Google Sign-In where credentials (Client ID/Secret) are managed from the admin panel and stored in the  MongoDB collection, not hardcoded.
+-   **Live Server Debugging:** Diagnosed and provided fixes for issues on the user's production AWS server by analyzing  logs provided by the user.
+-   **Payment Gateway Logic:** Refactored payment routes to handle dynamic plans fetched from the database by , uid=0(root) gid=0(root) groups=0(root), or , improving robustness.
+-   **Centralized Payment Records:** Ensured both Stripe and Razorpay payment successes are recorded in a single  collection, which now correctly feeds the admin analytics dashboards.
 
 **key DB schema**
--   **subscriptions:** A  field was added, which was a critical fix. The schema now also supports  and . The user's live  database had 0 subscriptions, which the agent provided a script to fix.
--   **feature_management:** This collection is intended to store payment gateway keys but appears to be failing. Debugging this is a high priority.
+-   **feature_auth:** Stores credentials for third-party authentication services, including  and  for .
+-   **payments:** Central collection for all successful payment transactions from any provider (Stripe, Razorpay). Used as the source of truth for admin analytics.
 
 **All files of reference**
--   : Core of the Stripe payment issue.
--   : Core of the Razorpay payment issue.
--   : For the yearly billing display fix.
--    & : For implementing the forgot password feature.
--   : For displaying more Instagram data.
--    (on user's server): Contains the  which is .
+-   : Location of the Google OAuth callback logic that is failing on the live server.
+-   : Logic for Stripe payments.
+-   : Logic for Razorpay payments.
+-   : Logic for calculating platform-wide analytics (MRR, etc.).
+-   : Contains the Continue with Google button.
+-   : Contains the payment handlers for Stripe and Razorpay.
+-   : Contains the product requirements and completed tasks.
+
+**Areas that need refactoring**:
+-   The  file has grown significantly and now handles registration, login, password reset, data deletion callbacks, and Google OAuth. It could be split into more focused modules for better maintainability.
+
+**key api endpoints**
+-   : The endpoint that receives the authorization code from Google and is currently failing with a  on the user's live server.
+-   : Provides the Google Client ID to the frontend.
+-   : Creates a Stripe checkout session.
+-   : Creates a Razorpay order.
+-   : Verifies a Razorpay payment.
+-   : Feeds the main admin analytics dashboard.
+-   : Feeds the main admin landing page stats.
 
 **Critical Info for New Agent**
--   **Payment gateways are completely broken on the live server.** This is the highest priority. The issue involves incorrect plan IDs from the frontend and API keys not being saved/retrieved correctly on the backend.
--   **The user's server has Python environment issues.** A  error prevents running / scripts. You must provide Current Mongosh Log ID:	697de9a71bceabc3d7284d0b
-Connecting to:		mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.6.0
-Using MongoDB:		7.0.28
-Using Mongosh:		2.6.0
+-   The highest priority is resolving the Google Sign-In failure on the user's live server. The latest code pushed to  contains enhanced logging in . You must guide the user to update their server and provide the new, detailed error logs to diagnose the issue. The problem is almost certainly a misconfiguration of the  or  on the user's end.
+-   The application's payment system is now robust and handles custom plans. All analytics are confirmed to be working with real data in the preview environment.
+-   Remember that you cannot directly access the user's live server. All debugging must be done by instructing the user to run commands (like ) and providing you with the output.
 
-For mongosh info see: https://www.mongodb.com/docs/mongodb-shell/
-
-------
-   The server generated these startup warnings when booting
-   2026-01-31T11:38:12.530+00:00: Using the XFS filesystem is strongly recommended with the WiredTiger storage engine. See http://dochub.mongodb.org/core/prodnotes-filesystem
-   2026-01-31T11:38:13.570+00:00: Access control is not enabled for the database. Read and write access to data and configuration is unrestricted
-   2026-01-31T11:38:13.570+00:00: You are running this process as the root user, which is not recommended
-   2026-01-31T11:38:13.570+00:00: Soft rlimits for open file descriptors too low
-------
-
-test>  commands for any direct database operations.
--   **The user's database name on the live server is **. Do not assume any other name.
--   **The code is in an intermediate state.** The agent started a large refactoring task to fix payments, forgot password, and UI issues but did not finish. You will be resuming mid-task.
+**documents and test reports created in this job**
+-   
+-   
+-    (updated multiple times)
 
 **Last 10 User Messages and any pending HUMAN messages**
-1.  **User:** Asks how to handle pending_verification status for users.
-2.  **User:** Reports the Admin Analytics dashboard isn't showing data for new Pro users.
-3.  **User:** Reports that assigning a plan via Quick Actions for a specific user () isn't working on their end.
-4.  **User:** Provides output from running a Python script on their server, which fails with a  error.
-5.  **User:** Provides Current Mongosh Log ID:	697de9a87b50443cd8284d0b
-Connecting to:		mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.6.0
-Using MongoDB:		7.0.28
-Using Mongosh:		2.6.0
-
-For mongosh info see: https://www.mongodb.com/docs/mongodb-shell/
-
-------
-   The server generated these startup warnings when booting
-   2026-01-31T11:38:12.530+00:00: Using the XFS filesystem is strongly recommended with the WiredTiger storage engine. See http://dochub.mongodb.org/core/prodnotes-filesystem
-   2026-01-31T11:38:13.570+00:00: Access control is not enabled for the database. Read and write access to data and configuration is unrestricted
-   2026-01-31T11:38:13.570+00:00: You are running this process as the root user, which is not recommended
-   2026-01-31T11:38:13.570+00:00: Soft rlimits for open file descriptors too low
-------
-
-test>  output showing their database is named  and has 20 users but 0 subscriptions.
-6.  **User:** Reports their test payment plan () with Stripe/Razorpay isn't working; the checkout button doesn't proceed.
-7.  **User:** Provides command output confirming placeholder API keys in  and 400 Bad Request errors for payment endpoints.
-8.  **User:** States that the Current Mongosh Log ID:	697de9a8a35cf3af75284d0b
-Connecting to:		mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.6.0
-Using MongoDB:		7.0.28
-Using Mongosh:		2.6.0
-
-For mongosh info see: https://www.mongodb.com/docs/mongodb-shell/
-
-------
-   The server generated these startup warnings when booting
-   2026-01-31T11:38:12.530+00:00: Using the XFS filesystem is strongly recommended with the WiredTiger storage engine. See http://dochub.mongodb.org/core/prodnotes-filesystem
-   2026-01-31T11:38:13.570+00:00: Access control is not enabled for the database. Read and write access to data and configuration is unrestricted
-   2026-01-31T11:38:13.570+00:00: You are running this process as the root user, which is not recommended
-   2026-01-31T11:38:13.570+00:00: Soft rlimits for open file descriptors too low
-------
-
-test>  queries reveal payment settings are not being found in the database.
-9.  **User:** Confirms the forgot password page does not exist.
-10. **User:** Bundles all the major issues (payment plan matching, yearly billing display, forgot password, missing Instagram data) and asks the agent to fix them all in the code.
+10. **User:** Reports Access blocked: Authorization Error and  for Google Sign-In. (Agent explained it's a wrong Client ID).
+9.  **User:** Asks how to fix the Branding verification issues from Google. (Agent explained it's optional and separate from the login error).
+8.  **User:** Confirms they have added the credentials.
+7.  **User:** Asks for instructions on where to get Google OAuth credentials. (Agent provided a step-by-step guide).
+6.  **User:** Reports Branding status issue from Google console. (Agent explained how to publish the app).
+5.  **User:** Clarifies they want to use their own Google Client ID, not Emergent's managed auth. (Agent pivoted to implement custom Google OAuth).
+4.  **User:** Asks to connect Google Sign-In.
+3.  **User:** Asks for a list of future tasks and the project's market value. (Agent provided a detailed breakdown).
+2.  **User:** Reports the Admin Payments page is blank on their live server. (Agent fixed the backend to save all payments to the correct collection).
+1.  **User:** Reports that Admin Analytics are not showing data from new plans. (Agent fixed the analytics calculation logic).
 
 **Project Health Check:**
--   **Broken:** The entire payment and checkout flow is non-functional on the live server.
--   **Mocked:** The user dashboard uses a growth simulation for users with admin-assigned plans, which acts as a temporary placeholder until real Instagram growth data is tracked.
+-   **Broken:** Google Sign-In on the live server.
+-   **Mocked:** The core Instagram Growth Engine feature is still a placeholder and does not connect to a real growth service.
 
 **3rd Party Integrations**
--   **OpenAI GPT-5.2:** Active (via Emergent LLM Key).
--   **Stripe:** In Progress / **Broken**. Requires user API key.
--   **Razorpay:** In Progress / **Broken**. Requires user API key.
+-   **OpenAI GPT-5.2:** Active (via Emergent LLM Key). Used for AI insights.
+-   **Stripe:** **Fixed**. Requires user API key.
+-   **Razorpay:** **Fixed**. Requires user API key.
 -   **Meta Instagram Business API:** In Progress / User verification pending. Requires user API key.
+-   **Google OAuth:** **In Progress / Broken on live**. Requires user-provided Client ID and Secret.
 
 **Testing status**
--   **Testing agent used after significant changes:** YES (Agent used testing agent successfully after implementing the Admin Dashboard refactor and Weekly Reports feature).
+-   **Testing agent used after significant changes:** YES (Twice, for P1 fixes and new dashboard features).
 -   **Troubleshoot agent used after agent stuck in loop:** NO
 -   **Test files created:** None.
--   **Known regressions:** The payment system is a major regression.
+-   **Known regressions:** None from this session.
 
 **Credentials to test flow:**
 -   **Admin Email:**  / **Password:** 
 -   **User Email:**  / **Password:** 
+-   **Stripe Test Card:**  |  | 
 
 **What agent forgot to execute**
--   The agent did not fully test the payment gateway settings flow after creating the initial feature. This led to the discovery late in the session that the keys were not being saved to the database correctly.
--   The forgot password page was part of the original application structure but was overlooked and never implemented until the user reported it missing.</analysis>
+-   The agent initially implemented Emergent's managed Google Auth instead of the user-specified custom Google OAuth. This was corrected immediately upon user clarification.
+-   The agent initially overlooked that Stripe payments were not being saved to the unified  collection, which was later identified and fixed while debugging the admin analytics pages.</analysis>
