@@ -80,6 +80,8 @@ const AdminDashboard = () => {
     { icon: Brain, label: 'AI Intelligence', path: '/admin/ai' },
     { icon: BarChart3, label: 'Analytics', path: '/admin/analytics' },
     { icon: BarChart3, label: 'Charts & Traffic', path: '/admin/charts' },
+    { icon: BarChart3, label: 'Google Analytics', path: '/admin/google-analytics' },
+    { icon: Zap, label: 'Growth Engine', path: '/admin/growth-engine' },
     { icon: Megaphone, label: 'Promotions', path: '/admin/promotions' },
     { icon: Gift, label: 'Partner Programs', path: '/admin/programs' },
     { icon: Users, label: 'Users', path: '/admin/users' },
