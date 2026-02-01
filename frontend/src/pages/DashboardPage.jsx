@@ -1616,7 +1616,7 @@ const DashboardPage = () => {
                       <p className="text-sm text-gray-500">Followers gained this week</p>
                     </div>
                     {instagramAccount ? (
-                      <Badge className="bg-green-100 text-green-700">+{displayStats.followersGrowth || 0} this week</Badge>
+                      <Badge className="bg-green-100 text-green-700">+{displayStats.followers_this_week || 0} this week</Badge>
                     ) : (
                       <Badge className="bg-gray-100 text-gray-500">No data</Badge>
                     )}
