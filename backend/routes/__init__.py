@@ -68,6 +68,11 @@ def init_all_routes(database):
     init_scheduler(database)
     init_notification_preferences(database)
     init_ai_analytics(database)
+    init_renewals(database)
+    init_refunds(database)
+    init_invoices(database)
+    init_i18n(database)
+    init_admin_charts(database)
     # Initialize email service with database
     init_email_db(database)
 
