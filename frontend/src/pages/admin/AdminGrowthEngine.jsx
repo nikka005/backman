@@ -4,9 +4,9 @@ import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Input } from '../../components/ui/input';
 import {
-  Zap, RefreshCw, Loader2, Settings, Play, Pause, Users, Heart,
-  UserPlus, UserMinus, MessageCircle, Eye, TrendingUp, Save, Clock,
-  Target, Sliders, Activity
+  Zap, RefreshCw, Loader2, Settings, Users, Target, TrendingUp,
+  Save, Lightbulb, CheckCircle, Hash, MapPin, UserCheck, Eye,
+  Heart, MessageCircle, UserPlus, BarChart3, Shield
 } from 'lucide-react';
 
 const AdminGrowthEngine = () => {
@@ -54,35 +54,6 @@ const AdminGrowthEngine = () => {
     }
   };
 
-  const handlePauseCampaign = async (campaignId) => {
-    try {
-      await growthEngineAPI.pauseCampaign(campaignId);
-      loadData();
-    } catch (error) {
-      alert('Failed to pause campaign');
-    }
-  };
-
-  const handleResumeCampaign = async (campaignId) => {
-    try {
-      await growthEngineAPI.resumeCampaign(campaignId);
-      loadData();
-    } catch (error) {
-      alert('Failed to resume campaign');
-    }
-  };
-
-  const handleExecuteBatch = async () => {
-    if (!confirm('Execute growth actions for all active campaigns?')) return;
-    try {
-      const result = await growthEngineAPI.executeBatch();
-      alert(`Executed ${result.data.actions_count} actions!`);
-      loadData();
-    } catch (error) {
-      alert('Failed to execute batch');
-    }
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -96,7 +67,7 @@ const AdminGrowthEngine = () => {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Growth Engine</h1>
-          <p className="text-gray-500">Adverlyx Internal Instagram Growth System</p>
+          <p className="text-gray-500">AI Targeting + Manual Actions (Safe Mode)</p>
         </div>
         <div className="flex gap-3">
           <Button onClick={() => { setEditConfig({...config}); setShowSettings(true); }} variant="outline" className="gap-2">
@@ -110,79 +81,61 @@ const AdminGrowthEngine = () => {
         </div>
       </div>
 
-      {/* Status Banner */}
-      <div className={`rounded-xl p-6 mb-8 ${config?.is_active ? 'bg-gradient-to-r from-green-500 to-emerald-600' : 'bg-gray-500'} text-white`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Zap className="w-8 h-8" />
-            <div>
-              <h3 className="font-semibold text-lg">
-                Adverlyx Growth Engine {config?.is_active ? 'Active' : 'Inactive'}
-              </h3>
-              <p className="text-white/80">
-                Mode: {config?.engagement_mode || 'balanced'} | 
-                Targeting: {config?.targeting_accuracy || 'high'} | 
-                Hours: {config?.activity_hours_start || 8}:00 - {config?.activity_hours_end || 22}:00
-              </p>
+      {/* How It Works Banner */}
+      <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl p-6 mb-8 text-white">
+        <div className="flex items-start gap-4">
+          <Shield className="w-10 h-10 flex-shrink-0" />
+          <div>
+            <h3 className="font-semibold text-lg mb-2">Safe Growth System</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+              <div className="flex items-center gap-2">
+                <BarChart3 className="w-5 h-5" />
+                <span><strong>Instagram Graph API</strong> for real analytics</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Lightbulb className="w-5 h-5" />
+                <span><strong>AI Targeting</strong> suggests who to engage</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <UserCheck className="w-5 h-5" />
+                <span><strong>Manual Actions</strong> by user (100% safe)</span>
+              </div>
             </div>
           </div>
-          <Button
-            onClick={handleExecuteBatch}
-            className="bg-white text-green-600 hover:bg-white/90"
-            disabled={!config?.is_active}
-          >
-            <Play className="w-4 h-4 mr-2" />
-            Run Growth Cycle
-          </Button>
         </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
         <StatCard icon={TrendingUp} label="Active Campaigns" value={stats?.active_campaigns || 0} color="from-green-500 to-emerald-500" />
-        <StatCard icon={Pause} label="Paused" value={stats?.paused_campaigns || 0} color="from-yellow-500 to-orange-500" />
-        <StatCard icon={Zap} label="Total Actions" value={stats?.total_actions?.toLocaleString() || 0} color="from-purple-500 to-pink-500" />
-        <StatCard icon={Activity} label="Today's Actions" value={stats?.today_actions || 0} color="from-blue-500 to-cyan-500" />
-        <StatCard icon={Users} label="Total Campaigns" value={stats?.total_campaigns || 0} color="from-pink-500 to-rose-500" />
+        <StatCard icon={Users} label="Total Campaigns" value={stats?.total_campaigns || 0} color="from-blue-500 to-cyan-500" />
+        <StatCard icon={Lightbulb} label="AI Suggestions" value={stats?.total_suggestions?.toLocaleString() || 0} color="from-purple-500 to-pink-500" />
+        <StatCard icon={CheckCircle} label="Manual Actions" value={stats?.total_manual_actions?.toLocaleString() || 0} color="from-orange-500 to-red-500" />
+        <StatCard icon={Zap} label="Today's Actions" value={stats?.today_manual_actions || 0} color="from-pink-500 to-rose-500" />
       </div>
 
-      {/* Daily Limits */}
+      {/* Targeting Settings */}
       <div className="bg-white rounded-xl p-6 shadow-sm mb-8">
         <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
-          <Sliders className="w-5 h-5 text-pink-500" />
-          Daily Action Limits (Safety Settings)
-        </h3>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <LimitCard icon={UserPlus} label="Follows" value={config?.daily_follow_limit || 200} color="text-green-500" />
-          <LimitCard icon={UserMinus} label="Unfollows" value={config?.daily_unfollow_limit || 100} color="text-red-500" />
-          <LimitCard icon={Heart} label="Likes" value={config?.daily_like_limit || 500} color="text-pink-500" />
-          <LimitCard icon={MessageCircle} label="Comments" value={config?.daily_comment_limit || 50} color="text-blue-500" />
-          <LimitCard icon={Eye} label="Story Views" value={config?.daily_story_view_limit || 300} color="text-purple-500" />
-        </div>
-      </div>
-
-      {/* Engine Settings Overview */}
-      <div className="bg-white rounded-xl p-6 shadow-sm mb-8">
-        <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
-          <Target className="w-5 h-5 text-blue-500" />
-          Engine Configuration
+          <Target className="w-5 h-5 text-pink-500" />
+          AI Targeting Configuration
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-gray-50 rounded-lg p-4">
-            <p className="text-sm text-gray-500">Engagement Mode</p>
-            <p className="text-lg font-semibold capitalize">{config?.engagement_mode || 'balanced'}</p>
+            <p className="text-sm text-gray-500">Daily Suggestions</p>
+            <p className="text-2xl font-bold">{config?.daily_target_suggestions || 50}</p>
           </div>
           <div className="bg-gray-50 rounded-lg p-4">
-            <p className="text-sm text-gray-500">Auto-Unfollow After</p>
-            <p className="text-lg font-semibold">{config?.auto_unfollow_days || 3} days</p>
+            <p className="text-sm text-gray-500">Targeting Accuracy</p>
+            <p className="text-2xl font-bold capitalize">{config?.targeting_accuracy || 'high'}</p>
           </div>
           <div className="bg-gray-50 rounded-lg p-4">
-            <p className="text-sm text-gray-500">Rest Between Actions</p>
-            <p className="text-lg font-semibold">{config?.rest_between_actions || 30} sec</p>
+            <p className="text-sm text-gray-500">Min Followers</p>
+            <p className="text-2xl font-bold">{config?.min_follower_count || 100}</p>
           </div>
           <div className="bg-gray-50 rounded-lg p-4">
-            <p className="text-sm text-gray-500">Max Following Ratio</p>
-            <p className="text-lg font-semibold">{config?.max_following_ratio || 1.5}x</p>
+            <p className="text-sm text-gray-500">Max Followers</p>
+            <p className="text-2xl font-bold">{(config?.max_follower_count || 50000).toLocaleString()}</p>
           </div>
         </div>
       </div>
@@ -198,10 +151,9 @@ const AdminGrowthEngine = () => {
               <tr>
                 <th className="text-left py-4 px-6 font-semibold">Account</th>
                 <th className="text-left py-4 px-6 font-semibold">User</th>
+                <th className="text-left py-4 px-6 font-semibold">Targeting</th>
                 <th className="text-left py-4 px-6 font-semibold">Status</th>
-                <th className="text-left py-4 px-6 font-semibold">Speed</th>
-                <th className="text-left py-4 px-6 font-semibold">Stats</th>
-                <th className="text-left py-4 px-6 font-semibold">Actions</th>
+                <th className="text-left py-4 px-6 font-semibold">Manual Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -215,6 +167,22 @@ const AdminGrowthEngine = () => {
                     <p className="text-sm">{campaign.user?.email || 'Unknown'}</p>
                   </td>
                   <td className="py-4 px-6">
+                    <div className="flex flex-wrap gap-1">
+                      {campaign.target_hashtags?.slice(0, 2).map((tag, i) => (
+                        <Badge key={i} className="bg-blue-100 text-blue-700 text-xs">
+                          <Hash className="w-3 h-3 mr-1" />
+                          {tag}
+                        </Badge>
+                      ))}
+                      {campaign.target_locations?.slice(0, 1).map((loc, i) => (
+                        <Badge key={i} className="bg-green-100 text-green-700 text-xs">
+                          <MapPin className="w-3 h-3 mr-1" />
+                          {loc}
+                        </Badge>
+                      ))}
+                    </div>
+                  </td>
+                  <td className="py-4 px-6">
                     <Badge className={
                       campaign.status === 'active' ? 'bg-green-100 text-green-700' :
                       campaign.status === 'paused' ? 'bg-yellow-100 text-yellow-700' :
@@ -223,23 +191,21 @@ const AdminGrowthEngine = () => {
                       {campaign.status}
                     </Badge>
                   </td>
-                  <td className="py-4 px-6 capitalize">{campaign.growth_speed}</td>
                   <td className="py-4 px-6">
                     <div className="flex gap-3 text-sm">
-                      <span className="text-green-600">{campaign.stats?.total_follows || 0} follows</span>
-                      <span className="text-pink-600">{campaign.stats?.total_likes || 0} likes</span>
+                      <span className="flex items-center gap-1 text-green-600">
+                        <UserPlus className="w-4 h-4" />
+                        {campaign.stats?.manual_follows || 0}
+                      </span>
+                      <span className="flex items-center gap-1 text-pink-600">
+                        <Heart className="w-4 h-4" />
+                        {campaign.stats?.manual_likes || 0}
+                      </span>
+                      <span className="flex items-center gap-1 text-blue-600">
+                        <MessageCircle className="w-4 h-4" />
+                        {campaign.stats?.manual_comments || 0}
+                      </span>
                     </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    {campaign.status === 'active' ? (
-                      <Button size="sm" variant="outline" onClick={() => handlePauseCampaign(campaign.id)}>
-                        <Pause className="w-4 h-4" />
-                      </Button>
-                    ) : campaign.status === 'paused' ? (
-                      <Button size="sm" className="bg-green-500 hover:bg-green-600" onClick={() => handleResumeCampaign(campaign.id)}>
-                        <Play className="w-4 h-4" />
-                      </Button>
-                    ) : null}
                   </td>
                 </tr>
               ))}
@@ -247,9 +213,9 @@ const AdminGrowthEngine = () => {
           </table>
         ) : (
           <div className="p-8 text-center">
-            <Zap className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <Target className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-500">No campaigns yet</p>
-            <p className="text-sm text-gray-400 mt-2">Users can start campaigns from their dashboard</p>
+            <p className="text-sm text-gray-400 mt-2">Users create campaigns from their dashboard</p>
           </div>
         )}
       </div>
@@ -257,17 +223,16 @@ const AdminGrowthEngine = () => {
       {/* Settings Modal */}
       {showSettings && editConfig && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowSettings(false)}>
-          <div className="bg-white rounded-2xl w-full max-w-2xl m-4 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+          <div className="bg-white rounded-2xl w-full max-w-lg m-4 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="p-6 border-b flex items-center justify-between">
               <h2 className="text-xl font-bold">Growth Engine Settings</h2>
               <Button variant="ghost" size="sm" onClick={() => setShowSettings(false)}>✕</Button>
             </div>
-            <div className="p-6 space-y-6">
-              {/* Engine Status */}
+            <div className="p-6 space-y-4">
               <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                 <div>
-                  <span className="font-medium">Growth Engine Active</span>
-                  <p className="text-sm text-gray-500">Enable or disable all growth activities</p>
+                  <span className="font-medium">Engine Active</span>
+                  <p className="text-sm text-gray-500">Enable AI targeting suggestions</p>
                 </div>
                 <input
                   type="checkbox"
@@ -277,21 +242,16 @@ const AdminGrowthEngine = () => {
                 />
               </div>
 
-              {/* Engagement Mode */}
               <div>
-                <label className="block text-sm font-medium mb-2">Engagement Mode</label>
-                <select
-                  value={editConfig.engagement_mode || 'balanced'}
-                  onChange={(e) => setEditConfig({...editConfig, engagement_mode: e.target.value})}
-                  className="w-full px-3 py-2 border rounded-lg"
-                >
-                  <option value="conservative">Conservative (Slower, safer)</option>
-                  <option value="balanced">Balanced (Recommended)</option>
-                  <option value="aggressive">Aggressive (Faster, more risk)</option>
-                </select>
+                <label className="block text-sm font-medium mb-2">Daily Target Suggestions</label>
+                <Input
+                  type="number"
+                  value={editConfig.daily_target_suggestions || 50}
+                  onChange={(e) => setEditConfig({...editConfig, daily_target_suggestions: parseInt(e.target.value)})}
+                />
+                <p className="text-xs text-gray-500 mt-1">AI suggestions per user per day</p>
               </div>
 
-              {/* Targeting Accuracy */}
               <div>
                 <label className="block text-sm font-medium mb-2">Targeting Accuracy</label>
                 <select
@@ -299,116 +259,49 @@ const AdminGrowthEngine = () => {
                   onChange={(e) => setEditConfig({...editConfig, targeting_accuracy: e.target.value})}
                   className="w-full px-3 py-2 border rounded-lg"
                 >
-                  <option value="low">Low (More volume, less targeted)</option>
+                  <option value="low">Low (More suggestions, broader)</option>
                   <option value="medium">Medium (Balanced)</option>
-                  <option value="high">High (Quality over quantity)</option>
+                  <option value="high">High (Fewer, more targeted)</option>
                 </select>
               </div>
 
-              {/* Daily Limits */}
-              <div>
-                <h4 className="font-medium mb-3">Daily Action Limits</h4>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm text-gray-600 mb-1">Follows</label>
-                    <Input
-                      type="number"
-                      value={editConfig.daily_follow_limit || 200}
-                      onChange={(e) => setEditConfig({...editConfig, daily_follow_limit: parseInt(e.target.value)})}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-gray-600 mb-1">Unfollows</label>
-                    <Input
-                      type="number"
-                      value={editConfig.daily_unfollow_limit || 100}
-                      onChange={(e) => setEditConfig({...editConfig, daily_unfollow_limit: parseInt(e.target.value)})}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-gray-600 mb-1">Likes</label>
-                    <Input
-                      type="number"
-                      value={editConfig.daily_like_limit || 500}
-                      onChange={(e) => setEditConfig({...editConfig, daily_like_limit: parseInt(e.target.value)})}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-gray-600 mb-1">Comments</label>
-                    <Input
-                      type="number"
-                      value={editConfig.daily_comment_limit || 50}
-                      onChange={(e) => setEditConfig({...editConfig, daily_comment_limit: parseInt(e.target.value)})}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-gray-600 mb-1">Story Views</label>
-                    <Input
-                      type="number"
-                      value={editConfig.daily_story_view_limit || 300}
-                      onChange={(e) => setEditConfig({...editConfig, daily_story_view_limit: parseInt(e.target.value)})}
-                    />
-                  </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Min Followers</label>
+                  <Input
+                    type="number"
+                    value={editConfig.min_follower_count || 100}
+                    onChange={(e) => setEditConfig({...editConfig, min_follower_count: parseInt(e.target.value)})}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Max Followers</label>
+                  <Input
+                    type="number"
+                    value={editConfig.max_follower_count || 50000}
+                    onChange={(e) => setEditConfig({...editConfig, max_follower_count: parseInt(e.target.value)})}
+                  />
                 </div>
               </div>
 
-              {/* Activity Schedule */}
               <div>
-                <h4 className="font-medium mb-3">Activity Schedule</h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm text-gray-600 mb-1">Start Hour (24h)</label>
-                    <Input
-                      type="number"
-                      min="0"
-                      max="23"
-                      value={editConfig.activity_hours_start || 8}
-                      onChange={(e) => setEditConfig({...editConfig, activity_hours_start: parseInt(e.target.value)})}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-gray-600 mb-1">End Hour (24h)</label>
-                    <Input
-                      type="number"
-                      min="0"
-                      max="23"
-                      value={editConfig.activity_hours_end || 22}
-                      onChange={(e) => setEditConfig({...editConfig, activity_hours_end: parseInt(e.target.value)})}
-                    />
-                  </div>
-                </div>
+                <label className="block text-sm font-medium mb-2">Min Engagement Rate (%)</label>
+                <Input
+                  type="number"
+                  step="0.1"
+                  value={editConfig.min_engagement_rate || 1.0}
+                  onChange={(e) => setEditConfig({...editConfig, min_engagement_rate: parseFloat(e.target.value)})}
+                />
               </div>
 
-              {/* Advanced Settings */}
-              <div>
-                <h4 className="font-medium mb-3">Advanced Settings</h4>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm text-gray-600 mb-1">Auto-Unfollow (days)</label>
-                    <Input
-                      type="number"
-                      value={editConfig.auto_unfollow_days || 3}
-                      onChange={(e) => setEditConfig({...editConfig, auto_unfollow_days: parseInt(e.target.value)})}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-gray-600 mb-1">Rest Between Actions (sec)</label>
-                    <Input
-                      type="number"
-                      value={editConfig.rest_between_actions || 30}
-                      onChange={(e) => setEditConfig({...editConfig, rest_between_actions: parseInt(e.target.value)})}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-gray-600 mb-1">Max Following Ratio</label>
-                    <Input
-                      type="number"
-                      step="0.1"
-                      value={editConfig.max_following_ratio || 1.5}
-                      onChange={(e) => setEditConfig({...editConfig, max_following_ratio: parseFloat(e.target.value)})}
-                    />
-                  </div>
-                </div>
+              <div className="flex items-center justify-between">
+                <span>Exclude Private Accounts</span>
+                <input
+                  type="checkbox"
+                  checked={editConfig.exclude_private_accounts}
+                  onChange={(e) => setEditConfig({...editConfig, exclude_private_accounts: e.target.checked})}
+                  className="w-5 h-5"
+                />
               </div>
 
               <Button onClick={handleSaveConfig} disabled={saving} className="w-full bg-pink-500 hover:bg-pink-600">
@@ -433,16 +326,6 @@ const StatCard = ({ icon: Icon, label, value, color }) => (
         <p className="text-sm text-gray-500">{label}</p>
         <p className="text-2xl font-bold">{value}</p>
       </div>
-    </div>
-  </div>
-);
-
-const LimitCard = ({ icon: Icon, label, value, color }) => (
-  <div className="bg-gray-50 rounded-lg p-4 flex items-center gap-3">
-    <Icon className={`w-6 h-6 ${color}`} />
-    <div>
-      <p className="text-sm text-gray-500">{label}</p>
-      <p className="text-xl font-bold">{value}/day</p>
     </div>
   </div>
 );
