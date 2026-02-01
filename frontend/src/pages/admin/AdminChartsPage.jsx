@@ -301,9 +301,10 @@ const AdminChartsPage = () => {
           <h3 className="text-lg font-semibold mb-6 flex items-center gap-2">
             <PieChart className="w-5 h-5 text-pink-500" />
             Traffic Sources
+            {gaData?.configured && <Badge className="bg-green-100 text-green-700 text-xs ml-2">Live GA4</Badge>}
           </h3>
           <div className="space-y-4">
-            {trafficSources && Object.entries(trafficSources).map(([key, source]) => (
+            {displayTrafficSources && Object.entries(displayTrafficSources).map(([key, source]) => (
               <div key={key} className="flex items-center gap-3">
                 <div
                   className="w-4 h-4 rounded-full"
