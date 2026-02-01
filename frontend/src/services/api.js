@@ -69,7 +69,9 @@ export const authAPI = {
   resetPassword: (token, password) => api.post('/auth/reset-password', { token, password }),
   getMe: () => api.get('/auth/me'),
   // Google OAuth
-  googleSession: (sessionId) => api.post('/auth/google/session', { session_id: sessionId }),
+  getGoogleConfig: () => api.get('/auth/google/config'),
+  googleCallback: (code, redirectUri) => api.post('/auth/google/callback', { code, redirect_uri: redirectUri }),
+  googleTokenSignin: (idToken) => api.post('/auth/google/token', { id_token: idToken }),
   googleLogout: () => api.post('/auth/google/logout'),
   updateMe: (data) => api.put('/auth/me', data),
   // 2FA
