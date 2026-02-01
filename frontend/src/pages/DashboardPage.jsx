@@ -466,7 +466,20 @@ const DashboardPage = () => {
   };
 
   // Use actual stats or defaults
-  const displayStats = stats || defaultStats;
+  const displayStats = stats ? {
+    ...stats,
+    // Map API fields to display fields
+    followers: stats.followers_count || stats.followers || 0,
+    followersGrowth: stats.followers_gained_today || stats.followersGrowth || 0,
+    reach: stats.reach_today || stats.reach || 0,
+    reachGrowth: stats.reach_this_week ? Math.round((stats.reach_today / (stats.reach_this_week / 7)) * 100 - 100) : 0,
+    profileVisits: stats.profile_visits_today || stats.profileVisits || 0,
+    profileVisitsGrowth: stats.profile_visits_this_week ? Math.round((stats.profile_visits_today / (stats.profile_visits_this_week / 7)) * 100 - 100) : 0,
+    followers_this_week: stats.followers_this_week || stats.followers_gained_this_week || 0,
+    followers_this_month: stats.followers_this_month || stats.followers_gained_this_month || 0,
+    impressions: stats.impressions_today || 0,
+    website_clicks: stats.website_clicks_today || 0
+  } : defaultStats;
 
   const statsCards = [
     {
