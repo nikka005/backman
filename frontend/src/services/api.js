@@ -495,13 +495,21 @@ export const googleAnalyticsAPI = {
 export const growthEngineAPI = {
   getConfig: () => api.get('/growth-engine/config'),
   updateConfig: (config) => api.put('/growth-engine/config', config),
-  startCampaign: (campaign) => api.post('/growth-engine/campaigns/start', campaign),
+  // User campaigns
+  createCampaign: (campaign) => api.post('/growth-engine/campaigns/create', campaign),
+  startCampaign: (campaign) => api.post('/growth-engine/campaigns/create', campaign),
   pauseCampaign: (campaignId) => api.post(`/growth-engine/campaigns/${campaignId}/pause`),
   resumeCampaign: (campaignId) => api.post(`/growth-engine/campaigns/${campaignId}/resume`),
   stopCampaign: (campaignId) => api.delete(`/growth-engine/campaigns/${campaignId}`),
   getCampaigns: () => api.get('/growth-engine/campaigns'),
   getCampaign: (campaignId) => api.get(`/growth-engine/campaigns/${campaignId}`),
   getCampaignStats: (campaignId) => api.get(`/growth-engine/campaigns/${campaignId}/stats`),
+  // AI Suggestions
+  getCampaignSuggestions: (campaignId, count = 20) => api.get(`/growth-engine/campaigns/${campaignId}/suggestions`, { params: { count } }),
+  logAction: (campaignId, action) => api.post(`/growth-engine/campaigns/${campaignId}/log-action`, action),
+  getActionHistory: (campaignId, limit = 50) => api.get(`/growth-engine/campaigns/${campaignId}/action-history`, { params: { limit } }),
+  // Analytics
+  getAnalytics: (campaignId) => api.get(`/growth-engine/analytics/${campaignId}`),
   // Admin
   getAllCampaigns: (status, limit = 50) => api.get('/growth-engine/admin/all-campaigns', { params: { status, limit } }),
   getEngineStats: () => api.get('/growth-engine/admin/stats'),
