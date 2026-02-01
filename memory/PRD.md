@@ -216,7 +216,8 @@ Build and maintain a full-stack SaaS platform for Instagram growth services. The
 - [ ] Google Analytics integration for real traffic data
 
 ### P2 - Medium Priority
-- [ ] Real Instagram Growth Engine API connection
+- [x] ~~Real Instagram Growth Engine API~~ - Admin manageable
+- [x] ~~Google Analytics Integration~~ - GA4 Data API
 - [ ] Automated subscription renewal scheduler (cron job)
 - [ ] Export functionality for analytics
 - [ ] Advanced reporting and insights
