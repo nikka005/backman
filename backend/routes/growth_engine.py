@@ -28,16 +28,19 @@ def init_router(database):
 # ============== Models ==============
 
 class GrowthEngineConfig(BaseModel):
-    api_provider: str = "internal"  # internal, socialbee, kicksta, etc.
-    api_key: Optional[str] = None
-    api_secret: Optional[str] = None
-    api_endpoint: Optional[str] = None
     is_active: bool = True
     daily_follow_limit: int = 200
     daily_unfollow_limit: int = 100
     daily_like_limit: int = 500
     daily_comment_limit: int = 50
+    daily_story_view_limit: int = 300
     targeting_accuracy: str = "high"  # low, medium, high
+    auto_unfollow_days: int = 3  # Unfollow non-followers after X days
+    engagement_mode: str = "balanced"  # conservative, balanced, aggressive
+    activity_hours_start: int = 8  # Start hour (24h format)
+    activity_hours_end: int = 22  # End hour (24h format)
+    rest_between_actions: int = 30  # Seconds between actions
+    max_following_ratio: float = 1.5  # Max following/followers ratio
 
 
 class GrowthCampaign(BaseModel):
