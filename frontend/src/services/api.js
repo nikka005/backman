@@ -418,4 +418,61 @@ export const aiAnalyticsAPI = {
   getWeeklySummary: () => api.get('/ai-analytics/weekly-summary'),
 };
 
+// Subscription Renewals API
+export const renewalsAPI = {
+  getDueRenewals: () => api.get('/subscription-renewals/due'),
+  processRenewal: (subscriptionId) => api.post(`/subscription-renewals/process/${subscriptionId}`),
+  processAllDue: () => api.post('/subscription-renewals/process-all'),
+  getRenewalHistory: (subscriptionId, limit = 50) => api.get('/subscription-renewals/history', { params: { subscription_id: subscriptionId, limit } }),
+  getSettings: () => api.get('/subscription-renewals/settings'),
+  updateSettings: (settings) => api.put('/subscription-renewals/settings', settings),
+  getUpcomingRenewals: (days = 7) => api.get('/subscription-renewals/upcoming-renewals', { params: { days } }),
+};
+
+// Refund Management API
+export const refundsAPI = {
+  createRequest: (data) => api.post('/refunds/request', data),
+  getRefunds: (status, limit = 50, skip = 0) => api.get('/refunds/', { params: { status, limit, skip } }),
+  getRefund: (refundId) => api.get(`/refunds/${refundId}`),
+  approveRefund: (refundId, data) => api.post(`/refunds/${refundId}/approve`, data),
+  processRefund: (refundId) => api.post(`/refunds/${refundId}/process`),
+  getStats: () => api.get('/refunds/stats/summary'),
+};
+
+// Invoices API
+export const invoicesAPI = {
+  getForPayment: (paymentId, format = 'html') => api.get(`/invoices/payment/${paymentId}`, { params: { format }, responseType: format === 'pdf' ? 'blob' : 'text' }),
+  getForSubscription: (subscriptionId, format = 'html') => api.get(`/invoices/subscription/${subscriptionId}`, { params: { format }, responseType: format === 'pdf' ? 'blob' : 'text' }),
+  getMyInvoices: (limit = 20) => api.get('/invoices/my-invoices', { params: { limit } }),
+  getAllInvoices: (limit = 50, skip = 0) => api.get('/invoices/admin/all', { params: { limit, skip } }),
+  generateInvoice: (paymentId) => api.post(`/invoices/generate/${paymentId}`),
+};
+
+// Internationalization API
+export const i18nAPI = {
+  getLanguages: () => api.get('/i18n/languages'),
+  getTranslations: (lang) => api.get(`/i18n/translations/${lang}`),
+  getSettings: () => api.get('/i18n/settings'),
+  updateSettings: (settings) => api.put('/i18n/settings', settings),
+  updateTranslations: (lang, translations) => api.put(`/i18n/translations/${lang}`, translations),
+  updateSingleTranslation: (lang, key, value) => api.post(`/i18n/translations/${lang}/key`, { key, value }),
+  getUserPreference: () => api.get('/i18n/user-preference'),
+  setUserPreference: (lang) => api.put(`/i18n/user-preference?lang=${lang}`),
+  detectLanguage: () => api.get('/i18n/detect'),
+};
+
+// Admin Charts API
+export const adminChartsAPI = {
+  getRevenue: (days = 30) => api.get('/admin/charts/revenue', { params: { days } }),
+  getUsers: (days = 30) => api.get('/admin/charts/users', { params: { days } }),
+  getSubscriptions: (days = 30) => api.get('/admin/charts/subscriptions', { params: { days } }),
+  getTraffic: (days = 30) => api.get('/admin/charts/traffic', { params: { days } }),
+  getTrafficSources: () => api.get('/admin/charts/traffic-sources'),
+  getTopPages: (limit = 10) => api.get('/admin/charts/top-pages', { params: { limit } }),
+  getConversionFunnel: (days = 30) => api.get('/admin/charts/conversion-funnel', { params: { days } }),
+  getGeographic: () => api.get('/admin/charts/geographic'),
+  getRealtime: () => api.get('/admin/charts/realtime'),
+  getDashboardSummary: () => api.get('/admin/charts/dashboard-summary'),
+};
+
 export default api;
